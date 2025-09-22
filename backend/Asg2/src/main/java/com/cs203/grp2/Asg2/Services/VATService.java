@@ -5,7 +5,7 @@ import org.springframework.web.client.RestTemplate;
 import sg.edu.smu.cs203.g12.cs203g12tariff.models.VatResponse;
 
 @Service
-public class VatService {
+public class VATService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
