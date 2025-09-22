@@ -1,6 +1,7 @@
 package CS203AsgG2.backend.Asg2.src.main.java.com.cs203.grp2.Asg2.Services;
 
-import sg.edu.smu.cs203.g12.cs203g12tariff.models.TradeAgreement;
+//
+import CS203AsgG2.backend.Asg2.src.main.java.com.cs203.grp2.Asg2.Models;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
