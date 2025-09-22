@@ -1,4 +1,4 @@
-package CS203AsgG2/backend/Asg2/src/main/java/com/cs203/grp2/Asg2/Services;
+package CS203AsgG2.backend.Asg2.src.main.java.com.cs203.grp2.Asg2.Services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
