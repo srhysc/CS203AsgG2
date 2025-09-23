@@ -19,11 +19,10 @@ api.interceptors.request.use(
   error => Promise.reject(error)
 );
 
-export const productService = {
-  getAll: () => api.get('/tariffs'),
-  getById: (id) => api.get(`/tariffs/${id}`),
-  create: (data) => api.post('/tariffs', data),
-  update: (id, data) => api.put(`/tariffs/${id}`, data),
-  delete: (id) => api.delete(`/tariffs/${id}`)
+export const countryService = {
+  getAll: () => api.get('/countries').then(res => res.data),
+  getByCode: (iso6code) => api.get(`/countries/${iso6code}`).then(res => res.data),
+  create: (data) => api.post('/countries', data).then(res => res.data),
 };
+
 export default api;
