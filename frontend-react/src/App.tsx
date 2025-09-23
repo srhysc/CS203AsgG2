@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useState} from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { Layout } from '@/components/pages/layout';
 
 function App() {
+
   return (
     <Layout>
       <div className="App">
