@@ -1,5 +1,5 @@
 // src/main/java/com/cs203/grp2/Asg2/SecurityConfig.java
-package com.cs203.grp2.Asg2;
+package com.cs203.grp2.Asg2.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,7 @@ public class SecurityConfig {
     http
       .csrf(csrf -> csrf.disable())
       .authorizeHttpRequests(auth -> auth
-        .requestMatchers("/tariffs/**", "/actuator/health").permitAll()
+        .requestMatchers("/tariffs/**", "/actuator/health","/vat").permitAll()
         .anyRequest().authenticated()
       )
       .httpBasic(); // keep basic auth for everything else

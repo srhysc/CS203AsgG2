@@ -20,9 +20,7 @@ api.interceptors.request.use(
 );
 
 export const countryService = {
-  getAll: () => api.get('/countries').then(res => res.data),
-  getByCode: (iso6code) => api.get(`/countries/${iso6code}`).then(res => res.data),
-  create: (data) => api.post('/countries', data).then(res => res.data),
+  getAll: () => api.get('/vat').then(res => res.data)
 };
 
 export default api;
