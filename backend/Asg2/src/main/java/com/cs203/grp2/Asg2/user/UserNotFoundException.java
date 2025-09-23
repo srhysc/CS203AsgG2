@@ -1,10 +1,11 @@
-public class UserNotFoundException {
-    @ResponseStatus(HttpStatus.NOT_FOUND) // 404 Error
-    public class ReviewNotFoundException extends RuntimeException{
-        private static final long serialVersionUID = 1L;
+package com.cs203.grp2.Asg2.user;
 
-        public ReviewNotFoundException(Long id) {
-            super("Could not find user " + id);
-        }
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class UserNotFoundException extends RuntimeException {
+    public UserNotFoundException(String message) {
+        super(message);
     }
 }
