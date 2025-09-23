@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { countryService } from '../services/api';
 
 
-const CountryList = () => {
+
+const CountryTariffList = () => {
+
   const [countries, setCountries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,6 +25,7 @@ const CountryList = () => {
     fetchCountries();
   }, []);
 
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
   return (
@@ -33,10 +36,10 @@ const CountryList = () => {
           <p>No countries found</p>
         ) : (
           countries.map(country => (
-            <div className="col-md-4 mb-3" key={country.iso6Code}>
+            <div className="col-md-4 mb-3" key={country.country}>
               <div className="card">
                 <div className="card-body">
-                  <h5 className="card-title">{country.iso6Code} : {country.name}</h5>
+                  <h5 className="card-title">{country.country} : {country.vatRate}</h5>
                 </div>
               </div>
             </div>
@@ -47,4 +50,4 @@ const CountryList = () => {
   );
 };
 
-export default CountryList;
+export default CountryTariffList;

@@ -4,7 +4,7 @@ import './App.css';
 import { Layout } from '@/components/pages/layout';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import CountryList from '@/services/countryList';
+import CountryTariffList from '@/services/CountryTariffList';
 
 function App() {
 
@@ -30,7 +30,7 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<h2>Welcome to the App</h2>} />
-            <Route path="/countries" element = {<CountryList />} />
+            <Route path="/vat" element = {<CountryTariffList />} />
           </Routes>
         </main>
       </div>
