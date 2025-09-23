@@ -32,10 +32,10 @@ const items = [
 
 export function AppSideBar(){
     return(
-        <Sidebar>
+      <Sidebar className="w-64 h-screen border-r bg-gray-900 text-white">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>Welcome to Tariff Calculator</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
