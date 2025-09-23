@@ -5,10 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 
 public class VAT {
 
-    @NotBlank(message = "Country must not be blank")
+    @NotBlank(message = "Country cannot be blank")
     private String country;
 
-    @Min(value = 0, message = "VAT rate must be zero or positive")
+    @Min(value = 0, message = "VAT rate must be >= 0")
     private double vatRate;
 
     public VAT() {}

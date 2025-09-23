@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+
 @RestController
 @RequestMapping("/vat")
 @Validated
@@ -17,9 +19,12 @@ public class VATController {
         this.vatService = vatService;
     }
 
-    // GET /vat?country=France
+    // GET /vat?country=France  OR GET /vat to get all VAT rates
     @GetMapping
-    public VAT getVatRate(@RequestParam("country") @NotBlank String country) {
+    public Object getVatRate(@RequestParam(value = "country", required = false) String country) {
+        if (country == null || country.isBlank()) {
+            return vatService.getAllVatRates();
+        }
         VAT vat = vatService.getVatRate(country);
         if (vat == null) {
             throw new VATNotFoundException("VAT rate not found for country: " + country);
@@ -27,7 +32,7 @@ public class VATController {
         return vat;
     }
 
-    // POST /vat
+    // POST /vat to add or update VAT
     @PostMapping
     public void addOrUpdateVatRate(@RequestBody @Valid VAT vat) {
         vatService.addOrUpdateVatRate(vat);
