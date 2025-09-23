@@ -1,27 +1,49 @@
 package com.cs203.grp2.Asg2.country;
 
-import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CountryService {
-    private final Map<Integer, Country> countries = new HashMap<>();
 
-    public CountryService() {
-        // Pre-load some countries with ISO6code as key
-        countries.put(250, new Country("France", 250));
-        countries.put(276, new Country("Germany", 276));
+    private final List<Country> countries = new ArrayList<>();
+
+    // Add a new country
+    public Country addCountry(Country country) {
+        countries.add(country);
+        return country;
     }
 
-    public Country getCountryByCode(int iso6code) {
-        return countries.get(iso6code);
+    // Get all countries
+    public List<Country> getAllCountries() {
+        return countries;
     }
 
-    public void addCountry(Country country) {
-        countries.put(country.getISO6code(), country);
+    // Find a country by iso6Code
+    public Optional<Country> getCountryByISO6code(int iso6Code) {
+        return countries.stream()
+                .filter(c -> c.getIso6Code() == iso6Code)
+                .findFirst();
     }
 
-    // You can add update/delete methods here as needed
+    // Update a country by iso6Code
+    public boolean updateCountry(int iso6Code, Country updatedCountry) {
+        Optional<Country> existing = getCountryByISO6code(iso6Code);
+        if (existing.isPresent()) {
+            Country country = existing.get();
+            country.setName(updatedCountry.getName());
+            // Usually, iso6Code should not be changed - commenting out
+            // country.setIso6Code(updatedCountry.getIso6Code());
+            return true;
+        }
+        return false;
+    }
+
+    // Remove a country by iso6Code
+    public boolean deleteCountry(int iso6Code) {
+        return countries.removeIf(c -> c.getIso6Code() == iso6Code);
+    }
 }

@@ -26,8 +26,12 @@ public class ShippingFeesService {
         if (fee == null) {
             return null;
         }
-        // Return new ShippingFees with hardcoded fee and countries
         return new ShippingFees(fee, importingCountry, exportingCountry);
+    }
+
+    public void addShippingFee(ShippingFees shippingFees) {
+        feesMap.put(new ShippingRouteKey(shippingFees.getImportingCountry(), shippingFees.getExportingCountry()),
+                shippingFees.getFee());
     }
 
     private static class ShippingRouteKey {
@@ -54,4 +58,3 @@ public class ShippingFeesService {
         }
     }
 }
-

@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Min;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+
 @RestController
 @RequestMapping("/countries")
 @Validated
@@ -18,12 +20,15 @@ public class CountryController {
 
     // GET /countries/{iso6code}
     @GetMapping("/{iso6code}")
-    public Country getCountryByCode(@PathVariable @Min(1) int iso6code) {
-        Country country = svc.getCountryByCode(iso6code);
-        if (country == null) {
-            throw new CountryNotFoundException("Country not found for code: " + iso6code);
-        }
-        return country;
+    public Country getCountryByCode(@PathVariable("iso6code") @Min(1) int iso6Code) {
+        return svc.getCountryByISO6code(iso6Code)
+                .orElseThrow(() -> new CountryNotFoundException("Country not found for code: " + iso6Code));
+    }
+
+    // GET /countries (all countries)
+    @GetMapping
+    public Collection<Country> getAllCountries() {
+        return svc.getAllCountries();
     }
 
     // POST /countries
