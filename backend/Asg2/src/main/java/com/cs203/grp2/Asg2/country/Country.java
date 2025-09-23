@@ -1,22 +1,28 @@
 package com.cs203.grp2.Asg2.country;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-
 public class Country {
 
-    @NotBlank(message = "Name must not be blank")
+    private int iso6Code;
     private String name;
 
-    @Min(value = 1, message = "ISO6code must be positive")
-    private int ISO6code;
-
+    // Default constructor
     public Country() {
     }
 
-    public Country(String name, int ISO6code) {
+    // Constructor with fields
+    public Country(int iso6Code, String name) {
+        this.iso6Code = iso6Code;
         this.name = name;
-        this.ISO6code = ISO6code;
+    }
+
+    // Getters and setters
+
+    public int getIso6Code() {
+        return iso6Code;
+    }
+
+    public void setIso6Code(int iso6Code) {
+        this.iso6Code = iso6Code;
     }
 
     public String getName() {
@@ -27,19 +33,11 @@ public class Country {
         this.name = name;
     }
 
-    public int getISO6code() {
-        return ISO6code;
-    }
-
-    public void setISO6code(int ISO6code) {
-        this.ISO6code = ISO6code;
-    }
-
     @Override
     public String toString() {
         return "Country{" +
-                "name='" + name + '\'' +
-                ", ISO6code=" + ISO6code +
+                "iso6Code=" + iso6Code +
+                ", name='" + name + '\'' +
                 '}';
     }
 }
