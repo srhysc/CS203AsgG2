@@ -1,10 +1,15 @@
-import React from 'react';
+import React, {useState} from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { Layout } from '@/components/pages/layout';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import CountryTariffList from '@/services/CountryTariffList';
 
 function App() {
+
   return (
+    <Router>
     <Layout>
       <div className="App">
         <header className="App-header">
@@ -21,8 +26,16 @@ function App() {
             Learn React
           </a>
         </header>
+
+        <main>
+          <Routes>
+            <Route path="/" element={<h2>Welcome to the App</h2>} />
+            <Route path="/vat" element = {<CountryTariffList />} />
+          </Routes>
+        </main>
       </div>
     </Layout>
+    </Router>
   );
 }
 

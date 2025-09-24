@@ -1,13 +1,13 @@
 // src/components/Layout.tsx
+import { Home, Search, Calculator } from "lucide-react"
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 
-import { Home, Search } from "lucide-react"
 
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarHeader,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar"
 
 const items = [
-  {
+  { 
     title: "Home",
     url: "#",
     icon: Home,
@@ -28,14 +28,20 @@ const items = [
     icon: Search,
   },
 
+  {
+    title: "Tariff Calculator",
+    url: "/tariff-calculator", 
+    icon: Calculator,
+  },
+
 ]
 
 export function AppSideBar(){
     return(
-        <Sidebar>
+      <Sidebar className="w-64 h-screen border-r bg-gray-900 text-white">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>Welcome to Tariff Calculator</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
@@ -52,6 +58,16 @@ export function AppSideBar(){
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+     <SidebarFooter>
+        <SignedOut>
+        <SignInButton />
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
+    </SidebarFooter>
+
     </Sidebar>
     )
 }
