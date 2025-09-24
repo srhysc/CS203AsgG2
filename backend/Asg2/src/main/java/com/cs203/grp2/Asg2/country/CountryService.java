@@ -8,6 +8,19 @@ import java.util.List;
 @Service
 public class CountryService {
 
+    /*private final CountryRepository repo;
+     * public CountryService(CountryRepository repo) {
+     *   this.repo = repo;
+     * }
+     * 
+     * public List<Country> getAllCountries() {
+     *   return repo.findAll();
+     * }
+     * 
+     * public Country getCountryByISO3n(int iso3n) {
+     *   return repo.findByIso3n(iso3n).orElseThrow(() -> new CountryNotFoundException("Country not found: " + iso3n));
+    */
+
     private final List<Country> countries = new ArrayList<>();
 
     public CountryService() {
