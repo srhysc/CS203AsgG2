@@ -1,26 +1,22 @@
 package com.cs203.grp2.Asg2.country;
 
 public class Country {
-
-    private int iso6Code;
+    private int iso3n;   // numeric ISO code
     private String name;
-    private double vatRate;  // new VAT rate field
+    private double vatRate;
 
-    public Country() {
-    }
-
-    public Country(int iso6Code, String name, double vatRate) {
-        this.iso6Code = iso6Code;
+    public Country(int iso3n, String name, double vatRate) {
+        this.iso3n = iso3n;
         this.name = name;
         this.vatRate = vatRate;
     }
 
-    public int getIso6Code() {
-        return iso6Code;
+    public int getIso3n() {
+        return iso3n;
     }
 
-    public void setIso6Code(int iso6Code) {
-        this.iso6Code = iso6Code;
+    public void setIso3n(int iso3n) {
+        this.iso3n = iso3n;
     }
 
     public String getName() {
@@ -37,14 +33,5 @@ public class Country {
 
     public void setVatRate(double vatRate) {
         this.vatRate = vatRate;
-    }
-
-    @Override
-    public String toString() {
-        return "Country{" +
-                "iso6Code=" + iso6Code +
-                ", name='" + name + '\'' +
-                ", vatRate=" + vatRate +
-                '}';
     }
 }
