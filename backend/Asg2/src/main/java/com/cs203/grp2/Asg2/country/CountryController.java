@@ -21,7 +21,7 @@ public class CountryController {
 
     // Use numeric ISO3 code in path
     @GetMapping("/{iso3n}")
-    public Country getCountryByISO3n(@PathVariable int iso3n) {
+    public Country getCountryByISO3n(@PathVariable @Min(1) @Max(999) int iso3n) {
         return svc.getCountryByISO3n(iso3n);
     }
 }

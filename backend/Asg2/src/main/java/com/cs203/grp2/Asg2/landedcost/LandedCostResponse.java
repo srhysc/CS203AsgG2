@@ -1,6 +1,9 @@
 package com.cs203.grp2.Asg2.landedcost;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class LandedCostResponse {
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.00")
     private double totalCost;
     private String currency;
 
