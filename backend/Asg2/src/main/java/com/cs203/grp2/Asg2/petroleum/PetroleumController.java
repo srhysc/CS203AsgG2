@@ -20,7 +20,7 @@ public class PetroleumController {
     }
 
     @GetMapping("/{hsCode}")
-    public Petroleum getPetroleumByHsCode(@PathVariable String hsCode) {
+    public Petroleum getPetroleumByHsCode(@PathVariable @Pattern(regexp = "\\d{4,6}") String hsCode) {
         return service.getPetroleumByHsCode(hsCode);
     }
 }
