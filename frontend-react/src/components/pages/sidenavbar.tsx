@@ -1,6 +1,6 @@
 // src/components/Layout.tsx
 
-import { Home, Search } from "lucide-react"
+import { Home, Search, Calculator } from "lucide-react"
 
 import {
   Sidebar,
@@ -26,6 +26,12 @@ const items = [
     title: "Tariff Search",
     url: "#",
     icon: Search,
+  },
+
+  {
+    title: "Tariff Calculator",
+    url: "/tariff-calculator", 
+    icon: Calculator,
   },
 
 ]
