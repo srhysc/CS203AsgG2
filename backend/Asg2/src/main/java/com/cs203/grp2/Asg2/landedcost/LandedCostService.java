@@ -47,8 +47,8 @@ public class LandedCostService {
                     "aveestimated"
             ).getSimpleAverage() / 100.0; // convert percent to decimal
         } catch (Exception e) {
-            logger.warn("WITS tariff unavailable, using fallback 10%");
-            tariffRate = 0.1; // fallback
+            logger.warn("No tariff available. Using fallback of 0%.");
+            tariffRate = 0.0; // fallback
         }
 
         double tariff = baseCost * tariffRate;
