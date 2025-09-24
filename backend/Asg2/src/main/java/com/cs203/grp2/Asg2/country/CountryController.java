@@ -1,6 +1,8 @@
 package com.cs203.grp2.Asg2.country;
 
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 
 import java.util.List;
 
