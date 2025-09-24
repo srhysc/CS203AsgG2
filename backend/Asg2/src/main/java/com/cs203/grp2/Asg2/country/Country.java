@@ -4,18 +4,16 @@ public class Country {
 
     private int iso6Code;
     private String name;
+    private double vatRate;  // new VAT rate field
 
-    // Default constructor
     public Country() {
     }
 
-    // Constructor with fields
-    public Country(int iso6Code, String name) {
+    public Country(int iso6Code, String name, double vatRate) {
         this.iso6Code = iso6Code;
         this.name = name;
+        this.vatRate = vatRate;
     }
-
-    // Getters and setters
 
     public int getIso6Code() {
         return iso6Code;
@@ -33,11 +31,20 @@ public class Country {
         this.name = name;
     }
 
+    public double getVatRate() {
+        return vatRate;
+    }
+
+    public void setVatRate(double vatRate) {
+        this.vatRate = vatRate;
+    }
+
     @Override
     public String toString() {
         return "Country{" +
                 "iso6Code=" + iso6Code +
                 ", name='" + name + '\'' +
+                ", vatRate=" + vatRate +
                 '}';
     }
 }

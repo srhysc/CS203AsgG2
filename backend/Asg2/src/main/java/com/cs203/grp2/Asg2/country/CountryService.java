@@ -11,6 +11,14 @@ public class CountryService {
 
     private final List<Country> countries = new ArrayList<>();
 
+    public CountryService() {
+        // Add fake/sample data here
+        countries.add(new Country(840, "United States", 7.5));
+        countries.add(new Country(124, "Canada", 5.0));
+        countries.add(new Country(276, "Germany", 19.0));
+        countries.add(new Country(356, "India", 18.0));
+    }
+    
     // Add a new country
     public Country addCountry(Country country) {
         countries.add(country);
@@ -30,17 +38,16 @@ public class CountryService {
     }
 
     // Update a country by iso6Code
-    public boolean updateCountry(int iso6Code, Country updatedCountry) {
-        Optional<Country> existing = getCountryByISO6code(iso6Code);
-        if (existing.isPresent()) {
-            Country country = existing.get();
-            country.setName(updatedCountry.getName());
-            // Usually, iso6Code should not be changed - commenting out
-            // country.setIso6Code(updatedCountry.getIso6Code());
-            return true;
-        }
-        return false;
+   public boolean updateCountry(int iso6Code, Country updatedCountry) {
+    Optional<Country> existing = getCountryByISO6code(iso6Code);
+    if (existing.isPresent()) {
+        Country country = existing.get();
+        country.setName(updatedCountry.getName());
+        country.setVatRate(updatedCountry.getVatRate());  // update VAT rate here
+        return true;
     }
+    return false;
+}
 
     // Remove a country by iso6Code
     public boolean deleteCountry(int iso6Code) {
