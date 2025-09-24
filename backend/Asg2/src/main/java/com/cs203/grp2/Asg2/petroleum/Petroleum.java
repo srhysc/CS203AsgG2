@@ -1,48 +1,25 @@
 package com.cs203.grp2.Asg2.petroleum;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-
-@Entity
 public class Petroleum {
-
-    @Id
-    private String hsCode;   // assuming HS code is a string (e.g., "270900")
-
     private String name;
+    private String hsCode;
     private double pricePerUnit;
 
-    public Petroleum() {}
-
-    public Petroleum(String hsCode, String name, double pricePerUnit) {
-        this.hsCode = hsCode;
+    public Petroleum(String name, String hsCode, double pricePerUnit) {
         this.name = name;
-        this.pricePerUnit = pricePerUnit;
-    }
-
-    // Getters and Setters
-
-    public String getHsCode() {
-        return hsCode;
-    }
-
-    public void setHsCode(String hsCode) {
         this.hsCode = hsCode;
+        this.pricePerUnit = pricePerUnit;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getHsCode() {
+        return hsCode;
     }
 
     public double getPricePerUnit() {
         return pricePerUnit;
-    }
-
-    public void setPricePerUnit(double pricePerUnit) {
-        this.pricePerUnit = pricePerUnit;
     }
 }
