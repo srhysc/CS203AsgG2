@@ -12,18 +12,26 @@ public class User {
     private Long id;
 
     @NotBlank(message = "Username is required")
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String username;
 
     @NotBlank(message = "Email is required")
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @NotBlank(message = "Password is required")
+    @Column(nullable = false)
     private String password;
 
+    public ENUM Role {
+        USER,
+        ADMIN
+    }
+    @Enumerated(EnumType.STRING)
     @NotBlank(message = "Role is required")
-    private String role;
+    @Column(nullable = false)
+
+    private Role role;
 
     public User() {}
 
