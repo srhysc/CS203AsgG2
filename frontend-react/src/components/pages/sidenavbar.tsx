@@ -1,13 +1,13 @@
 // src/components/Layout.tsx
+import { Home, Search } from "lucide-react"
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 
-import { Home, Search, Calculator } from "lucide-react"
 
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarHeader,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar"
 
 const items = [
-  {
+  { 
     title: "Home",
     url: "#",
     icon: Home,
@@ -58,6 +58,16 @@ export function AppSideBar(){
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+     <SidebarFooter>
+        <SignedOut>
+        <SignInButton />
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
+    </SidebarFooter>
+
     </Sidebar>
     )
 }
