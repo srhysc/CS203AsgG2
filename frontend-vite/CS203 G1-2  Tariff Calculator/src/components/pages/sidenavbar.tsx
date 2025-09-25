@@ -30,7 +30,7 @@ const items = [
 
   {
     title: "Tariff Calculator",
-    url: "/tariff-calculator", 
+    url: "/calculator", 
     icon: Calculator,
   },
 

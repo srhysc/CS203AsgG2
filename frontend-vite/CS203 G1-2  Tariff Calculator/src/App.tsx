@@ -2,6 +2,7 @@ import './App.css';
 import { Layout } from '@/components/pages/layout';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import CountryTariffList from '@/services/CountryTariffList';
+import TariffCalculator from './services/TariffCalculator';
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
           <Routes>
             <Route path="/" element={<h2>Welcome to the App</h2>} />
             <Route path="/vat" element = {<CountryTariffList />} />
+            <Route path="/calculator" element={<TariffCalculator />}/>
           </Routes>
         </main>
       </div>
