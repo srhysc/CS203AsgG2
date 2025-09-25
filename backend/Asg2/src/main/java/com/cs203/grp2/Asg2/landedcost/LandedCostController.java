@@ -21,19 +21,30 @@ public class LandedCostController {
     // GET endpoint for quick browser testing
     @GetMapping
     public LandedCostResponse calculateLandedCostViaGet(
-            @RequestParam int importerIso3n,
-            @RequestParam int exporterIso3n,
+            @RequestParam String importer,
+            @RequestParam String exporter,
             @RequestParam String hsCode,
             @RequestParam int units) {
 
         LandedCostRequest request = new LandedCostRequest();
-        request.setImporterIso3n(importerIso3n);
-        request.setExporterIso3n(exporterIso3n);
+
+        // Detect if importer is numeric -> ISO3n
+        if (importer.matches("\\d+")) {
+            request.setImporterIso3n(Integer.parseInt(importer));
+        } else {
+            request.setImporterName(importer);
+        }
+
+        // Detect if exporter is numeric -> ISO3n
+        if (exporter.matches("\\d+")) {
+            request.setExporterIso3n(Integer.parseInt(exporter));
+        } else {
+            request.setExporterName(exporter);
+        }
+
         request.setHsCode(hsCode);
         request.setUnits(units);
 
         return service.calculateLandedCost(request);
     }
 }
-
-

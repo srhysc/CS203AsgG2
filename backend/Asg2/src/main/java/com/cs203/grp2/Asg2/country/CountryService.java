@@ -26,5 +26,12 @@ public class CountryService {
                 .findFirst()
                 .orElse(null);
     }
+
+    public Country getCountryByName(String name) {
+    return countries.stream()
+            .filter(c -> c.getName().equalsIgnoreCase(name))
+            .findFirst()
+            .orElse(null);
+}
 }
 
