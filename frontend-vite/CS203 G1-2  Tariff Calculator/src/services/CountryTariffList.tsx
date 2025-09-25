@@ -5,10 +5,12 @@ import type {Country} from './api';
 
 
 const CountryTariffList: React.FC = () => {
+  //declare state hooks for useState to update when getting data
   const [countries, setCountries] = useState<Country[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  //sending getAll requets to vat API to fetch country list
   useEffect(() => {
     const fetchCountries = async (): Promise<void> => {
       try {

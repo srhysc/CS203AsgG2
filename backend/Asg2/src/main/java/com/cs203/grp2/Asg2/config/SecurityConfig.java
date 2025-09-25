@@ -16,31 +16,37 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
+  //SecurityFilterChain defines which instances invoked for current request
   @Bean
   SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    //Enable CORS support
     http
       .cors(cors -> {})
-      .csrf(csrf -> csrf.disable())
       .authorizeHttpRequests(auth -> auth
+        //public access to the following URLs
         .requestMatchers("/tariffs/**", "/actuator/health","/vat").permitAll()
+        //rest all need authorization
         .anyRequest().authenticated()
       )
-      .httpBasic(); // keep basic auth for everything else
+      .httpBasic(); // enable basic auth for everything else
     return http.build();
   }
 
-  //webconfig to overcome CORS for frontend
+  //webconfig to declare CORS settings to allow communication
   @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        //allowed domains to send cross-origin request
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:5173",      // dev
             "https://myfrontend.com"     // production
         ));
+        //allow all methods and request headers and cookies
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         
+        //register configuration for spring
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); // all paths
         return source;
