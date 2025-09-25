@@ -1,6 +1,11 @@
 package com.cs203.grp2.Asg2.country;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
 public class Country {
+    @Id
     private int iso3n;   // numeric ISO code
     private String name;
     private double vatRate;
