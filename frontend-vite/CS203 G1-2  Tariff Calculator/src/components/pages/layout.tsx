@@ -3,10 +3,6 @@ import type { ReactNode } from 'react'
 import { SidebarProvider, SidebarTrigger,useSidebar } from "@/components/ui/sidebar"
 import { AppSideBar } from "../pages/sidenavbar"
 
-interface LayoutProps {
-  children: ReactNode
-}
-
 function LayoutContent({ children }: {children:ReactNode}) {
   const { open } = useSidebar()
   
@@ -16,8 +12,8 @@ function LayoutContent({ children }: {children:ReactNode}) {
       <main className="flex-1 relative">
         {/* Floating trigger - moves with sidebar state */}
         <SidebarTrigger 
-          className={`absolute top-2 z-10 p-1 w-6 h-6 bg-white shadow-sm border rounded hover:bg-gray-50 transition-all duration-300 ${
-            open ? 'left-[17rem]' : 'left-2'
+          className={`absolute top-2 z-40 p-1 w-1/16 h-1/16 bg-white shadow-sm border rounded hover:bg-gray-150 transition-all duration-300 ${
+            open ? 'left-[0.1rem]' : 'left-0'
           }`} 
         />
         <div className="p-2 h-full">

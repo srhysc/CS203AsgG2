@@ -1,24 +1,21 @@
 // src/components/Layout.tsx
 import { Home, Calculator } from "lucide-react"
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
-
+import { ModeToggle } from "@/components/ui/mode-toggle";
 
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarGroupContent
 } from "@/components/ui/sidebar"
 
 const items = [
   { 
     title: "Home",
-    url: "#",
+    url: "/",
     icon: Home,
   },
 
@@ -33,7 +30,7 @@ const items = [
 export function AppSideBar(){
     return(
       <Sidebar className="w-64 h-screen">
-      <SidebarContent className="flex flex-col h-full p-4 bg-gray-900 text-white">
+        <SidebarContent className="flex flex-col h-full p-4 bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
 
         {/* Header box */}
         <div className="p-4 rounded-md mb-4" style={{ backgroundColor: "#71869A" }}>
@@ -57,7 +54,7 @@ export function AppSideBar(){
         {/* Footer box with login */}
         <SidebarFooter className="mt-auto flex flex-col gap-2">
           <SignedOut>
-            <SignInButton className="w-full bg-gray-700 hover:bg-gray-600 text-white rounded-md p-2" />
+            <SignInButton />
           </SignedOut>
           <SignedIn>
             <UserButton
@@ -69,6 +66,8 @@ export function AppSideBar(){
               }}
             />
           </SignedIn>
+
+          <ModeToggle />
         </SidebarFooter>
 
        </SidebarContent>
