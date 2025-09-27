@@ -5,11 +5,26 @@ spring:
     password: ${DB_PASS:apppass}
   jpa:
     hibernate:
-      ddl-auto: update     # use update for first run; later switch to 'validate' + Flyway
+      ddl-auto: validate     # use update for first run; later switch to 'validate' + Flyway
     show-sql: true
+
 # If you hit the Flyway/MySQL 8.4 issue and can't change image, temporarily:
 # spring:
-#   flyway:
-#     enabled: false
+  flyway:
+    enabled: false
+    baseline-on-migrate: true
+    baseline-version: 1
 server:
   port: 8080
+
+management:                # <-- top-level key
+  endpoints:
+    web:
+      exposure:
+        include: health,info,env,mappings
+  endpoint:
+    health:
+      probes:
+        enabled: true  
+
+
