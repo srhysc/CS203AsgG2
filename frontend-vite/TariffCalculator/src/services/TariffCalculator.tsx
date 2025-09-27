@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import type { tariff } from './counttrytariffapi'; 
 import { tariffService } from './counttrytariffapi';
 import { TariffForm } from '@/components/ui/tarifflookupform';
