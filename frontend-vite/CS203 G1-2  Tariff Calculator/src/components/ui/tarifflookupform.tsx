@@ -2,13 +2,12 @@ import {z} from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
+import { CometCard } from "@/components/ui/comet-card";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
@@ -42,83 +41,110 @@ export function TariffForm({onSubmit} : {onSubmit: (data:z.infer<typeof tariffSc
   }
 
   return(
-    <Form {...form}>
-         {/* Form's submit function overriden by one above */}
-        <form onSubmit={form.handleSubmit(formSubmit)}>
-            <FormField 
-                control={form.control}
-                name="importcountry" 
-                render={({field}) => (
-                    <FormItem>
-                        <FormLabel>Import Country</FormLabel>
-                        <FormControl>
-                            <Input placeholder="Singapore" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                        Please enter your importing country.
-                        </FormDescription>
-                        {/* Formmessage shows error messages */}
-                        <FormMessage />
-                    </FormItem>
-                )
-                }/>
+    <div className="flex flex-col items-center">
+     <h2 className="text-2xl font-bold mb-4">Calculate your Tariffs !</h2>
 
-                <FormField 
-                control={form.control}
-                name="exportcountry" 
-                render={({field}) => (
-                    <FormItem>
-                        <FormLabel>Export Country</FormLabel>
-                        <FormControl>
-                            <Input placeholder="USA" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                        Please enter your exporting country.
-                        </FormDescription>
-                        {/* Formmessage shows error messages */}
-                        <FormMessage />
-                    </FormItem>
-                )
-                }/>
+    <CometCard>
+     {/* Calculator Shell */}
+     <div className="bg-gray-200 rounded-lg shadow-md p-6 w-full max-w-md">
 
-                <FormField 
-                control={form.control}
-                name="productcode" 
-                render={({field}) => (
-                    <FormItem>
-                        <FormLabel>Product Code</FormLabel>
-                        <FormControl>
-                            <Input placeholder="HSXXX" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                        Please enter the product code of the product you wish to import.
-                        </FormDescription>
-                        {/* Formmessage shows error messages */}
-                        <FormMessage />
-                    </FormItem>
-                )
-                }/>
+      {/* Calculator Screen */}
+      <div className="bg-white text-right font-mono text-3xl p-4 mb-4 rounded-md border">
+        {form.watch("units") || "0"}
+      </div>
 
+        <Form {...form}>
+            {/* Form's submit function overriden by one above */}
+            <form onSubmit={form.handleSubmit(formSubmit)} className="space-y-3">
+
+                {/* Grid of fields */}
+                <div className="grid grid-cols-2 gap-4 items-center">
+
+                {/* Importing Country */}
+                <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Importing Country:</label>
+                <div className="bg-white rounded-md p-3 shadow">
                 <FormField 
-                control={form.control}
-                name="units" 
-                render={({field}) => (
-                    <FormItem>
-                        <FormLabel>Quantity</FormLabel>
-                        <FormControl>
-                            <Input type="number" placeholder="1" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                        Please select the number of units you plan to import.
-                        </FormDescription>
-                        {/* Formmessage shows error messages */}
-                        <FormMessage />
-                    </FormItem>
+                    control={form.control}
+                    name="importcountry" 
+                    render={({field}) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input placeholder="Select/Type to Add" {...field} />
+                            </FormControl>
+                            {/* Formmessage shows error messages */}
+                            <FormMessage className="!text-red-500 mt-1" />
+                        </FormItem>
+                    )
+                    }/>
+                </div>
+
+                {/* Exporting Country */}
+                <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Exporting Country:</label>
+                <div className="bg-white rounded-md p-3 shadow">
+                <FormField 
+                    control={form.control}
+                    name="exportcountry" 
+                    render={({field}) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input placeholder="Select/Type to Add" {...field} />
+                            </FormControl>
+                            {/* Formmessage shows error messages */}
+                            <FormMessage className="!text-red-500 mt-1"/>
+                        </FormItem>
                 )
                 }/>
-                <Button type="submit">Calculate tariffs</Button>
-        </form>
-    </Form>
+                </div>
+
+                {/* Product Code */}
+                <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Product Code:</label>
+                <div className="bg-white rounded-md p-3 shadow">
+                <FormField 
+                    control={form.control}
+                    name="productcode" 
+                    render={({field}) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input placeholder="HSXXX" {...field} />
+                            </FormControl>
+                            {/* Formmessage shows error messages */}
+                            <FormMessage className="!text-red-500 mt-1"/>
+                        </FormItem>
+                )
+                }/>
+                </div>
+
+                {/* Quantity */}
+                <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Quantity:</label>
+                <div className="bg-white rounded-md p-3 shadow">
+                <FormField 
+                    control={form.control}
+                    name="units" 
+                    render={({field}) => (
+                        <FormItem>
+                            <FormControl>
+                                <Input type="number" placeholder="1" {...field} />
+                            </FormControl>
+                            {/* Formmessage shows error messages */}
+                            <FormMessage className="!text-red-500 mt-1"/>
+                        </FormItem>
+                )
+                }/>
+                </div>
+            </div>
+                {/* Submit button */}
+                <Button
+                    type="submit"
+                    className="w-full bg-[#71869A] hover:bg-[#5a6a7c] text-white font-bold py-3 rounded-md shadow"
+                >
+                    CALCULATE
+                </Button>
+            </form>
+        </Form>
+        </div>
+        </CometCard>
+
+    </div>
   )
 
 }

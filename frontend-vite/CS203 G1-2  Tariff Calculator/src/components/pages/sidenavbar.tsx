@@ -1,31 +1,22 @@
 // src/components/Layout.tsx
-import { Home, Search, Calculator } from "lucide-react"
+import { Home, Calculator } from "lucide-react"
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
-
+import { ModeToggle } from "@/components/ui/mode-toggle";
 
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarGroupContent
 } from "@/components/ui/sidebar"
 
 const items = [
   { 
     title: "Home",
-    url: "#",
+    url: "/",
     icon: Home,
-  },
-
-  {
-    title: "Tariff Search",
-    url: "#",
-    icon: Search,
   },
 
   {
@@ -38,36 +29,49 @@ const items = [
 
 export function AppSideBar(){
     return(
-      <Sidebar className="w-64 h-screen border-r bg-gray-900 text-white">
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Welcome to Tariff Calculator</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+      <Sidebar className="w-64 h-screen">
+        <SidebarContent className="flex flex-col h-full p-4 bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
 
-     <SidebarFooter>
-        <SignedOut>
-        <SignInButton />
-      </SignedOut>
-      <SignedIn>
-        <UserButton />
-      </SignedIn>
-    </SidebarFooter>
+        {/* Header box */}
+        <div className="p-4 rounded-md mb-4" style={{ backgroundColor: "#71869A" }}>
+          <h1 className="text-lg font-semibold">Welcome to Tariff Calculator</h1>
+        </div>
 
-    </Sidebar>
+        {/* Menu items */}
+        <SidebarMenu className="flex-1">
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild>
+                <a href={item.url} className="flex items-center gap-2">
+                  <item.icon />
+                  <span>{item.title}</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+
+        {/* Footer box with login */}
+        <SidebarFooter className="mt-auto flex flex-col gap-2">
+          <SignedOut>
+            <SignInButton />
+          </SignedOut>
+          <SignedIn>
+            <UserButton
+              appearance={{
+                elements: {
+                  userButtonAvatarBox: "w-10 h-10",
+                  userButtonRoot: "w-full bg-gray-700 hover:bg-gray-600 text-white rounded-md p-2",
+                },
+              }}
+            />
+          </SignedIn>
+
+          <ModeToggle />
+        </SidebarFooter>
+
+       </SidebarContent>
+       </Sidebar>
+
     )
 }
