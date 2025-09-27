@@ -1,10 +1,10 @@
-// src/main/java/com/cs203/grp2/Asg2/SecurityConfig.java
 package com.cs203.grp2.Asg2.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.http.HttpMethod;
 
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.cors.CorsConfiguration;
@@ -23,12 +23,14 @@ public class SecurityConfig {
     http
       .cors(cors -> {})
       .authorizeHttpRequests(auth -> auth
-        //public access to the following URLs
+        // allow POST to /landedcost without auth
+        .requestMatchers(HttpMethod.POST, "/landedcost").permitAll()
+        //allow public GET access to the following URLs
         .requestMatchers("/tariffs/**", "/actuator/health","/vat").permitAll()
         //rest all need authorization
         .anyRequest().authenticated()
       )
-      .httpBasic(); // enable basic auth for everything else
+      .httpBasic(); // enable basic auth for secured endpoints
     return http.build();
   }
 
@@ -52,3 +54,4 @@ public class SecurityConfig {
         return source;
     }
 }
+

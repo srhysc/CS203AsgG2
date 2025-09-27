@@ -1,28 +1,35 @@
 package com.cs203.grp2.Asg2.country;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "country_view") // mapping to SQL View
 public class Country {
 
-    private int iso6Code;
+    @Id
+    private Long iso3n;   
+
     private String name;
 
-    // Default constructor
-    public Country() {
-    }
+    @Column(name = "vatRate") 
+    private Double vatRate;   
 
-    // Constructor with fields
-    public Country(int iso6Code, String name) {
-        this.iso6Code = iso6Code;
+    //required by JPA
+    protected Country() {}
+
+    // Parameterized constructor
+    public Country(Long iso3n, String name, Double vatRate) {
+        this.iso3n = iso3n;
         this.name = name;
+        this.vatRate = vatRate;
     }
 
-    // Getters and setters
-
-    public int getIso6Code() {
-        return iso6Code;
+    public Long getIso3n() {
+        return iso3n;
     }
 
-    public void setIso6Code(int iso6Code) {
-        this.iso6Code = iso6Code;
+    public void setIso3n(Long iso3n) {
+        this.iso3n = iso3n;
     }
 
     public String getName() {
@@ -33,11 +40,11 @@ public class Country {
         this.name = name;
     }
 
-    @Override
-    public String toString() {
-        return "Country{" +
-                "iso6Code=" + iso6Code +
-                ", name='" + name + '\'' +
-                '}';
+    public Double getVatRate() {
+        return vatRate;
+    }
+
+    public void setVatRate(Double vatRate) {
+        this.vatRate = vatRate;
     }
 }
