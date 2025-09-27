@@ -1,0 +1,58 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: appdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - "3306:3306"              # optional: expose for local tools
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend/Asg2
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: appdb
+      DB_USER: appuser
+      DB_PASS: apppass
+    ports:
+      - "8080:8080"
+
+  # Optional: React dev server (remove if you serve static build from Spring)
+  frontend:
+    build:
+      context: ./frontend-vite/TariffCalculator
+      target: dev
+    ports: ["5173:5173"]
+    environment:
+      VITE_API_BASE: http://localhost:8080   # runtime env for Vite dev server
+    depends_on: [backend]
+    profiles: ["dev"]
+
+  # Prod frontend (static @ 3000)
+  frontend_prod:
+    build:
+      context: ./frontend-vite/TariffCalculator
+      target: prod
+      # Optionally pass the API base used at build time:
+      # args:
+      #   VITE_API_BASE: https://api.example.com
+    ports: ["3000:3000"]
+    depends_on: [backend]
+    profiles: ["prod"]
+
+volumes:
+  dbdata:
