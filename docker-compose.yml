@@ -2,12 +2,14 @@ services:
   db:
     image: mysql:8.0
     environment:
-      MYSQL_DATABASE: appdb
+      MYSQL_DATABASE: tariff_app
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
       MYSQL_ROOT_PASSWORD: rootpass
     volumes:
       - dbdata:/var/lib/mysql
+      - ./backend/Asg2/database/00-use-tariff_app.sql:/docker-entrypoint-initdb.d/00-use-tariff_app.sql:ro
+      - ./backend/Asg2/database/tariff_app.sql:/docker-entrypoint-initdb.d/01-tariff_app.sql:ro
     ports:
       - "3306:3306"              # optional: expose for local tools
     healthcheck:
@@ -25,7 +27,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       DB_HOST: db
       DB_PORT: 3306
-      DB_NAME: appdb
+      DB_NAME: tariff_app
       DB_USER: appuser
       DB_PASS: apppass
     ports:
@@ -56,3 +58,4 @@ services:
 
 volumes:
   dbdata:
+

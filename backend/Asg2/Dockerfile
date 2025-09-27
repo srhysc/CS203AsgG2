@@ -6,7 +6,8 @@ WORKDIR /app
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
 RUN chmod +x mvnw
-RUN ./mvnw -q -DskipTests dependency:go-offline
+RUN --mount=type=cache,target=/root/.m2 \
+    ./mvnw -B -DskipTests dependency:resolve dependency:resolve-plugins
 
 # Copy sources and build a Boot (fat) jar
 COPY src ./src
