@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:mysql://${DB_HOST:db}:${DB_PORT:3306}/${DB_NAME:appdb}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${DB_USER:appuser}
+    password: ${DB_PASS:apppass}
+  jpa:
+    hibernate:
+      ddl-auto: update     # use update for first run; later switch to 'validate' + Flyway
+    show-sql: true
+# If you hit the Flyway/MySQL 8.4 issue and can't change image, temporarily:
+# spring:
+#   flyway:
+#     enabled: false
+server:
+  port: 8080
