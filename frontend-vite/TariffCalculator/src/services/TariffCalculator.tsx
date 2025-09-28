@@ -19,8 +19,7 @@ const TariffCalculator: React.FC = () => {
     //retrieving Form Submission data from TariffForm, breaking down into strings for API call
                                 //call async so can call API without blocking code, Promise<void> promises to finish task
     const tariffFormSubmission = async (formData:z.infer<typeof tariffSchema>): Promise<void> =>{
-//console.log('Form data: ', formData);
-        
+                
         setLoading(true);
         setTariffs(null);
         setError(null);
@@ -29,7 +28,7 @@ const TariffCalculator: React.FC = () => {
             //try getting all countries
             const tariffs = await tariffService.getByRequirements(formData.importcountry,formData.exportcountry,formData.productcode,formData.units);
             //update tariffs field
-//console.log('tarrifs:', tariffs);
+console.log('tarrifs:', tariffs);
             setTariffs(tariffs);
         } catch (err: any) {
             setError('Failed to fetch Tariffs');
@@ -50,7 +49,7 @@ const TariffCalculator: React.FC = () => {
                     {/* if null - false && true, does not render */}
                     {tariffs && (
                     <div>
-                        <p>Total Cost: {tariffs.totalCost}</p>
+                        <p>Total Cost: {tariffs.totalLandedCost}</p>
                         <p>Currency: {tariffs.currency}</p>
                     </div>
                     )}
