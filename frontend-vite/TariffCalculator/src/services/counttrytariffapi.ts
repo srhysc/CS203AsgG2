@@ -4,7 +4,17 @@ import type{ AxiosInstance} from 'axios';
 
 //Defining tariff interface based on response format
 export interface tariff{
-    totalCost: number;
+    importingCountry: string;
+    exportingCountry: string;
+    petroleumName: string;
+    hsCode: string;
+    pricePerUnit: number;
+    basePrice: number;
+    tariffRate: number;
+    tarrifFees: number;
+    vatRate: number;
+    vatFees: number;
+    totalLandedCost: number;
     currency: string;
 }
 //no need for API wrapper because just returning those two values
@@ -40,8 +50,8 @@ export const tariffService = {
   getByRequirements: async (importcountryid: string, exportcountryid: string, productcode:string, units:string): Promise<tariff> => {
     //Create a query string to append to URL when calling API, using method parameters
     const params = new URLSearchParams({
-        importerIso3n: importcountryid,
-        exporterIso3n: exportcountryid,
+        importer: importcountryid,
+        exporter: exportcountryid,
         hsCode: productcode,
         units: units
     });
@@ -49,7 +59,8 @@ export const tariffService = {
     try {
       console.log(`Testing: ${import.meta.env.VITE_API_URL}/landedcost?${params}`)
         //try getting data from api using parameters(?${params} - ? indicates start of query string)
-      const response = await countrytariffapi.get<tariff>(`/landedcost?${params}`);
+console.log(`/landedcost?${params}`)
+        const response = await countrytariffapi.get<tariff>(`/landedcost?${params}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching the tariff calculation between country ${importcountryid} and ${exportcountryid} for ${units} of ${productcode}:`, error);

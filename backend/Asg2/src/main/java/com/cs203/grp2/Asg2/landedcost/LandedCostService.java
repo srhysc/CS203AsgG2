@@ -49,7 +49,7 @@ public class LandedCostService {
             throw new IllegalArgumentException("Invalid importer/exporter HS code or country code/name");
         }
 
-        if (importer.getIso3n() == exporter.getIso3n()) {
+        if (importer.getIso3n().equals(exporter.getIso3n())) {
             throw new IllegalArgumentException("Importer and exporter cannot be the same country");
         }
 
@@ -71,7 +71,9 @@ public class LandedCostService {
         }
 
         double tariffFees = baseCost * tariffRate;
-        double vatRate = importer.getVatRate();
+        //Check if importervatRate exists, 0.0 otherwise
+        Double importerVatRate = importer.getVatRate();
+        double vatRate = (importerVatRate != null) ? importerVatRate.doubleValue() : 0.0;
         double vatFees = (baseCost + tariffFees) * vatRate;
 
         double totalCost = baseCost + tariffFees + vatFees;
