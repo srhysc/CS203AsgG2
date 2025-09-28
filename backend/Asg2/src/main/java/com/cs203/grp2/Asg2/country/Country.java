@@ -1,5 +1,4 @@
 package com.cs203.grp2.Asg2.country;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -7,7 +6,7 @@ import jakarta.persistence.*;
 public class Country {
 
     @Id
-    private Long iso3n;   
+    private int iso3n;   
 
     private String name;
 

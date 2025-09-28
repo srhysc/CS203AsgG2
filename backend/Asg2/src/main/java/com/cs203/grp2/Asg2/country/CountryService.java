@@ -21,4 +21,11 @@ public class CountryService {
         return repo.findById(iso3n)
                    .orElseThrow(() -> new CountryNotFoundException("No country with iso3n=" + iso3n));
     }
+
+    public Country getCountryByName(String name) {
+    return countries.stream()
+            .filter(c -> c.getName().equalsIgnoreCase(name))
+            .findFirst()
+            .orElse(null);
+}
 }
