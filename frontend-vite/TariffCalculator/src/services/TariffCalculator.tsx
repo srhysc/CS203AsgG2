@@ -5,6 +5,7 @@ import { TariffForm } from '@/components/ui/tarifflookupform';
 import { tariffSchema } from '@/components/ui/tarifflookupform';
 import { z } from 'zod';
 import { CometCard } from "@/components/ui/comet-card";
+import ToggleTable from "@/components/ui/tariffbreakdowntable"
 
 
 
@@ -61,6 +62,13 @@ console.log('tarrifs:', tariffs);
                     {/* Renders if errors is NOT NULL - true && true*/}
                     {/* if null - false && true, does not render */}
                     {error && (<div className="alert alert-danger">{error}</div>)}
+                </div>
+
+                <div>
+                    {tariffs && (
+                        <ToggleTable tariffObject={tariffs}/>
+                    )
+                    }
                 </div>
 
                 {/* Tariff form*/}
