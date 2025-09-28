@@ -4,7 +4,7 @@ import type{ AxiosInstance} from 'axios';
 
 //Defining tariff interface based on response format
 export interface tariff{
-    totalcost: number;
+    totalCost: number;
     currency: string;
 }
 //no need for API wrapper because just returning those two values
@@ -47,6 +47,7 @@ export const tariffService = {
     });
     
     try {
+      console.log(`Testing: ${import.meta.env.VITE_API_URL}/landedcost?${params}`)
         //try getting data from api using parameters(?${params} - ? indicates start of query string)
       const response = await countrytariffapi.get<tariff>(`/landedcost?${params}`);
       return response.data;

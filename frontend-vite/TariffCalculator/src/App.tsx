@@ -9,8 +9,6 @@ import {motion} from "motion/react"
 import { ThemeProvider } from "@/components/ui/theme-provider"
 
 
-
-
 function App() {
 
   return (
@@ -30,14 +28,9 @@ function App() {
     <Layout>
       <div className="App">
         <header className="App-header">
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
+          <h1 className="font-bebas text-7xl font-black tracking-tighter">
+            PETROLEUM TARIFF CALCULATOR
+          </h1>
         </header>
 
         <main>
