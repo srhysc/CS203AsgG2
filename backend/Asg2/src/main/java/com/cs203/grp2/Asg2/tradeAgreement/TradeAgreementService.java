@@ -1,4 +1,4 @@
-package com.cs203.grp2.Asg2.tradeAgreements;
+package com.cs203.grp2.Asg2.tradeAgreement;
 
 import org.springframework.stereotype.Service;
 

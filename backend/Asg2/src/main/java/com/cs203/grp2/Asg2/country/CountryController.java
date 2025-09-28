@@ -1,11 +1,14 @@
 package com.cs203.grp2.Asg2.country;
-
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/countries")
 public class CountryController {
