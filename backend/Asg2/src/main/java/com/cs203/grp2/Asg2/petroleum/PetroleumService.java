@@ -8,23 +8,22 @@ import java.util.List;
 @Service
 public class PetroleumService {
 
+    private final PetroleumRepository repo;
+
     private final List<Petroleum> petroleumList = new ArrayList<>();
 
     public PetroleumService() {
-        // Mock data
-        petroleumList.add(new Petroleum("Crude Oil", "2709", 100.0));
-        petroleumList.add(new Petroleum("crude petroleum", "271012", 120.0));
-        petroleumList.add(new Petroleum("Diesel", "2711", 90.0));
+        this.repo = repo; 
     }
 
     public List<Petroleum> getAllPetroleum() {
-        return petroleumList;
+        //return petroleumList;
+        return repo.findAll();
     }
 
     public Petroleum getPetroleumByHsCode(String hsCode) {
-        return petroleumList.stream()
-                .filter(p -> p.getHsCode().equalsIgnoreCase(hsCode))
-                .findFirst()
-                .orElse(null);
+        return repo.findByHsCode(hsCode)
+                   .orElseThrow(() -> new PetroleumNotFoundException("Petroleum not found: " + hsCode));
     }
+
 }

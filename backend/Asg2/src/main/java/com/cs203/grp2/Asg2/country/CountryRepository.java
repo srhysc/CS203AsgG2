@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
+@Repository
 public interface CountryRepository extends JpaRepository<Country, Integer> {
     Optional<Country> findByiso3n(int iso3n);
     Optional<Country> findByNameIgnoreCase(String name);  // find by name non case sensitive
