@@ -1,7 +1,6 @@
 // src/components/Layout.tsx
 import { Home, Calculator, Search } from "lucide-react"
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
-import { ModeToggle } from "@/components/ui/mode-toggle";
 
 import {
   Sidebar,
@@ -59,8 +58,7 @@ export function AppSideBar(){
 
         {/* Footer box with login */}
         <SidebarFooter className="mt-auto flex flex-col gap-2">
-          <div className="flex flex-row gap-2 items-center">
-          <ModeToggle />
+          <div className="flex flex-row gap-2 items-center justify-center w-full">
           <SignedOut>
             <SignInButton />
           </SignedOut>

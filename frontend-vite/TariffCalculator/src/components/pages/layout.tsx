@@ -1,5 +1,6 @@
 // src/components/Layout.tsx
 import type { ReactNode } from 'react'
+import { ModeToggle } from "@/components/ui/mode-toggle";
 import { SidebarProvider, SidebarTrigger,useSidebar } from "@/components/ui/sidebar"
 import { AppSideBar } from "../pages/sidenavbar"
 
@@ -20,6 +21,11 @@ function LayoutContent({ children }: {children:ReactNode}) {
           {children}
         </div>
       </main>
+      
+      {/* Floating Light/Dark mode button */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <ModeToggle />
+      </div>
     </>
   )
 }
