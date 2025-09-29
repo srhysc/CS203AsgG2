@@ -1,5 +1,5 @@
 import React, { useState} from 'react';
-import type { tariff } from './counttrytariffapi'; 
+import type { Tariff } from './types/countrytariff'; 
 import { tariffService } from './counttrytariffapi';
 import { TariffForm } from '@/components/ui/tarifflookupform';
 import { tariffSchema } from '@/components/ui/tarifflookupform';
@@ -11,7 +11,7 @@ import ToggleTable from "@/components/ui/tariffbreakdowntable"
 
 const TariffCalculator: React.FC = () => {
     //declare state hooks for useState to update when getting data
-    const [tariffs, setTariffs] = useState<tariff | null >(null);
+    const [tariffs, setTariffs] = useState<Tariff | null >(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 

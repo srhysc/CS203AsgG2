@@ -7,7 +7,7 @@ import {motion} from "motion/react"
 import { ThemeProvider } from "@/components/ui/theme-provider"
 import  Home  from './components/pages/home';
 import TariffCalculator from './services/TariffCalculator';
-import TariffLookup from './services/TariffLookup';
+import TariffLookup from './services/TariffDisplay';
 
 
 function App() {
