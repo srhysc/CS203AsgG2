@@ -2,7 +2,6 @@ import {z} from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { CometCard } from "@/components/ui/comet-card";
 import {
   Form,
   FormControl,
@@ -43,15 +42,6 @@ export function TariffForm({onSubmit} : {onSubmit: (data:z.infer<typeof tariffSc
   return(
     <div className="flex flex-col items-center">
      <h2 className="text-2xl font-bold mb-4">Calculate your Tariffs !</h2>
-
-    <CometCard>
-     {/* Calculator Shell */}
-     <div className="bg-gray-200 rounded-lg shadow-md p-6 w-full max-w-md">
-
-      {/* Calculator Screen */}
-      <div className="bg-white text-right font-mono text-3xl p-4 mb-4 rounded-md border">
-        {form.watch("units") || "0"}
-      </div>
 
         <Form {...form}>
             {/* Form's submit function overriden by one above */}
@@ -141,9 +131,6 @@ export function TariffForm({onSubmit} : {onSubmit: (data:z.infer<typeof tariffSc
                 </Button>
             </form>
         </Form>
-        </div>
-        </CometCard>
-
     </div>
   )
 

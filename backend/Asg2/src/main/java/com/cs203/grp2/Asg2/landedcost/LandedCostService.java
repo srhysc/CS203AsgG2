@@ -26,36 +26,72 @@ public class LandedCostService {
     }
 
     public LandedCostResponse calculateLandedCost(LandedCostRequest request) {
-        Country importer = countryService.getCountryByISO3n(request.getImporterIso3n());
-        Country exporter = countryService.getCountryByISO3n(request.getExporterIso3n());
+        // Importer
+        Country importer = null;
+        if (request.getImporterIso3n() != null) {
+            importer = countryService.getCountryByISO3n(request.getImporterIso3n());
+        } else if (request.getImporterName() != null) {
+            importer = countryService.getCountryByName(request.getImporterName());
+        }
+
+        // Exporter
+        Country exporter = null;
+        if (request.getExporterIso3n() != null) {
+            exporter = countryService.getCountryByISO3n(request.getExporterIso3n());
+        } else if (request.getExporterName() != null) {
+            exporter = countryService.getCountryByName(request.getExporterName());
+        }
+
+        // Petroleum
         Petroleum petroleum = petroleumService.getPetroleumByHsCode(request.getHsCode());
 
         if (importer == null || exporter == null || petroleum == null) {
-            throw new IllegalArgumentException("Invalid importer/exporter HS code or country code");
+            throw new IllegalArgumentException("Invalid importer/exporter HS code or country code/name");
         }
 
-        // Base cost
-        double baseCost = petroleum.getPricePerUnit() * request.getUnits();
+        if (importer.getIso3n().equals(exporter.getIso3n())) {
+            throw new IllegalArgumentException("Importer and exporter cannot be the same country");
+        }
 
-        // Get tariff from WITS (mocked if unavailable)
+        // Calculations
+        double pricePerUnit = petroleum.getPricePerUnit();
+        double baseCost = pricePerUnit * request.getUnits();
+
         double tariffRate;
         try {
             tariffRate = tariffService.getLatest(
-                    request.getImporterIso3n(),   // reporter numeric ISO
-                    request.getExporterIso3n(),   // partner numeric ISO
+                    importer.getIso3n(),
+                    exporter.getIso3n(),
                     request.getHsCode(),
                     "aveestimated"
-            ).getSimpleAverage() / 100.0; // convert percent to decimal
+            ).getSimpleAverage() / 100.0;
         } catch (Exception e) {
             logger.warn("No tariff available. Using fallback of 0%.");
-            tariffRate = 0.0; // fallback
+            tariffRate = 0.0;
         }
 
-        double tariff = baseCost * tariffRate;
-        double vat = (baseCost + tariff) * importer.getVatRate();
+        double tariffFees = baseCost * tariffRate;
+        //Check if importervatRate exists, 0.0 otherwise
+        Double importerVatRate = importer.getVatRate();
+        double vatRate = (importerVatRate != null) ? importerVatRate.doubleValue() : 0.0;
+        double vatFees = (baseCost + tariffFees) * vatRate;
 
-        double totalCost = baseCost + tariff + vat;
+        double totalCost = baseCost + tariffFees + vatFees;
 
-        return new LandedCostResponse(totalCost, "USD");
+        // Build response
+        return new LandedCostResponse(
+                importer.getName(),
+                exporter.getName(),
+                petroleum.getName(),
+                petroleum.getHsCode(),
+                pricePerUnit,
+                baseCost,
+                tariffRate,
+                tariffFees,
+                vatRate,
+                vatFees,
+                totalCost,
+                "USD"
+        );
     }
 }

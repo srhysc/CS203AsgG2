@@ -12,7 +12,7 @@ function LayoutContent({ children }: {children:ReactNode}) {
       <main className="flex-1 relative">
         {/* Floating trigger - moves with sidebar state */}
         <SidebarTrigger 
-          className={`absolute top-2 z-40 p-1 w-1/16 h-1/16 bg-white shadow-sm border rounded hover:bg-gray-150 transition-all duration-300 ${
+          className={`absolute top-5 z-40 p-1 w-1/16 h-1/16 bg-white shadow-sm border rounded hover:bg-gray-150 transition-all duration-300 ${
             open ? 'left-[0.1rem]' : 'left-0'
           }`} 
         />
