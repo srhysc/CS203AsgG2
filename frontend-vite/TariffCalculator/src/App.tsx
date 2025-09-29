@@ -2,11 +2,12 @@ import './App.css';
 import './index.css'
 import { Layout } from '@/components/pages/layout';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import TariffCalculator from './services/TariffCalculator';
 import { AuroraBackground } from './components/ui/aurora-background';
 import {motion} from "motion/react"
 import { ThemeProvider } from "@/components/ui/theme-provider"
 import  Home  from './components/pages/home';
+import TariffCalculator from './services/TariffCalculator';
+import TariffLookup from './services/TariffLookup';
 
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/calculator" element={<TariffCalculator />}/>
+            <Route path="/lookup" element={<TariffLookup />}/>
           </Routes>
         </main>
       </div>
