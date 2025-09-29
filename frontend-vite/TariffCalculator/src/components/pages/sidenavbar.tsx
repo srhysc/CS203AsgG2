@@ -1,5 +1,5 @@
 // src/components/Layout.tsx
-import { Home, Calculator } from "lucide-react"
+import { Home, Calculator, Search } from "lucide-react"
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 import { ModeToggle } from "@/components/ui/mode-toggle";
 
@@ -23,6 +23,12 @@ const items = [
     title: "Tariff Calculator",
     url: "/calculator", 
     icon: Calculator,
+  },
+
+  {
+    title: "Tariff Lookup",
+    url: "/lookup", 
+    icon: Search,
   },
 
 ]
