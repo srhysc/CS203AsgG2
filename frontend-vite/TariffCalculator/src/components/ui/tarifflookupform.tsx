@@ -1,15 +1,16 @@
 import {z} from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { FormProvider, useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { InlineErrorInput } from "@/components/ui/inlineerrorinput";
+
 
 //declare formschema for form
 export const tariffSchema = z.object({
@@ -40,86 +41,38 @@ export function TariffForm({onSubmit} : {onSubmit: (data:z.infer<typeof tariffSc
   }
 
   return(
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center px-2">
      <h2 className="text-2xl font-bold mb-4">Calculate your Tariffs !</h2>
 
-        <Form {...form}>
+        <FormProvider {...form}>
             {/* Form's submit function overriden by one above */}
-            <form onSubmit={form.handleSubmit(formSubmit)} className="space-y-3">
+            <form onSubmit={form.handleSubmit(formSubmit)} className="space-y-3 w-full max-w-md">
 
                 {/* Grid of fields */}
-                <div className="grid grid-cols-2 gap-4 items-center">
+                <div className="grid grid-cols-2 gap-2 items-center">
 
                 {/* Importing Country */}
                 <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Importing Country:</label>
                 <div className="bg-white rounded-md p-3 shadow">
-                <FormField 
-                    control={form.control}
-                    name="importcountry" 
-                    render={({field}) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input placeholder="Select/Type to Add" {...field} />
-                            </FormControl>
-                            {/* Formmessage shows error messages */}
-                            <FormMessage className="!text-red-500 mt-1" />
-                        </FormItem>
-                    )
-                    }/>
+                    <InlineErrorInput name="importcountry" placeholder="Select/Type to Add" />
                 </div>
 
                 {/* Exporting Country */}
                 <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Exporting Country:</label>
                 <div className="bg-white rounded-md p-3 shadow">
-                <FormField 
-                    control={form.control}
-                    name="exportcountry" 
-                    render={({field}) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input placeholder="Select/Type to Add" {...field} />
-                            </FormControl>
-                            {/* Formmessage shows error messages */}
-                            <FormMessage className="!text-red-500 mt-1"/>
-                        </FormItem>
-                )
-                }/>
+                    <InlineErrorInput name="exportcountry" placeholder="Select/Type to Add" />
                 </div>
 
                 {/* Product Code */}
                 <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Product Code:</label>
                 <div className="bg-white rounded-md p-3 shadow">
-                <FormField 
-                    control={form.control}
-                    name="productcode" 
-                    render={({field}) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input placeholder="HSXXX" {...field} />
-                            </FormControl>
-                            {/* Formmessage shows error messages */}
-                            <FormMessage className="!text-red-500 mt-1"/>
-                        </FormItem>
-                )
-                }/>
+                         <InlineErrorInput name="productcode" placeholder="HSXXX" />
                 </div>
 
                 {/* Quantity */}
                 <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Quantity:</label>
                 <div className="bg-white rounded-md p-3 shadow">
-                <FormField 
-                    control={form.control}
-                    name="units" 
-                    render={({field}) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input type="number" placeholder="1" {...field} />
-                            </FormControl>
-                            {/* Formmessage shows error messages */}
-                            <FormMessage className="!text-red-500 mt-1"/>
-                        </FormItem>
-                )
-                }/>
+                          <InlineErrorInput name="units" placeholder="1" type="number" />
                 </div>
             </div>
                 {/* Submit button */}
@@ -130,7 +83,7 @@ export function TariffForm({onSubmit} : {onSubmit: (data:z.infer<typeof tariffSc
                     CALCULATE
                 </Button>
             </form>
-        </Form>
+        </FormProvider>
     </div>
   )
 
