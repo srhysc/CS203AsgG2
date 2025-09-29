@@ -7,28 +7,28 @@ import jakarta.persistence.*;
 public class Country {
 
     @Id
-    private Long iso3n;   
+    private Integer iso3n;   // use Integer consistently
 
     private String name;
 
-    @Column(name = "vatRate") 
-    private Double vatRate;   
+    @Column(name = "vatRate")
+    private Double vatRate;
 
-    //required by JPA
+    // required by JPA
     protected Country() {}
 
     // Parameterized constructor
-    public Country(Long iso3n, String name, Double vatRate) {
+    public Country(Integer iso3n, String name, Double vatRate) {
         this.iso3n = iso3n;
         this.name = name;
         this.vatRate = vatRate;
     }
 
-    public Long getIso3n() {
+    public Integer getIso3n() {
         return iso3n;
     }
 
-    public void setIso3n(Long iso3n) {
+    public void setIso3n(Integer iso3n) {
         this.iso3n = iso3n;
     }
 

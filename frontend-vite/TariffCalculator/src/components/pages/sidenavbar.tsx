@@ -53,6 +53,8 @@ export function AppSideBar(){
 
         {/* Footer box with login */}
         <SidebarFooter className="mt-auto flex flex-col gap-2">
+          <div className="flex flex-row gap-2 items-center">
+          <ModeToggle />
           <SignedOut>
             <SignInButton />
           </SignedOut>
@@ -61,13 +63,13 @@ export function AppSideBar(){
               appearance={{
                 elements: {
                   userButtonAvatarBox: "w-10 h-10",
-                  userButtonRoot: "w-full bg-gray-700 hover:bg-gray-600 text-white rounded-md p-2",
+                  userButtonRoot: "flex-1 bg-gray-700 hover:bg-gray-600 text-white rounded-md p-2",
                 },
               }}
             />
           </SignedIn>
-
-          <ModeToggle />
+          
+        </div>
         </SidebarFooter>
 
        </SidebarContent>
