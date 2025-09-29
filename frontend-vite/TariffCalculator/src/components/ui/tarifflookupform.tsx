@@ -13,10 +13,10 @@ import { Input } from "@/components/ui/input"
 
 //declare formschema for form
 export const tariffSchema = z.object({
-    importcountry: z.string().min(1, "Import country is required"),
-    exportcountry:z.string().min(1, "Export country is required"),
-    productcode:z.string(),
-    units: z.string().min(1,"must select at least 1 unit for calculation")
+    importcountry: z.string().min(1, "Import country is required."),
+    exportcountry:z.string().min(1, "Export country is required."),
+    productcode:z.string().min(1, "A HS code is required."),
+    units: z.string().min(1,"Please select at least 1 unit for calculation.")
 })
 
 
