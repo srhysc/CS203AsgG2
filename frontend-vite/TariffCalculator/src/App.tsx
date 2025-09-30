@@ -2,11 +2,12 @@ import './App.css';
 import './index.css'
 import { Layout } from '@/components/pages/layout';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import CountryTariffList from '@/services/CountryTariffList';
-import TariffCalculator from './services/TariffCalculator';
 import { AuroraBackground } from './components/ui/aurora-background';
 import {motion} from "motion/react"
 import { ThemeProvider } from "@/components/ui/theme-provider"
+import  Home  from './components/pages/home';
+import TariffCalculator from './services/TariffCalculator';
+import TariffLookup from './services/TariffDisplay';
 
 
 function App() {
@@ -26,25 +27,23 @@ function App() {
       >
     <Router>
     <Layout>
+      
       <div className="App">
         <header className="App-header">
-          <h1 className="font-bebas text-7xl font-black tracking-tighter">
-            PETROLEUM TARIFF CALCULATOR
-          </h1>
+    
         </header>
-
         <main>
           <Routes>
-            <Route path="/" element={<h2>Welcome to the App</h2>} />
-            <Route path="/vat" element = {<CountryTariffList />} />
+            <Route path="/" element={<Home />} />
             <Route path="/calculator" element={<TariffCalculator />}/>
+            <Route path="/lookup" element={<TariffLookup />}/>
           </Routes>
         </main>
       </div>
     </Layout>
     </Router>
     </motion.div>
-      </AuroraBackground>
+    </AuroraBackground>
     </ThemeProvider>
   );
 }
