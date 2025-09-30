@@ -134,6 +134,74 @@ INSERT INTO `vat_rates_stage` VALUES ('Albania','20','30-Jun-25'),('Algeria','19
 UNLOCK TABLES;
 
 --
+-- Table structure for table `petroleum`
+--
+
+DROP TABLE IF EXISTS `petroleum`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+
+CREATE TABLE `petroleum` (
+  `hscode` varchar(10) NOT NULL,
+  `product_name` varchar(255) NOT NULL UNIQUE,
+  `price_per_unit` decimal(10,2) DEFAULT NULL,
+  `unit` varchar(16) NOT NULL,
+  PRIMARY KEY (`hscode`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+-- 
+-- Dumping data for table `petroleum`
+--
+LOCK TABLES `petroleum` WRITE;
+/*!40000 ALTER TABLE `petroleum` DISABLE KEYS */;
+INSERT INTO `petroleum` (`hscode`, `product_name`, `price_per_unit`, `unit`) VALUES
+('270111', 'Anthracite, not agglomerated', 117.00, 'USD/ton'),
+('270112', 'Bituminous coal, not agglomerated', 106.75, 'USD/ton'),
+('270119', 'Other coal, not agglomerated, nes', 106.75, 'USD/ton'),
+('270120', 'Briquettes, ovoids solid fuels manu', 110.00, 'USD/ton'),
+('270210', 'Lignite, not agglomerated', 85.00, 'USD/ton'),
+('270220', 'Agglomerated lignite', 90.00, 'USD/ton'),
+('270300', 'Peat (incl. peat litter)', 40.00, 'USD/ton'),
+('270400', 'Coke and semi-coke of coal, lignite or peat', 130.00, 'USD/ton'),
+('270500', 'Coal gas, water gas, producer gas and similar', 48.00, 'USD/ton'),
+('270600', 'Tar distilled from coal, lignite or peat', 90.00, 'USD/ton'),
+('270710', 'Benzole', 685.00, 'USD/ton'),
+('270720', 'Toluole', 735.00, 'USD/ton'),
+('270730', 'Xylole', 765.00, 'USD/ton'),
+('270740', 'Naphthalene', 700.00, 'USD/ton'),
+('270750', 'Aromatic hydrocarbon mixtures >=65% distill', 750.00, 'USD/ton'),
+('270760', 'Phenols', 1400.00, 'USD/ton'),
+('270791', 'Creosote oils', 1250.00, 'USD/ton'),
+('270799', 'Other oils and oil products, nes', 850.00, 'USD/ton'),
+('270810', 'Pitch obtained from coal tar or other mine', 400.00, 'USD/ton'),
+('270820', 'Pitch coke obtained from coal tar or other', 420.00, 'USD/ton'),
+('270900', 'Petroleum oils and oils obtained from bituminous minerals, crude', 68.80, 'USD/barrel'),
+('271000', 'Petroleum oils, etc, (excl. crude); preparations', 730.00, 'USD/ton'),
+('271111', 'Natural gas, liquefied', 473.00, 'USD/ton'),
+('271112', 'Propane, liquefied', 473.00, 'USD/ton'),
+('271113', 'Butanes, liquefied', 473.00, 'USD/ton'),
+('271114', 'Ethylene, propylene, butylene and butadiene, liq', 473.00, 'USD/ton'),
+('271119', 'Other petroleum gases and liquefied hydrocarbons', 473.00, 'USD/ton'),
+('271121', 'Natural gas, gaseous', 440.00, 'USD/ton'),
+('271129', 'Other petroleum gases and gaseous hydrocarbons', 440.00, 'USD/ton'),
+('271210', 'Petroleum jelly', 1400.00, 'USD/ton'),
+('271220', 'Paraffin wax, <0.75% oil', 1350.00, 'USD/ton'),
+('271290', 'Other paraffin wax... and similar products, nes', 1500.00, 'USD/ton'),
+('271311', 'Petroleum coke, not calcined', 130.00, 'USD/ton'),
+('271312', 'Calcined petroleum coke', 130.00, 'USD/ton'),
+('271320', 'Petroleum bitumen', 430.00, 'USD/ton'),
+('271390', 'Other residues of petroleum oils , etc', 120.00, 'USD/ton'),
+('271410', 'Bituminous or oil shale and tar sands', 460.00, 'USD/ton'),
+('271490', 'Bitumen and asphalt; natural asphaltites and as', 460.00, 'USD/ton'),
+('271500', 'Bituminous mixtures base natural asphalt, bitumen', 300.00, 'USD/ton'),
+('271600', 'Electrical energy', 150.00, 'USD/MWh');
+/*!40000 ALTER TABLE `vat_rates_stage` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Final view structure for view `country_view`
 --
 
