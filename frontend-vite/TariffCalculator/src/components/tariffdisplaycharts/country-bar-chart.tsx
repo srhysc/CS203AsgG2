@@ -1,7 +1,7 @@
-"use client"
 
-import { Bar, BarChart, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, YAxis, XAxis } from "recharts"
 import { useState } from "react"
+
 
 import {
   Card,
@@ -52,19 +52,21 @@ export function CountryBarChart({
       fill: "var(--chart-1)"
     }));
 
-    // Sort function to sort by ascending or descending order
-    if (sortOrder === 'ascending') {
-      data.sort((a, b) => a.vatRate - b.vatRate);
-    } else if (sortOrder === 'descending') {
-      data.sort((a, b) => b.vatRate - a.vatRate);
-    }
-
-    const sorted = [...data].sort((a, b) => b.vatRate - a.vatRate);
-    data = sorted.slice(0, topResults);
+    /// Sort and slice based on sortOrder
+  if (sortOrder === 'ascending') {
+        // Bottom 5 (lowest prices) displayed in ascending order
+        data.sort((a, b) => a.vatRate - b.vatRate);
+        data = data.slice(0, topResults);
+    } 
     
-    // Re-sort based on sortOrder
-    if (sortOrder === 'ascending') {
-      data.sort((a, b) => a.vatRate - b.vatRate);
+    else if (sortOrder === 'descending') {
+        // Top 5 (highest prices) displayed in descending order
+        data.sort((a, b) => b.vatRate - a.vatRate);
+        data = data.slice(0, topResults);
+    } else{
+        // 'none' shows all data unsorted
+        data = data.slice(0, topResults);
+
     }
 
     return data;
@@ -73,11 +75,11 @@ export function CountryBarChart({
   const chartData = processedData();
 
   return (
-    <Card>
+    <Card className="dark:text-gray-100">
       <CardHeader>
-        <CardTitle>VAT Rates by Country</CardTitle>
-        <CardDescription>
-          {`Top ${topResults} countries by VAT rate`}
+        <CardTitle className="dark:text-gray-100">VAT Rates by Country</CardTitle>
+        <CardDescription className="dark:text-gray-400">
+          {`Countries by VAT rate`}
           {sortOrder !== 'none' && ` - Sorted ${sortOrder}`}
         </CardDescription>
         
@@ -88,7 +90,7 @@ export function CountryBarChart({
             className={`px-3 py-1 text-sm rounded transition-colors ${
               sortOrder === 'ascending' 
                 ? 'bg-sky-500 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300'
+                : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-400 dark:hover:bg-gray-350'
             }`}
           >
             Ascending
@@ -98,7 +100,7 @@ export function CountryBarChart({
             className={`px-3 py-1 text-sm rounded transition-colors ${
               sortOrder === 'descending' 
                 ? 'bg-sky-500 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300'
+                : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-400 dark:hover:bg-gray-350'
             }`}
           >
             Descending
@@ -108,7 +110,7 @@ export function CountryBarChart({
             className={`px-3 py-1 text-sm rounded transition-colors ${
               sortOrder === 'none' 
                 ? 'bg-sky-500 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300'
+                : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-400 dark:hover:bg-gray-350'
             }`}
           >
             None
@@ -117,38 +119,53 @@ export function CountryBarChart({
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart
+            <BarChart
             accessibilityLayer
             data={chartData}
             layout="vertical"
             margin={{
-              left: 0,
+                left: 0,
+                right: 10, // Add some right margin
             }}
-          >
+            >
             <YAxis
-              dataKey="country"
-              type="category"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              width={100}
+                dataKey="country"
+                type="category"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                width={80} // Reduced from 100 for narrower cards
+                tick={{ fontSize: 12 }} // Smaller font for compact view
             />
-            <XAxis dataKey="vatRate" type="number" hide />
+            <XAxis 
+                type="number"
+                hide={true}  // Hide it if you don't want it visible
+            />
+
+            {/* TOOLTIP - Appears on hover */}
             <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+            cursor={{ fill: "transparent" }}
+            content={
+                <ChartTooltipContent 
+                formatter={(value) => `$${value}`}
+                hideLabel={true} // hide the bar/category name
+                className="bg-sky-300 text-black rounded-md px-2 py-1" // Tailwind for tooltip
+                />
+            }
             />
-            <Bar dataKey="vatRate" layout="vertical" radius={3} // smaller radius for thinner bar
-              barSize={20} // thinner bars so tooltip is visible
-              />
-          </BarChart>
+            
+            <Bar 
+                dataKey="vatRate" 
+                layout="vertical" 
+                radius={3}
+                barSize={20} // Even thinner bars for compact cards
+                animationEasing="ease-out" // Smooth easing function
+                style={{ fill: "#3B82F6" }}
+            />
+            </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="text-muted-foreground leading-none">
-          Showing VAT rates as percentages
-        </div>
-      </CardFooter>
+
     </Card>
   )
 }

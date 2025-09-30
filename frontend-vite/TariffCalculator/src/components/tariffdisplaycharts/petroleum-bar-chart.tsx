@@ -1,13 +1,11 @@
-"use client"
 
-import { Bar, BarChart, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, YAxis, XAxis } from "recharts"
 import { useState } from "react"
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -45,26 +43,29 @@ export function PetroleumBarChart({
 
   // Process the data based on sorting and filtering
   const processedData = () => {
-    //for each entry of country map the country name, vat rate
+    //for each entry of data, map to product and price
     let data = [...petroleum].map(petrol => ({
-      country: petrol.name,
+      product: petrol.name,
       pricePerUnit: petrol.pricePerUnit,
       fill: "var(--chart-1)"
     }));
 
-    // Sort function to sort by ascending or descending order
-    if (sortOrder === 'ascending') {
-      data.sort((a, b) => a.pricePerUnit - b.pricePerUnit);
-    } else if (sortOrder === 'descending') {
-      data.sort((a, b) => b.pricePerUnit - a.pricePerUnit);
-    }
-
-    const sorted = [...data].sort((a, b) => b.pricePerUnit - a.pricePerUnit);
-    data = sorted.slice(0, topResults);
     
-    // Re-sort based on sortOrder
-    if (sortOrder === 'ascending') {
-      data.sort((a, b) => a.pricePerUnit - b.pricePerUnit);
+  // Sort and slice based on sortOrder
+  if (sortOrder === 'ascending') {
+        // Bottom 5 (lowest prices) displayed in ascending order
+        data.sort((a, b) => a.pricePerUnit - b.pricePerUnit);
+        data = data.slice(0, topResults);
+    } 
+    
+    else if (sortOrder === 'descending') {
+        // Top 5 (highest prices) displayed in descending order
+        data.sort((a, b) => b.pricePerUnit - a.pricePerUnit);
+        data = data.slice(0, topResults);
+    } else{
+        // 'none' shows all data unsorted
+        data = data.slice(0, topResults);
+
     }
 
     return data;
@@ -72,23 +73,22 @@ export function PetroleumBarChart({
 
   const chartData = processedData();
 
+
   return (
-    <Card>
+    <Card className="dark:text-gray-100">
       <CardHeader>
-        <CardTitle>VAT Rates by Country</CardTitle>
-        <CardDescription>
-          {`Top ${topResults} petroleum products by Price per unit`}
-          {sortOrder !== 'none' && ` - Sorted ${sortOrder}`}
+        <CardTitle className="dark:text-gray-100">Petroleum Prices</CardTitle>
+        <CardDescription className="dark:text-gray-400">
+          {`Petroleum by Price per unit`}
         </CardDescription>
         
-        {/* Add buttons in the header */}
-        <div className="flex gap-2 mt-4">
+        <div className="flex flex-wrap gap-2 mt-4">
           <button
             onClick={() => setSortOrder('ascending')}
             className={`px-3 py-1 text-sm rounded transition-colors ${
               sortOrder === 'ascending' 
                 ? 'bg-sky-500 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300'
+                : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-400 dark:hover:bg-gray-350'
             }`}
           >
             Ascending
@@ -98,17 +98,18 @@ export function PetroleumBarChart({
             className={`px-3 py-1 text-sm rounded transition-colors ${
               sortOrder === 'descending' 
                 ? 'bg-sky-500 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300'
+                : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-400 dark:hover:bg-gray-350'
             }`}
           >
             Descending
           </button>
+
           <button
             onClick={() => setSortOrder('none')}
             className={`px-3 py-1 text-sm rounded transition-colors ${
               sortOrder === 'none' 
                 ? 'bg-sky-500 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300'
+                : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-400 dark:hover:bg-gray-350'
             }`}
           >
             None
@@ -123,32 +124,52 @@ export function PetroleumBarChart({
             layout="vertical"
             margin={{
               left: 0,
+              right: 20,
+              top: 0,
+              bottom: 0,
             }}
           >
+            {/* Y-AXIS - Shows product names on the left */}
             <YAxis
-              dataKey="country"
-              type="category"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              width={100}
+              dataKey="product"        // Which field to show
+              type="category"          // Categorical data (not numbers)
+              tickLine={false}         // Hide tick marks
+              tickMargin={10}          // Space between labels and axis
+              axisLine={false}         // Hide the axis line
+              width={80}              // Width for product names
+              tick={{ fontSize: 12 }} // Font size of labels
             />
-            <XAxis dataKey="pricePerUnit" type="number" hide />
+
+            <XAxis 
+                type="number"
+                hide={true}  // Hide it if you don't want it visible
+            />
+            
+            
+            {/* TOOLTIP - Appears on hover */}
             <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+            cursor={{ fill: "transparent" }}
+            content={
+                <ChartTooltipContent 
+                formatter={(value) => `$${value}`}
+                hideLabel={true} // hide the bar/category name
+                className="bg-sky-300 text-black rounded-md px-2 py-1" // Tailwind for tooltip
+                />
+            }
             />
-            <Bar dataKey="pricePerUnit" layout="vertical" radius={3} // smaller radius for thinner bar
-              barSize={20} // thinner bars so tooltip is visible
-              />
+            
+            {/* THE BARS */}
+            <Bar 
+              dataKey="pricePerUnit"   // Which field determines bar length
+              layout="vertical"        // Horizontal bars
+              radius={3}               // Rounded corners (3px)
+              barSize={20}             // Thickness of bars (15px)
+              animationEasing="ease-out" // Smooth easing function
+              style={{ fill: "#3B82F6" }}
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="text-muted-foreground leading-none">
-          Showing Petroleum price per unit
-        </div>
-      </CardFooter>
     </Card>
   )
 }
