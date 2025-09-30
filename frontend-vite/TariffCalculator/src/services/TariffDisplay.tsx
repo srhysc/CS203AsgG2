@@ -3,25 +3,31 @@ import {motion} from "motion/react"
 import { WorldMap } from '@/components/ui/world-map';
 
 import { countryService } from './countryapi';
+import { petrolService } from './petroleumapi';
+
+import type { Petroleum } from './types/petroleum';
 import type {Country} from '@/services/types/country'
 
 import { CountryBarChart } from '@/components/tariffdisplaycharts/country-bar-chart';
+import { PetroleumBarChart } from '@/components/tariffdisplaycharts/petroleum-bar-chart';
 
 
 
 const TariffLookup: React.FC = () => {
     //declare state hooks for useState to update when getting data
     const [countries, setCountries] = useState<Country[] | null >(null);
+    const [petroleum, setPetroleum] = useState<Petroleum[] | null >(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
 
-    //run on render
+    //run on render to get all countries
     useEffect(() => {
     const fetchCountries = async () => {
       try {
         const data = await countryService.getAllCountries();
         setCountries(data);
+
       } catch (err) {
         setError('Failed to load countries.');
         console.error(err);
@@ -33,8 +39,27 @@ const TariffLookup: React.FC = () => {
     fetchCountries();
   }, []); // empty dependency array → runs once on mount  
 
-  //if (loading) return <div>Loading...</div>;
-  //if (error) return <div>{error}</div>;
+  //run on render to get all petroleum
+    useEffect(() => {
+    const fetchPetroleum = async () => {
+      try {
+        const data = await petrolService.getAllPetroleum();
+        setPetroleum(data);
+
+      } catch (err) {
+        setError('Failed to retrieve petroleum.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPetroleum();
+  }, []); // empty dependency array → runs once on mount
+
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
     return(        
         <div className=" py-40 w-full">
@@ -99,6 +124,12 @@ const TariffLookup: React.FC = () => {
         {countries && <CountryBarChart countries={countries} />}
         {/* Or show no countries loaded */}
         {!countries && <p>No countries found in database...</p>}
+      </div>
+
+      <div>
+        {petroleum && <PetroleumBarChart petroleum={petroleum} />}
+        {/* Or show no countries loaded */}
+        {!petroleum && <p>No petroleum found in database...</p>}
       </div>
     </div>
     );
