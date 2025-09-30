@@ -12,6 +12,9 @@ public class LandedCostResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.00")
     private double pricePerUnit;
 
+    private String unit;   // original, e.g. "USD/barrel"
+    private String baseUnit; // normalized, e.g. "USD/ton"
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.00")
     private double basePrice;
 

@@ -19,7 +19,7 @@ public class PetroleumService {
     }
 
     public Petroleum getPetroleumByHsCode(String hsCode) {
-        return repo.findByHsCode(hsCode)
+        return repo.findByid(hsCode)
                    .orElseThrow(() -> new PetroleumNotFoundException("Petroleum not found: " + hsCode));
     }
 

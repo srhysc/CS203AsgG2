@@ -25,6 +25,20 @@ public class LandedCostService {
         this.tariffService = tariffService;
     }
 
+    private double convertToUsdPerTon(double price, String unit) {
+        switch (unit.toLowerCase()) {
+            case "usd/ton":
+                return price;
+            case "usd/barrel":
+                return price / 0.136; // barrels -> ton
+            case "usd/mmbtu":
+                return price / 0.0252; // gas -> ton
+            default:
+                throw new IllegalArgumentException("Unsupported unit: " + unit);
+        }
+    }
+    
+
     public LandedCostResponse calculateLandedCost(LandedCostRequest request) {
         // Importer
         Country importer = null;
@@ -53,10 +67,24 @@ public class LandedCostService {
             throw new IllegalArgumentException("Importer and exporter cannot be the same country");
         }
 
-        // Calculations
-        double pricePerUnit = petroleum.getPricePerUnit();
-        double baseCost = pricePerUnit * request.getUnits();
+        // // Calculations
+        // double pricePerUnit = petroleum.getPricePerUnit();
+        // double baseCost = pricePerUnit * request.getUnits();
 
+        double pricePerUnitOriginal = petroleum.getPricePerUnit();
+        String unitOriginal = petroleum.getUnit();
+
+        // Convert to USD/ton
+        double pricePerTon;
+        try {
+            pricePerTon = convertToUsdPerTon(pricePerUnitOriginal, unitOriginal);
+        } catch (IllegalArgumentException e) {
+            logger.error("Unsupported unit for HS code {}: {}. Using fallback of 0.00 USD/ton", petroleum.getHsCode(), unitOriginal);
+            pricePerTon = 0.0; // fallback, or maybe throw a custom exception
+        }
+
+        // Landed cost math always uses USD/ton
+        double baseCost = pricePerTon * request.getUnits();
         double tariffRate;
         try {
             tariffRate = tariffService.getLatest(
@@ -91,7 +119,11 @@ public class LandedCostService {
                 vatRate,
                 vatFees,
                 totalCost,
-                "USD"
+                "USD",
+                unitOriginal,
+                "USD/ton"
         );
+
+        
     }
 }

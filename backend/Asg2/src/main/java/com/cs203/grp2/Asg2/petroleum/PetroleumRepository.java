@@ -6,6 +6,5 @@ import java.util.Optional;
 
 @Repository
 public interface PetroleumRepository extends JpaRepository<Petroleum, String> {
-    Optional<Petroleum> findByHsCode(String hsCode);
     
 }

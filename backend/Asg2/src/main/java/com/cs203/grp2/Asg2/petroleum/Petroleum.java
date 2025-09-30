@@ -5,7 +5,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "petroleum_view") // mapping to SQL View
 public class Petroleum {
     private String name;
 
