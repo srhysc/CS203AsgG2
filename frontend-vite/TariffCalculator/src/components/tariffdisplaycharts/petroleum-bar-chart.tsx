@@ -45,9 +45,9 @@ export function PetroleumBarChart({
 
   // Process the data based on sorting and filtering
   const processedData = () => {
-    //for each entry of country map the country name, vat rate
+    //for each entry of data, map to product and price
     let data = [...petroleum].map(petrol => ({
-      country: petrol.name,
+      product: petrol.name,
       pricePerUnit: petrol.pricePerUnit,
       fill: "var(--chart-1)"
     }));
@@ -75,7 +75,7 @@ export function PetroleumBarChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>VAT Rates by Country</CardTitle>
+        <CardTitle>Petroleum by price per unit</CardTitle>
         <CardDescription>
           {`Top ${topResults} petroleum products by Price per unit`}
           {sortOrder !== 'none' && ` - Sorted ${sortOrder}`}
@@ -117,31 +117,31 @@ export function PetroleumBarChart({
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart
+            <BarChart
             accessibilityLayer
             data={chartData}
             layout="vertical"
             margin={{
-              left: 0,
+                left: 0,
+                right: 10, // Add some right margin
             }}
-          >
+            >
             <YAxis
-              dataKey="country"
-              type="category"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              width={100}
+                dataKey="product"
+                type="category"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                width={80} // Reduced from 100 for narrower cards
+                tick={{ fontSize: 12 }} // Smaller font for compact view
             />
-            <XAxis dataKey="pricePerUnit" type="number" hide />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+            <Bar 
+                dataKey="pricePerUnit" 
+                layout="vertical" 
+                radius={3}
+                barSize={15} // Even thinner bars for compact cards
             />
-            <Bar dataKey="pricePerUnit" layout="vertical" radius={3} // smaller radius for thinner bar
-              barSize={20} // thinner bars so tooltip is visible
-              />
-          </BarChart>
+            </BarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">

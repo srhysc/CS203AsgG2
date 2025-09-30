@@ -117,31 +117,31 @@ export function CountryBarChart({
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart
+            <BarChart
             accessibilityLayer
             data={chartData}
             layout="vertical"
             margin={{
-              left: 0,
+                left: 0,
+                right: 10, // Add some right margin
             }}
-          >
+            >
             <YAxis
-              dataKey="country"
-              type="category"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              width={100}
+                dataKey="country"
+                type="category"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                width={80} // Reduced from 100 for narrower cards
+                tick={{ fontSize: 12 }} // Smaller font for compact view
             />
-            <XAxis dataKey="vatRate" type="number" hide />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+            <Bar 
+                dataKey="vatRate" 
+                layout="vertical" 
+                radius={3}
+                barSize={15} // Even thinner bars for compact cards
             />
-            <Bar dataKey="vatRate" layout="vertical" radius={3} // smaller radius for thinner bar
-              barSize={20} // thinner bars so tooltip is visible
-              />
-          </BarChart>
+            </BarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
