@@ -45,13 +45,15 @@ export function AgreementDataTable<TData, TValue>({
  
   return (
     <div className="overflow-hidden rounded-md border dark:text-gray-100 m-5">
+      <h2 className="text-lg font-semibold">Agreement Table</h2>
+
       <Table className="dark:text-gray-100">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="text-center">
                     {header.isPlaceholder
                       ? null
                       : flexRender(

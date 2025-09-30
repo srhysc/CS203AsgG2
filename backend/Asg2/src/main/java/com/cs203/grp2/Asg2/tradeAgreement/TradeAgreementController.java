@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,7 +22,15 @@ public class TradeAgreementController {
     // GET /tradeAgreements
     @GetMapping
     public List<TradeAgreement> getAllAgreements() {
-        return svc.getAllAgreements();
+            List<TradeAgreement> agreements = new ArrayList<>();
+
+            agreements.add(new TradeAgreement("USMCA", "USA", "Canada"));
+            agreements.add(new TradeAgreement("CPTPP", "Japan", "Australia"));
+            agreements.add(new TradeAgreement("ASEAN Free Trade Area", "Singapore", "Malaysia"));
+            agreements.add(new TradeAgreement("EU Single Market", "Germany", "France"));
+
+            return agreements;
+        //return svc.getAllAgreements();
     }
 
     // GET /tradeAgreements/{agreementName}
