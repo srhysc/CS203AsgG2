@@ -25,11 +25,13 @@ type TariffFormProps = {
   onSubmit: (data: z.infer<typeof tariffSchema>) => void | Promise<void>;
   countries?: Country[] | null;
   petroleum?: Petroleum[] | null;
+  clearSignal?: boolean;
+  onClear?: () => void;
 };
 
 //TariffForm needs an onSubmit function, and will receive tariffSchema 
 //Promise<void> promises to finish task - function can be sync or async, up to parent component
-export function TariffForm({onSubmit, countries, petroleum} : TariffFormProps) {
+export function TariffForm({onSubmit, countries, petroleum, clearSignal, onClear} : TariffFormProps) {
   // 1. Define your form.
   const form = useForm<z.infer<typeof tariffSchema>>({
     resolver: zodResolver(tariffSchema),
@@ -40,6 +42,13 @@ export function TariffForm({onSubmit, countries, petroleum} : TariffFormProps) {
         units: ""
     }});
 
+    // reset form if clearSignal changes to true
+    React.useEffect(() => {
+    if (clearSignal) {
+      form.reset(); // clears all input fields
+    }
+    }, [clearSignal, form]);
+  
     const countryOptions: LocalOption[] = React.useMemo(
     () =>
       (countries ?? []).map((c) => ({
@@ -65,7 +74,30 @@ export function TariffForm({onSubmit, countries, petroleum} : TariffFormProps) {
 
   return(
     <div className="flex flex-col items-center px-2">
-     <h2 className="text-2xl font-bold mb-4">Calculate your Tariffs !</h2>
+      <div className="relative w-full max-w-md mb-4 flex justify-center">
+        <h2 className="text-2xl font-bold">Calculate your Tariffs !</h2>
+        <button
+          type="button"
+          onClick={() => {
+            onClear?.();       // clears results in parent
+            form.reset();      // resets input fields
+          }}
+          className="
+            absolute right-0 top-0 
+            w-8 h-8 
+            bg-[#71869A] 
+            text-white 
+            font-bold 
+            rounded 
+            shadow-md 
+            flex items-center justify-center 
+            hover:bg-[#5a6a7c] 
+            transition-colors duration-150
+          "
+        >
+          C
+        </button>
+     </div>
 
         <FormProvider {...form}>
             {/* Form's submit function overriden by one above */}
