@@ -62,6 +62,15 @@ const TariffCalculator: React.FC = () => {
 
 
 
+    const [clearFormSignal, setClearFormSignal] = useState(false);
+
+    const handleClearAll = () => {
+        setTariffs(null);        // clears calculated results
+        setError(null);
+        
+    };
+
+
     //retrieving Form Submission data from TariffForm, breaking down into strings for API call
     //call async so can call API without blocking code, Promise<void> promises to finish task
     const tariffFormSubmission = async (formData:z.infer<typeof tariffSchema>): Promise<void> =>{
@@ -88,7 +97,7 @@ const TariffCalculator: React.FC = () => {
         <div className='w-fit mx-auto my-10'> 
             <CometCard>
             {/* Calculator Shell */}
-            <div className="bg-gray-200 rounded-lg shadow-md p-6 w-full max-w-md">
+            <div className="bg-gray-200 rounded-lg shadow-md p-6 w-full max-w-md overflow-visible">
 
                 {/* Calculator Screen */}
                 <div className="bg-white text-right font-mono text-3xl p-4 mb-4 rounded-md border">
@@ -117,7 +126,7 @@ const TariffCalculator: React.FC = () => {
                 </div>
 
                 {/* Tariff form*/}
-                <TariffForm onSubmit={tariffFormSubmission} countries={countries} petroleum={petroleum} />
+                <TariffForm onSubmit={tariffFormSubmission} countries={countries} petroleum={petroleum} clearSignal={clearFormSignal} onClear={handleClearAll}  />
             </div>
             </CometCard>
         </div>
