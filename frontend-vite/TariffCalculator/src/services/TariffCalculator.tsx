@@ -74,7 +74,7 @@ const TariffCalculator: React.FC = () => {
             //try getting all countries
             const tariffs = await tariffService.getByRequirements(formData.importcountry,formData.exportcountry,formData.productcode,formData.units);
             //update tariffs field
-console.log('tarrifs:', tariffs);
+            console.log('tarrifs:', tariffs);
             setTariffs(tariffs);
         } catch (err: any) {
             setError('Failed to fetch Tariffs');
@@ -117,7 +117,7 @@ console.log('tarrifs:', tariffs);
                 </div>
 
                 {/* Tariff form*/}
-                <TariffForm onSubmit={tariffFormSubmission}/>
+                <TariffForm onSubmit={tariffFormSubmission} countries={countries} petroleum={petroleum} />
             </div>
             </CometCard>
         </div>
