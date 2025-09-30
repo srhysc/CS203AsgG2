@@ -1,5 +1,5 @@
-import React, { useState} from 'react';
-import type { tariff } from './counttrytariffapi'; 
+import React, { useState, useEffect} from 'react';
+import type { Tariff } from './types/countrytariff'; 
 import { tariffService } from './counttrytariffapi';
 import { TariffForm } from '@/components/ui/tarifflookupform';
 import { tariffSchema } from '@/components/ui/tarifflookupform';
@@ -7,18 +7,63 @@ import { z } from 'zod';
 import { CometCard } from "@/components/ui/comet-card";
 import ToggleTable from "@/components/ui/tariffbreakdowntable"
 
+import { countryService } from './countryapi';
+import { petrolService } from './petroleumapi';
 
+import type { Petroleum } from './types/petroleum';
+import type {Country} from '@/services/types/country'
 
 const TariffCalculator: React.FC = () => {
     //declare state hooks for useState to update when getting data
-    const [tariffs, setTariffs] = useState<tariff | null >(null);
+    const [tariffs, setTariffs] = useState<Tariff | null >(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+
+    //state hooks to populate form dropdown
+    const [countries, setCountries] = useState<Country[] | null >(null);
+    const [petroleum, setPetroleum] = useState<Petroleum[] | null >(null);
+
+
+    //run on render to get all countries
+        useEffect(() => {
+        const fetchCountries = async () => {
+        try {
+            const data = await countryService.getAllCountries();
+            setCountries(data);
+
+        } catch (err) {
+            setError('Failed to load countries.');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+        };
+
+        fetchCountries();
+    }, []); // empty dependency array → runs once on mount  
+
+    //run on render to get all petroleum
+        useEffect(() => {
+        const fetchPetroleum = async () => {
+        try {
+            const data = await petrolService.getAllPetroleum();
+            setPetroleum(data);
+
+        } catch (err) {
+            setError('Failed to retrieve petroleum.');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+        };
+
+        fetchPetroleum();
+    }, []); // empty dependency array → runs once on mount
 
 
 
     //retrieving Form Submission data from TariffForm, breaking down into strings for API call
-                                //call async so can call API without blocking code, Promise<void> promises to finish task
+    //call async so can call API without blocking code, Promise<void> promises to finish task
     const tariffFormSubmission = async (formData:z.infer<typeof tariffSchema>): Promise<void> =>{
                 
         setLoading(true);
