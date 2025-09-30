@@ -198,7 +198,7 @@ INSERT INTO `petroleum` (`hscode`, `product_name`, `price_per_unit`, `unit`) VAL
 ('271490', 'Bitumen and asphalt; natural asphaltites and as', 460.00, 'USD/ton'),
 ('271500', 'Bituminous mixtures base natural asphalt, bitumen', 300.00, 'USD/ton'),
 ('271600', 'Electrical energy', 150.00, 'USD/MWh');
-/*!40000 ALTER TABLE `vat_rates_stage` ENABLE KEYS */;
+/*!40000 ALTER TABLE `petroleum` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

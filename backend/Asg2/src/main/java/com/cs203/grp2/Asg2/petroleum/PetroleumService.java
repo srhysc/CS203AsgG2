@@ -10,14 +10,11 @@ public class PetroleumService {
 
     private final PetroleumRepository repo;
 
-    private final List<Petroleum> petroleumList = new ArrayList<>();
-
-    public PetroleumService() {
+    public PetroleumService(PetroleumRepository repo) {
         this.repo = repo; 
     }
 
     public List<Petroleum> getAllPetroleum() {
-        //return petroleumList;
         return repo.findAll();
     }
 
