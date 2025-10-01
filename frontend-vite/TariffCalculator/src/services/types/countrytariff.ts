@@ -7,7 +7,7 @@ export interface Tariff{
     pricePerUnit: number;
     basePrice: number;
     tariffRate: number;
-    tarrifFees: number;
+    tariffFees: number;
     vatRate: number;
     vatFees: number;
     totalLandedCost: number;

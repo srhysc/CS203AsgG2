@@ -147,7 +147,7 @@ export function TariffForm({onSubmit, countries, petroleum, clearSignal, onClear
                 </div>
 
                 {/* Quantity */}
-                <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Quantity:</label>
+                <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Quantity (Barrels):</label>
                 <div className="bg-white rounded-md p-2 shadow w-[195px]">
                           <InlineErrorInput name="units" placeholder="1" type="number" />
                 </div>

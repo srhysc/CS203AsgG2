@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type{ AxiosInstance} from 'axios';
 
-import type{Tariff} from '@/services/types/countrytariff'
+import type {Tariff} from '@/services/types/countrytariff'
 
 // Base API configuration using env variable
 const API_BASE_URL: string = import.meta.env.VITE_API_URL || '';
