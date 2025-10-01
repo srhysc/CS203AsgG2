@@ -1,8 +1,8 @@
 import { useState } from "react";
-import type { tariff } from '@/services/counttrytariffapi'; 
+import type {Tariff} from '@/services/types/countrytariff'
 
 
-export default function ToggleTable({ tariffObject }: { tariffObject: tariff }) {
+export default function ToggleTable({ tariffObject }: { tariffObject: Tariff }) {
   const [showTable, setShowTable] = useState(false);
 
   return (
@@ -55,7 +55,7 @@ export default function ToggleTable({ tariffObject }: { tariffObject: tariff }) 
             </tr>
             <tr>
               <td className="border p-2">Tariff Fees: </td>
-              <td className="border p-2">{tariffObject.tarrifFees}</td>
+              <td className="border p-2">{tariffObject.tariffFees}</td>
             </tr>
             <tr>
               <td className="border p-2">Vat Rate: </td>

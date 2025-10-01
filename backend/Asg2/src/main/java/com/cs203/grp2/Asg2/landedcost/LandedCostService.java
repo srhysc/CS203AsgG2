@@ -74,8 +74,7 @@ public class LandedCostService {
         //Check if importervatRate exists, 0.0 otherwise
         Double importerVatRate = importer.getVatRate();
         double vatRate = (importerVatRate != null) ? importerVatRate.doubleValue() : 0.0;
-        double vatFees = (baseCost + tariffFees) * vatRate;
-
+        double vatFees = (baseCost + tariffFees) * (vatRate/100);
         double totalCost = baseCost + tariffFees + vatFees;
 
         // Build response
