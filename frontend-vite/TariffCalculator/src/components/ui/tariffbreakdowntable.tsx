@@ -30,7 +30,7 @@ export default function ToggleTable({ tariffObject }: { tariffObject: Tariff }) 
               <th className="border p-2">{tariffObject.importingCountry}</th>
             </tr>
             <tr>
-              <th className="border p-2">Importing Country:</th>
+              <th className="border p-2">Exporting Country:</th>
               <th className="border p-2">{tariffObject.exportingCountry}</th>
             </tr>
             <tr>
