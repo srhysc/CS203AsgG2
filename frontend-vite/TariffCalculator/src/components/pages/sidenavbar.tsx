@@ -1,5 +1,5 @@
 // src/components/Layout.tsx
-import { Home, Calculator, Search } from "lucide-react"
+import { Home, Calculator, Search, Shield } from "lucide-react"
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 
 import {
@@ -30,9 +30,24 @@ const items = [
     icon: Search,
   },
 
+  {
+    title: "Administrator",
+    url: "/administrator",
+    icon: Shield,
+    requiresAdmin: true, // Add a flag for admin-only items
+  },
+
 ]
 
 export function AppSideBar(){
+
+  // Check if user is an admin (customize this logic based on your setup)
+  const isAdmin = true;
+  
+  // Filter items based on admin status
+  const visibleItems = items.filter(item => !item.requiresAdmin || isAdmin)
+
+  
     return(
       <Sidebar className="w-64 h-screen">
         <SidebarContent className="flex flex-col h-full p-4 bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
@@ -44,7 +59,7 @@ export function AppSideBar(){
 
         {/* Menu items */}
         <SidebarMenu className="flex-1">
-          {items.map((item) => (
+          {visibleItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
                 <a href={item.url} className="flex items-center gap-2">
