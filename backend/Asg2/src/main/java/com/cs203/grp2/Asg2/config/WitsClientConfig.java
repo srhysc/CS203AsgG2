@@ -1,4 +1,4 @@
-package com.cs203.grp2.Asg2.wits;
+package com.cs203.grp2.Asg2.config;
 
 
 import io.netty.channel.ChannelOption;

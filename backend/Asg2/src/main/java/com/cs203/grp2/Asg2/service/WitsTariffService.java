@@ -1,5 +1,6 @@
-package com.cs203.grp2.Asg2.wits;
+package com.cs203.grp2.Asg2.service;
 
+import com.cs203.grp2.Asg2.models.TariffLatest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;

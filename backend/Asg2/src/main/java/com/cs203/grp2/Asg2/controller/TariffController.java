@@ -1,8 +1,11 @@
-package com.cs203.grp2.Asg2.wits;
+package com.cs203.grp2.Asg2.controller;
 
 import jakarta.validation.constraints.Pattern;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import com.cs203.grp2.Asg2.models.TariffLatest;
+import com.cs203.grp2.Asg2.service.WitsTariffService;
 
 @RestController
 @RequestMapping("/tariffs")

@@ -1,6 +1,10 @@
-package com.cs203.grp2.Asg2.petroleum;
+package com.cs203.grp2.Asg2.controller;
 
 import org.springframework.web.bind.annotation.*;
+
+import com.cs203.grp2.Asg2.models.Petroleum;
+import com.cs203.grp2.Asg2.service.PetroleumService;
+
 import jakarta.validation.constraints.Pattern; 
 
 import java.util.List;

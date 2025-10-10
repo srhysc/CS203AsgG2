@@ -1,6 +1,8 @@
-package com.cs203.grp2.Asg2.country;
+package com.cs203.grp2.Asg2.respository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.cs203.grp2.Asg2.models.Country;
 
 import java.util.Optional;
 

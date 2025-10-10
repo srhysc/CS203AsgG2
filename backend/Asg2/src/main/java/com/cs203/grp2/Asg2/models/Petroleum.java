@@ -1,4 +1,4 @@
-package com.cs203.grp2.Asg2.petroleum;
+package com.cs203.grp2.Asg2.models;
 
 public class Petroleum {
     private String name;
