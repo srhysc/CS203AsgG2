@@ -1,4 +1,4 @@
-package com.cs203.grp2.Asg2.wits;
+package com.cs203.grp2.Asg2.models;
 
 public class TariffLatest {
   private Integer year;

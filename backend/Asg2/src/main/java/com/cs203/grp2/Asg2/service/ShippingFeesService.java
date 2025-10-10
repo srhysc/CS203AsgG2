@@ -1,6 +1,8 @@
-package com.cs203.grp2.Asg2.shippingFees;
+package com.cs203.grp2.Asg2.service;
 
 import org.springframework.stereotype.Service;
+
+import com.cs203.grp2.Asg2.models.ShippingFees;
 
 import java.util.HashMap;
 import java.util.Map;

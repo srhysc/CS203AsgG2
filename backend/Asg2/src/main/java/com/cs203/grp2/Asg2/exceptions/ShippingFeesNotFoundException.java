@@ -1,4 +1,4 @@
-package com.cs203.grp2.Asg2.shippingFees;
+package com.cs203.grp2.Asg2.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

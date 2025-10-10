@@ -1,4 +1,4 @@
-package com.cs203.grp2.Asg2.tradeAgreement;
+package com.cs203.grp2.Asg2.models;
 
 import jakarta.validation.constraints.NotBlank;
 

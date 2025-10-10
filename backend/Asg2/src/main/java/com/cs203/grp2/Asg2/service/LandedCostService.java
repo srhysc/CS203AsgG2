@@ -1,10 +1,10 @@
-package com.cs203.grp2.Asg2.landedcost;
+package com.cs203.grp2.Asg2.service;
 
-import com.cs203.grp2.Asg2.country.Country;
-import com.cs203.grp2.Asg2.country.CountryService;
-import com.cs203.grp2.Asg2.petroleum.Petroleum;
-import com.cs203.grp2.Asg2.petroleum.PetroleumService;
-import com.cs203.grp2.Asg2.wits.WitsTariffService;
+import com.cs203.grp2.Asg2.DTO.LandedCostRequest;
+import com.cs203.grp2.Asg2.DTO.LandedCostResponse;
+import com.cs203.grp2.Asg2.models.Country;
+import com.cs203.grp2.Asg2.models.Petroleum;
+
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

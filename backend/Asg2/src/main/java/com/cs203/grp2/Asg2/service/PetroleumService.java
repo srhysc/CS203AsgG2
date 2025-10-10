@@ -1,6 +1,8 @@
-package com.cs203.grp2.Asg2.petroleum;
+package com.cs203.grp2.Asg2.service;
 
 import org.springframework.stereotype.Service;
+
+import com.cs203.grp2.Asg2.models.Petroleum;
 
 import java.util.ArrayList;
 import java.util.List;
