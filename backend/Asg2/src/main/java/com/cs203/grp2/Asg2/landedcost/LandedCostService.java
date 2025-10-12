@@ -6,6 +6,10 @@ import com.cs203.grp2.Asg2.petroleum.Petroleum;
 import com.cs203.grp2.Asg2.petroleum.PetroleumService;
 import com.cs203.grp2.Asg2.wits.WitsTariffService;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +49,19 @@ public class LandedCostService {
         // Petroleum
         Petroleum petroleum = petroleumService.getPetroleumByHsCode(request.getHsCode());
 
-        if (importer == null || exporter == null || petroleum == null) {
-            throw new IllegalArgumentException("Invalid importer/exporter HS code or country code/name");
+        // if (importer == null || exporter == null || petroleum == null) {
+        //     throw new IllegalArgumentException("Invalid importer/exporter HS code or country code/name");
+        // }
+
+        //debug
+        List<String> missing = new ArrayList<>();
+
+        if (importer == null) missing.add("importer");
+        if (exporter == null) missing.add("exporter");
+        if (petroleum == null) missing.add("petroleum");
+
+        if (!missing.isEmpty()) {
+            throw new IllegalArgumentException("❌ Missing or invalid: " + String.join(", ", missing));
         }
 
         if (importer.getIso3n().equals(exporter.getIso3n())) {

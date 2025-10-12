@@ -11,7 +11,10 @@ RUN --mount=type=cache,target=/root/.m2 \
 
 # Copy sources and build a Boot (fat) jar
 COPY src ./src
+#force maven to refresh dependencies 
+RUN ./mvnw dependency:purge-local-repository -DactTransitively=false -DreResolve=false  
 RUN ./mvnw -q -DskipTests package spring-boot:repackage
+
 
 # Run stage
 FROM eclipse-temurin:21-jre

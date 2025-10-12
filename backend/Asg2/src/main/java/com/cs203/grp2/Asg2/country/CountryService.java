@@ -21,7 +21,7 @@ public class CountryService {
                    .orElseThrow(() -> new CountryNotFoundException("No country with iso3n=" + iso3n));
     }
 
-    public Country getCountryByName(String name) {
+    public Country getCountryByName(String name) {  
         return repo.findAll().stream()
                    .filter(c -> c.getName().equalsIgnoreCase(name))
                    .findFirst()
