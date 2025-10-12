@@ -6,6 +6,9 @@ import com.cs203.grp2.Asg2.petroleum.Petroleum;
 import com.cs203.grp2.Asg2.petroleum.PetroleumService;
 import com.cs203.grp2.Asg2.wits.WitsTariffService;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +74,13 @@ public class LandedCostService {
         // double pricePerUnit = petroleum.getPricePerUnit();
         // double baseCost = pricePerUnit * request.getUnits();
 
-        double pricePerUnitOriginal = petroleum.getPricePerUnit();
+        double pricePerUnitOriginal;
+        if (request.getDate() != null) {
+            LocalDate parsedDate = LocalDate.parse(request.getDate());
+            pricePerUnitOriginal = petroleumService.getPriceOnDate(petroleum.getHsCode(), parsedDate);
+        } else {
+            pricePerUnitOriginal = petroleumService.getCurrentPrice(petroleum.getHsCode());
+        }
         String unitOriginal = petroleum.getUnit();
 
         // Convert to USD/ton

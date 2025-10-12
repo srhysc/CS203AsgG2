@@ -1,5 +1,8 @@
 package com.cs203.grp2.Asg2.landedcost;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,7 +27,8 @@ public class LandedCostController {
             @RequestParam String importer,
             @RequestParam String exporter,
             @RequestParam String hsCode,
-            @RequestParam int units) {
+            @RequestParam int units,
+            @RequestParam(required = false) String date) {
 
         LandedCostRequest request = new LandedCostRequest();
 
@@ -44,6 +48,17 @@ public class LandedCostController {
 
         request.setHsCode(hsCode);
         request.setUnits(units);
+        if (date != null && !date.isEmpty()) {
+            try {
+                LocalDate parsedDate = LocalDate.parse(date);
+                request.setDate(date);
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Invalid date format. Use YYYY-MM-DD.");
+            }
+        } else {
+            LocalDate current = LocalDate.now();
+            request.setDate(current.toString());
+        }
 
         return service.calculateLandedCost(request);
     }

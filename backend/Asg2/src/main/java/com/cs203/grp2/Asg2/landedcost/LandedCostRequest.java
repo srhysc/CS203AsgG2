@@ -18,6 +18,8 @@ public class LandedCostRequest {
     @Min(1)
     private int units;
 
+    private String date; // Optional date field in YYYY-MM-DD format
+
     public LandedCostRequest() {}
 
     // getters and setters
@@ -38,4 +40,7 @@ public class LandedCostRequest {
 
     public int getUnits() { return units; }
     public void setUnits(int units) { this.units = units; }
+
+    public String getDate() { return date; }
+    public void setDate(String date) { this.date = date; }
 }
