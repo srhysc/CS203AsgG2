@@ -1,9 +1,10 @@
 "use client"
+import * as React from "react" 
 import { DataTable } from "@/components/ui/datatable"
-import type { Tariff } from "@/components/columns/edittariffscol"
-import { tariffColumns } from "@/components/columns/edittariffscol"
+import type { Tariff } from "@/components/tablecolumns/edittariffscol"
+import { tariffColumns } from "@/components/tablecolumns/edittariffscol"
 
-const tariffData: Tariff[] = [
+const initialTariffData: Tariff[] = [
   {
     tariffCode: "PET001",
     tariffName: "Crude Oil Basic Tariff",
@@ -54,12 +55,14 @@ const tariffData: Tariff[] = [
     effectiveFrom: "2025-01-01",
     effectiveTo: "2025-12-31",
   },
-
+  
 ]
 
 
 
 export default function EditTariffsPage() {
+  const [tariffData, setTariffData] = React.useState<Tariff[]>(initialTariffData)
+  
   return (
     <div className="p-6 min-h-full text-gray-900 dark:text-gray-100 transition-colors">
       <h1 className="text-2xl font-bold mb-4">Edit Tariffs</h1>
@@ -68,6 +71,7 @@ export default function EditTariffsPage() {
         <DataTable
           columns={tariffColumns}
           data={tariffData}
+          setData={setTariffData}
           filterPlaceholder="Search tariffs..."
   
         />

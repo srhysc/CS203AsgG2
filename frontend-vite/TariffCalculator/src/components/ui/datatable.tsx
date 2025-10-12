@@ -2,42 +2,75 @@
 
 import * as React from "react"
 import type { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from "@tanstack/react-table"
-import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
+import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable,} from "@tanstack/react-table"
 import { ChevronDown, Pencil } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog"
 
 type DataTableProps<T> = {
   columns: ColumnDef<T>[]
   data: T[]
+  setData?: React.Dispatch<React.SetStateAction<T[]>>
   filterPlaceholder?: string
   filterKey?: string // Add this prop for filter column
 }
 
-export function DataTable<T>({ columns, data, filterPlaceholder, filterKey = "name" }: DataTableProps<T>) {
+export function DataTable<T extends Record<string, any>>({ columns, data, filterPlaceholder, filterKey = "name" }: DataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
+  const [tableData, setTableData] = React.useState<T[]>(data)
+  const [editingRow, setEditingRow] = React.useState<T | null>(null) 
+  const [formValues, setFormValues] = React.useState<Record<string, any>>({}) 
+
+  const handleEditClick = (row: T) => {
+    setEditingRow(row)
+    setFormValues({ ...row })
+  }
+
+  const handleSave = () => {
+    if (!editingRow) return
+
+    const updatedData = tableData.map((r) =>
+      r === editingRow ? { ...formValues } : r
+    )
+
+    setTableData(updatedData)
+
+    if (setData) {
+      setData(updatedData)
+    }
+
+    setEditingRow(null)
+  }
+
+  const enhancedColumns = React.useMemo(() => {
+    return columns.map((col) => {
+      if (col.id === "actions") {
+        return {
+          ...col,
+          cell: ({ row }: any) => (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleEditClick(row.original)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          ),
+        }
+      }
+      return col
+    })
+  }, [columns])
 
   const table = useReactTable({
-    data,
-    columns,
+    data: tableData,
+    columns: enhancedColumns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -91,7 +124,7 @@ export function DataTable<T>({ columns, data, filterPlaceholder, filterKey = "na
   
   const pageIndex = table.getState().pagination.pageIndex
   const pageCount = table.getPageCount()
-  
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
@@ -146,7 +179,7 @@ export function DataTable<T>({ columns, data, filterPlaceholder, filterKey = "na
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -190,22 +223,40 @@ export function DataTable<T>({ columns, data, filterPlaceholder, filterKey = "na
           Next
         </Button>
       </div>
+
+      <Dialog open={!!editingRow} onOpenChange={() => setEditingRow(null)}>
+        <DialogContent className="sm:max-w-[500px] bg-white dark:bg-gray-800 rounded-md shadow-lg p-6 z-50 text-gray-900 dark:text-gray-100">
+          <DialogHeader>
+            <DialogTitle>Edit Tariff</DialogTitle>
+            <DialogDescription>Modify the fields and click Save.</DialogDescription>
+          </DialogHeader>
+
+          {editingRow && (
+            <div className="space-y-3 py-2">
+              {Object.keys(editingRow).map((key) => (
+                <div key={key} className="flex flex-col">
+                  <label className="text-sm font-medium capitalize">{key}</label>
+                  <Input
+                    value={formValues[key] ?? ""}
+                    onChange={(e) =>
+                      setFormValues((prev) => ({ ...prev, [key]: e.target.value }))
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setEditingRow(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave}>Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   )
 }
 
-export const columns: ColumnDef<any>[] = [
-  {
-    id: "actions",
-    cell: ({ row }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => console.log("Edit tariff", row.original.id)}
-        aria-label="Edit"
-      >
-        <Pencil className="h-4 w-4" />
-      </Button>
-    ),
-  },
-]

@@ -1,7 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { ArrowUpDown, Pencil } from "lucide-react"
-import { Checkbox } from "@/components/ui/checkbox"
 
 export type Tariff = {
   id: string
@@ -16,52 +15,27 @@ export type Tariff = {
 }
 
 export const tariffColumns: ColumnDef<Tariff>[] = [
-  // ✅ Selection Checkbox (non-hideable)
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
 
-  // ✅ Tariff Code
   {
     accessorKey: "tariffCode",
     header: "Tariff Code",
   },
 
-  // ✅ Tariff Name (sortable)
   {
     accessorKey: "tariffName",
     header: "Tariff Name",
   },
 
-  // ✅ Exporting Country
   {
     accessorKey: "exportingCountry",
     header: "Exporting Country",
   },
 
-  // ✅ Importing Country
   {
     accessorKey: "importingCountry",
     header: "Importing Country",
   },
 
-  // ✅ Tariff Rate (formatted as percentage)
   {
     accessorKey: "tariffRate",
     header: "Tariff Rate",
@@ -77,7 +51,6 @@ export const tariffColumns: ColumnDef<Tariff>[] = [
     },
   },
 
-  // ✅ Status (capitalized)
   {
     accessorKey: "status",
     header: "Status",
@@ -100,19 +73,16 @@ export const tariffColumns: ColumnDef<Tariff>[] = [
     },
   },
 
-  // ✅ Effective From
   {
     accessorKey: "effectiveFrom",
     header: "Effective From",
   },
 
-  // ✅ Effective To
   {
     accessorKey: "effectiveTo",
     header: "Effective To",
   },
 
-  // ✅ Actions column (non-hideable)
   {
     id: "actions",
     header: "Edit",
