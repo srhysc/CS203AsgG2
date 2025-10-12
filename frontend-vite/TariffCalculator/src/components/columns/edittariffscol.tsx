@@ -13,7 +13,6 @@ export type Tariff = {
   status: "active" | "inactive" | "pending"
   effectiveFrom: string
   effectiveTo: string
-  currency?: string
 }
 
 export const tariffColumns: ColumnDef<Tariff>[] = [

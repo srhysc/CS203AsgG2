@@ -10,8 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal, Pencil } from "lucide-react"
-
+import { ChevronDown, Pencil } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -47,30 +46,66 @@ export function DataTable<T>({ columns, data, filterPlaceholder, filterKey = "na
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    globalFilterFn: (row, columnId, filterValue) => {
+      if (!filterValue) return true
+      const search = filterValue.toString().toLowerCase().trim().replace(/[%\s]/g, "")
+
+      return row.getAllCells().some(cell => {
+        const value = cell.getValue()
+        if (value == null) return false
+
+        // --- Handle tariffRate (numeric) ---
+        if (typeof value === "number") {
+          const asPercent = (value * 100).toFixed(2) 
+          const asRaw = value.toString()             
+          return asPercent.includes(search) || asRaw.includes(search)
+        }
+
+        // --- Handle date strings ---
+        if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+          const dateString = value.toLowerCase()
+          return dateString.includes(search)
+        }
+
+        // --- Handle general strings (countries, status, names, etc.) ---
+        if (typeof value === "string") {
+          return value.toLowerCase().includes(search)
+        }
+
+        return false
+      })
+    },
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: {
+        pageSize: 8,
+      },
+    },
   })
 
+  
+  const pageIndex = table.getState().pagination.pageIndex
+  const pageCount = table.getPageCount()
+  
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
         {filterPlaceholder && (
           <Input
             placeholder={filterPlaceholder}
-            value={(table.getColumn(filterKey)?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn(filterKey)?.setFilterValue(event.target.value)
-            }
+            value={table.getState().globalFilter ?? ""}
+            onChange={(event) => table.setGlobalFilter(event.target.value)}
             className="max-w-sm"
           />
         )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline" className="ml-auto cursor-pointer">
               Columns <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
@@ -130,29 +165,30 @@ export function DataTable<T>({ columns, data, filterPlaceholder, filterKey = "na
         </Table>
       </div>
 
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
+    <div className="flex justify-center items-center py-4 gap-4">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+          className="hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+        >
+          Previous
+        </Button>
+
+        <span className="text-sm text-gray-600 dark:text-gray-300">
+          Page <strong>{pageIndex + 1}</strong> of <strong>{pageCount}</strong>
+        </span>
+
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+          className="hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+        >
+          Next
+        </Button>
       </div>
     </div>
   )
