@@ -75,8 +75,8 @@ public class LandedCostService {
         double tariffRate;
         try {
             tariffRate = tariffService.getLatest(
-                    importer.getIso3n(),
-                    exporter.getIso3n(),
+                    Integer.parseInt(importer.getIso3n()),
+                    Integer.parseInt(exporter.getIso3n()),
                     request.getHsCode(),
                     "aveestimated"
             ).getSimpleAverage() / 100.0;
@@ -87,8 +87,9 @@ public class LandedCostService {
 
         double tariffFees = baseCost * tariffRate;
         //Check if importervatRate exists, 0.0 otherwise
-        Double importerVatRate = importer.getVatRate();
-        double vatRate = (importerVatRate != null) ? importerVatRate.doubleValue() : 0.0;
+        Long importerVatRate = importer.getVatRate();
+        
+        double vatRate = (importerVatRate != null) ? (double) importerVatRate.doubleValue() : 0.0;
         double vatFees = (baseCost + tariffFees) * (vatRate/100);
         double totalCost = baseCost + tariffFees + vatFees;
 

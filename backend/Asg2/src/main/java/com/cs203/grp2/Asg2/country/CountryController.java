@@ -21,7 +21,15 @@ public class CountryController {
 
     @GetMapping
     public List<Country> getAllCountries() {
-        return svc.getAllCountries();
+        try {
+            
+            return svc.init().get();
+        } catch (Exception e) {
+            // TODO: handle exception
+            System.out.println("return failed");
+        }
+        return null;
+        
     }
 
     // Use numeric ISO3 code in path
