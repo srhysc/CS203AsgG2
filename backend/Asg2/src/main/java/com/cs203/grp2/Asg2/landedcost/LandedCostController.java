@@ -30,14 +30,14 @@ public class LandedCostController {
 
         // Detect if importer is numeric -> ISO3n
         if (importer.matches("\\d+")) {
-            request.setImporterIso3n(Integer.parseInt(importer));
+            request.setImporterCode(importer);
         } else {
             request.setImporterName(importer);
         }
 
         // Detect if exporter is numeric -> ISO3n
         if (exporter.matches("\\d+")) {
-            request.setExporterIso3n(Integer.parseInt(exporter));
+            request.setExporterCode(exporter);
         } else {
             request.setExporterName(exporter);
         }

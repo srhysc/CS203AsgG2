@@ -23,7 +23,7 @@ public class CountryController {
     public List<Country> getAllCountries() {
         try {
             
-            return svc.init().get();
+            return svc.getAll();
         } catch (Exception e) {
             // TODO: handle exception
             System.out.println("return failed");
@@ -34,7 +34,8 @@ public class CountryController {
 
     // Use numeric ISO3 code in path
     @GetMapping("/{iso3n}")
-    public Country getCountryByISO3n(@PathVariable @Min(1) @Max(999) int iso3n) {
-        return svc.getCountryByISO3n(iso3n);
+    public Country getCountryByCode(@PathVariable @Min(1) @Max(999) int iso3n) {
+        String s = "" + iso3n;
+        return svc.getCountryByCode(s);
     }
 }

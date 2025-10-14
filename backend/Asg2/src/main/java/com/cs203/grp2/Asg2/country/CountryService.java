@@ -10,84 +10,105 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+
+import com.google.firebase.database.*;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
 public class CountryService {
 
+    private final FirebaseDatabase firebase;
 
-    @Autowired
-    private final FirebaseDatabase firebaseDatabase;
-    private final List<Country> countryArray = new ArrayList<>();
-    private volatile boolean initialized = false;
+    private final List<Country> countries = new ArrayList<>();
+    // quick indexes after init:
+    private final Map<String, Country> byCode = new HashMap<>();
+    private final Map<String, Country> byNameCI = new HashMap<>();
 
-    public CountryService(FirebaseDatabase firebaseDatabase) {
-        this.firebaseDatabase = firebaseDatabase;
+    public CountryService(FirebaseDatabase firebase) {
+        this.firebase = firebase;
+        init();  // eager load on bean creation; or expose a public init if you prefer manual
     }
 
-    public CompletableFuture<List<Country>> init() {
-        if (initialized) return CompletableFuture.completedFuture(List.copyOf(countryArray));
+    /** Loads /Country into memory and builds indexes. */
+    public final void init() {
+        try {
+            DataSnapshot snap = await(firebase.getReference("/Country"));
+            countries.clear();
+            byCode.clear();
+            byNameCI.clear();
 
-        DatabaseReference ref = firebaseDatabase.getReference("Country");
-        CompletableFuture<List<Country>> fut = new CompletableFuture<>();
-        countryArray.clear();
+            if (snap.exists()) {
+                System.out.println("✅ is this nsap even exist?");
+                for (DataSnapshot node : snap.getChildren()) {
+                    System.out.println("✅ is this child even exist?");
+                    Country c = node.getValue(Country.class);
+                    if (c == null) continue;
 
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override public void onDataChange(DataSnapshot snap) {
-                try {
-                    for (DataSnapshot child : snap.getChildren()) {
-                        String key = child.getKey();
-                        CountryFirebaseDTO dto = child.getValue(CountryFirebaseDTO.class);
-                        if (key != null && dto != null) countryArray.add(dto.toDomain(key));
-                    }
-                    countryArray.sort(Comparator.comparing(Country::getName, String.CASE_INSENSITIVE_ORDER));
-                    initialized = true;
-                    fut.complete(List.copyOf(countryArray));
-                } catch (Exception e) {
-                    fut.completeExceptionally(e);
+                    String code = node.child("Code").getValue(String.class);
+                    String iso3 = node.child("ISO3").getValue(String.class);
+                    System.out.println("DBG " + node.getKey() + " Code=" + code + " ISO3=" + iso3);
+
+                    // DB key is the country name — capture it
+                    c.setName(node.getKey());
+
+                    // normalize all null numeric fields to 0/0.0 as per your rule
+                    c.normalize();
+
+                    countries.add(c);
+
+                    if (c.getCode() != null) byCode.put(code, c);
+                    if (c.getName() != null) byNameCI.put(c.getName().toLowerCase(Locale.ROOT), c);
+
+                    System.out.println("✅ Country code check: Entries " + byCode.size());
+                    System.out.println("✅ Country name check: Entries " + byNameCI.size());
                 }
             }
-            @Override public void onCancelled(DatabaseError error) {
-                fut.completeExceptionally(error.toException());
-            }
-        });
-
-        return fut;
-    }
-
-private void ensureInitialized() {
-    if (!initialized) {
-        try { init(); } 
-        catch (Exception e) { throw new RuntimeException("Failed to init countries", e); }
-    }
-}
-
-public Country getCountryByISO3n(Integer iso3n) {
-    ensureInitialized();
-    return countryArray.stream()
-            .filter(c -> Objects.equals(c.getCode(), iso3n))   // "Code" in RTDB == ISO3N numeric
-            .findFirst()
-            .orElseThrow(() ->
-                new CountryNotFoundException("No country with iso3n=" + iso3n));
-}
-
-public Country getCountryByName(String name) {
-    ensureInitialized();
-    return countryArray.stream()
-            .filter(c -> c.getName() != null && c.getName().equalsIgnoreCase(name))
-            .findFirst()
-            .orElseThrow(() ->
-                new CountryNotFoundException("No country with name=" + name));
-}
-
-    /** Force re-load from RTDB (e.g., admin changed data) */
-        public CompletableFuture<List<Country>> refresh() {
-            initialized = false;
-            return init();
+        } catch (Exception e) {
+            // You may want a logger here
+            throw new RuntimeException("Failed to load /Country from Firebase: " + e.getMessage(), e);
         }
+    }
 
+    public List<Country> getAll() {
+        return Collections.unmodifiableList(countries);
+    }
+
+    // ====== lookups from the in-memory list/index (not hitting the DB) ======
+
+    public Country getCountryByCode(String Code) {
+        Country c = byCode.get(Code);
+        if (c == null) throw new CountryNotFoundException("No country with code=" + Code);
+        return c;
+    }
+
+    public Country getCountryByName(String name) {
+        if (name == null) throw new CountryNotFoundException("No country with name=null");
+        Country c = byNameCI.get(name.toLowerCase(Locale.ROOT));
+        if (c == null) throw new CountryNotFoundException("No country with name=" + name);
+        return c;
+    }
+
+    // convenience: ISO3 → Country (since some flows use ISO3 strings)
+    public Country getCountryByISO3(String iso3) {
+        if (iso3 == null) throw new CountryNotFoundException("No country with iso3=null");
+        String needle = iso3.toUpperCase(Locale.ROOT);
+        for (Country c : countries) {
+            if (needle.equalsIgnoreCase(c.getISO3())) return c;
+        }
+        throw new CountryNotFoundException("No country with iso3=" + iso3);
+    }
+
+    // ====== Firebase await helper ======
+    private DataSnapshot await(DatabaseReference ref) throws Exception {
+        CompletableFuture<DataSnapshot> fut = new CompletableFuture<>();
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            public void onDataChange(DataSnapshot snapshot) { fut.complete(snapshot); }
+            public void onCancelled(DatabaseError error) { fut.completeExceptionally(new RuntimeException(error.getMessage())); }
+        });
+        return fut.get();
+    }
 }

@@ -56,7 +56,7 @@ public class PetroleumService {
 
                         System.out.println("    ↳ hsCode=" + hsCode + " | Price=" + price);
 
-                        if (name != null && hsCode != null && price != null) {
+                        if (name != null && hsCode != null ) {
                             petroleumList.add(new Petroleum(name, hsCode, price));
                         }
                     }

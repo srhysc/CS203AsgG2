@@ -3,11 +3,11 @@ package com.cs203.grp2.Asg2.landedcost;
 import jakarta.validation.constraints.*;
 
 public class LandedCostRequest {
-    @Min(1)
-    private Integer importerIso3n;
+  
+    private String importerCode;
     
-    @Min(1)
-    private Integer exporterIso3n;
+    
+    private String exporterCode;
 
     private String importerName;
     private String exporterName;
@@ -21,11 +21,11 @@ public class LandedCostRequest {
     public LandedCostRequest() {}
 
     // getters and setters
-    public Integer getImporterIso3n() { return importerIso3n; }
-    public void setImporterIso3n(Integer importerIso3n) { this.importerIso3n = importerIso3n; }
+    public String getImporterCode() { return importerCode; }
+    public void setImporterCode(String importerIso3n) { this.importerCode = importerIso3n; }
 
-    public Integer getExporterIso3n() { return exporterIso3n; }
-    public void setExporterIso3n(Integer exporterIso3n) { this.exporterIso3n = exporterIso3n; }
+    public String getExporterCode() { return exporterCode; }
+    public void setExporterCode(String exporterIso3n) { this.exporterCode = exporterIso3n; }
 
     public String getImporterName() { return importerName; }
     public void setImporterName(String importerName) { this.importerName = importerName; }
