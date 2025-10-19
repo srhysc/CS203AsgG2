@@ -51,10 +51,11 @@ const {
   
 
   const handleFormSubmit = async (values: EditTariffFormValues) => {
+    const hasChanged = values.tariffRate !== defaultValues.tariffRate;
     const updatedValues = {
-      ...values,
-      lastUpdated: new Date().toISOString().split('T')[0],
-      updatedBy: currentUserName,
+    ...values,
+    lastUpdated: hasChanged ? new Date().toISOString().split('T')[0] : defaultValues.lastUpdated,
+    updatedBy: hasChanged ? currentUserName : defaultValues.updatedBy,
     };
     await onSubmit(updatedValues);
   };
@@ -157,9 +158,10 @@ const {
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting}
-            className="hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-        >
+        <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-[#71869A] dark:bg-[#4B5A6B] text-white font-bold py-3 rounded-md shadow border border-[#5a6a7c] dark:border-[#3A4755] hover:bg-[#5a6a7c] dark:hover:bg-[#3A4755] transition-colors"        >
           {isSubmitting ? "Saving..." : "Save"}
         </Button>
       </div>
