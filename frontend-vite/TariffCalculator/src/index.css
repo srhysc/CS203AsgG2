@@ -44,3 +44,25 @@
     --primary-foreground: 222.2 47.4% 11.2%;
   }
 }
+
+@layer components {
+  /* Default (light mode) */
+  .btn-slate {
+    @apply text-white font-semibold px-4 py-2 rounded-md shadow transition-colors;
+    background-color: #71869A; /* Light mode button color */
+  }
+
+  .btn-slate:hover {
+    background-color: #607182;
+  }
+
+  /* Dark mode */
+  .dark .btn-slate {
+    background-color: #9AA9BA; /* Slightly lighter for dark backgrounds */
+    color: #1E293B; /* Dark gray text for contrast */
+  }
+
+  .dark .btn-slate:hover {
+    background-color: #8C9CAD;
+  }
+}

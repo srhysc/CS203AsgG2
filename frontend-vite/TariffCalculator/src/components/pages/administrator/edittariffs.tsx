@@ -185,10 +185,16 @@ export default function EditTariffsPage() {
   }
 
   return (
-    <div className="p-6 min-h-screen text-gray-900 dark:text-gray-100 transition-colors overflow-hidden">
-      <h1 className="text-3xl font-bold mb-6">Edit Tariffs</h1>
+    <div className="relative p-6 min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
+      <a href="/administrator" className="btn-slate absolute top-6 right-6 z-50">
+        Back
+      </a>
+      <div className="relative flex items-center justify-between mb-6">
+      <h1 className="text-3xl font-bold text-center w-full">Edit Tariffs</h1>
+      </div>
+      
 
-      <div className="flex-justify center mx-auto max-w-7xl bg-white/90 dark:bg-gray-800/80 rounded-lg p-6 shadow-lg backdrop-blur-sm transition-colors">
+      <div className="mx-auto max-w-7xl bg-white/90 dark:bg-gray-800/80 rounded-lg p-6 shadow-lg backdrop-blur-sm transition-colors">
 
         <DataTable
           columns={tariffColumns}

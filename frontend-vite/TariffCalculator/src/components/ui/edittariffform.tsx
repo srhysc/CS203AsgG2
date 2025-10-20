@@ -1,12 +1,10 @@
 "use client";
 
-import * as React from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FormCombobox } from "@/components/ui/combobox";
 import { FormProvider } from "react-hook-form";
 
 
@@ -154,14 +152,15 @@ const {
       {/* Action buttons */}
       <div className="flex justify-end gap-2 pt-3">
         <Button variant="outline" type="button" onClick={() => onCancel?.()}
-            className="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
         >
           Cancel
         </Button>
         <Button
             type="submit"
             disabled={isSubmitting}
-            className="bg-[#71869A] dark:bg-[#4B5A6B] text-white font-bold py-3 rounded-md shadow border border-[#5a6a7c] dark:border-[#3A4755] hover:bg-[#5a6a7c] dark:hover:bg-[#3A4755] transition-colors"        >
+            className="btn-slate cursor-pointer"        
+        >
           {isSubmitting ? "Saving..." : "Save"}
         </Button>
       </div>
