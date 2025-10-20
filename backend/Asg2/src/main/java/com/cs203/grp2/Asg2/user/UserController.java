@@ -5,6 +5,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import com.cs203.grp2.Asg2.user.UserService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.concurrent.ExecutionException;
+
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -30,7 +37,7 @@ public class UserController {
     @PutMapping("/role")
     public void updateRole(@RequestBody User.Role newRole) throws ExecutionException, InterruptedException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        userService.updateUserRole(user.getId().toString(), newRole);
+        userService.updateUserRole(user.getId(), newRole);
     }
 
     @GetMapping
