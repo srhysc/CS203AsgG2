@@ -5,37 +5,78 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+//to read into firebase
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+
 @Service
 public class UserService {
-
-    private final UserRepository repo;
-
-    public UserService(UserRepository repo) {
-        this.repo = repo;
-    }
-
-    public List<User> getAllUsers() {
-        return repo.findAll();
-    }
-
-    public User getUserById(Long id) {
-        return repo.findById(id)
-            .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
-    }
-
-    public User getUserByUsername(String username) {
-        return repo.findByUsername(username)
-            .orElseThrow(() -> new UserNotFoundException("User not found with username " + username));
-    }
-
-    public User createUser(User user) {
-        return repo.save(user);
-    }
-
-    public void deleteUser(Long id) {
-        if (!repo.existsById(id)) {
-            throw new UserNotFoundException("User not found with id " + id);
+    @Autowired
+    private DatabaseReference firebaseDatabase;
+    
+    public User getOrCreateUser(String clerkUserId, String email) throws ExecutionException, InterruptedException {
+        //Create reference path to firestore/Users/clerkUserId
+        DocumentReference ref = firebaseDatabase.child("users").child(clerkUserId);
+         //Take snapshot of result
+        DocumentSnapshot snap = ref.get().get();
+        
+        //If there IS a result - there is a user
+        if (snap.exists()) {
+            return snap.toObject(User.class);
+        } 
+        //if NO result, no user, so create a new one
+        else {     
+            User user = new User();
+            user.setEmail(email);
+            user.setUsername(email);
+            user.setRole(User.Role.USER);
+            //store new user in firesbase
+            ref.set(user).get();
+            return user;
         }
-        repo.deleteById(id);
     }
+    
+    public User getUserById(String clerkUserId) 
+            throws ExecutionException, InterruptedException {
+        DataSnapshot snap = firebaseDatabase.child("users").child(clerkUserId).get().get();
+        return snap.exists() ? snap.getValue(User.class) : null;
+    }
+    
+    public void saveUser(String clerkUserId, User user) 
+            throws ExecutionException, InterruptedException {
+        firebaseDatabase.child("users").child(clerkUserId).setValue(user).get();
+    }
+    
+    public List<String> getUserRoles(String clerkUserId) 
+            throws ExecutionException, InterruptedException {
+        User user = getUserById(clerkUserId);
+        if (user != null && user.getRole() != null) {
+            return List.of(user.getRole().toString());
+        }
+        return List.of();
+    }
+    
+    public void updateUserRole(String clerkUserId, User.Role newRole) 
+            throws ExecutionException, InterruptedException {
+        User user = getUserById(clerkUserId);
+        if (user != null) {
+            user.setRole(newRole);
+            saveUser(clerkUserId, user);
+        }
+    }
+    
+    public List<User> getAllUsers() 
+            throws ExecutionException, InterruptedException {
+        List<User> users = new ArrayList<>();
+        DataSnapshot snap = firebaseDatabase.child("users").get().get();
+        for (DataSnapshot child : snap.getChildren()) {
+            User user = child.getValue(User.class);
+            if (user != null) {
+                users.add(user);
+            }
+        }
+        return users;
+    }
+
 }

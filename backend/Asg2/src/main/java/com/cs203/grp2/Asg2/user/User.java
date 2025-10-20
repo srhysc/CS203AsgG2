@@ -3,8 +3,7 @@ package com.cs203.grp2.Asg2.user;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
-@Entity
-@Table(name = "users")
+
 public class User {
 
     @Id
@@ -25,7 +24,8 @@ public class User {
 
     public enum Role {
         USER,
-        ADMIN
+        ADMIN,
+        SUPERADMIN
     }
 
     @Enumerated(EnumType.STRING)

@@ -6,37 +6,35 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
-    private final UserService svc;
+    private final UserService userService;
 
-    public UserController(UserService svc) {
-        this.svc = svc;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping("/profile")
+    public User getProfile() throws ExecutionException, InterruptedException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userService.getUserById(user.getId());
+    }
+
+    @GetMapping("/roles")
+    public List<String> getUserRoles() throws ExecutionException, InterruptedException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userService.getUserRoles(user.getId());
+    }
+
+    @PutMapping("/role")
+    public void updateRole(@RequestBody User.Role newRole) throws ExecutionException, InterruptedException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        userService.updateUserRole(user.getId().toString(), newRole);
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return svc.getAllUsers();
-    }
-
-    @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return svc.getUserById(id);
-    }
-
-    @GetMapping("/by-username")
-    public User getUserByUsername(@RequestParam String username) {
-        return svc.getUserByUsername(username);
-    }
-
-    @PostMapping
-    public User createUser(@Valid @RequestBody User user) {
-        return svc.createUser(user);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        svc.deleteUser(id);
+    public List<User> getAllUsers() throws ExecutionException, InterruptedException {
+        return userService.getAllUsers();
     }
 }
