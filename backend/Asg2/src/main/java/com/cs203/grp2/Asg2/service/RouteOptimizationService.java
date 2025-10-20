@@ -15,11 +15,11 @@ public class RouteOptimizationService {
 
     private final CountryService countryService;
     private final PetroleumService petroleumService;
-    private final WitsTariffService tariffService;
+    private final WitsService tariffService;
 
     public RouteOptimizationService(CountryService countryService,
                                     PetroleumService petroleumService,
-                                    WitsTariffService tariffService) {
+                                    WitsService tariffService) {
         this.countryService = countryService;
         this.petroleumService = petroleumService;
         this.tariffService = tariffService;
@@ -30,7 +30,7 @@ public class RouteOptimizationService {
         // Resolve exporter
         Country exporter;
         if (request.getExporterIso3n() != null) {
-            exporter = countryService.getCountryByISO3n(request.getExporterIso3n());
+            exporter = countryService.getCountryByCode(""+request.getExporterIso3n());
         } else if (request.getExporterName() != null) {
             exporter = countryService.getCountryByName(request.getExporterName());
         } else {
@@ -40,7 +40,7 @@ public class RouteOptimizationService {
         // Resolve importer
         Country importer;
         if (request.getImporterIso3n() != null) {
-            importer = countryService.getCountryByISO3n(request.getImporterIso3n());
+            importer = countryService.getCountryByCode(""+request.getImporterIso3n());
         } else if (request.getImporterName() != null) {
             importer = countryService.getCountryByName(request.getImporterName());
         } else {
@@ -53,11 +53,11 @@ public class RouteOptimizationService {
             throw new IllegalArgumentException("Invalid HS Code for petroleum");
         }
 
-        if (exporter.getIso3n().equals(importer.getIso3n())) {
+        if (exporter.getCode().equals(importer.getCode())) {
             throw new IllegalArgumentException("Importer and exporter cannot be the same country");
         }
 
-        List<Country> allCountries = countryService.getAllCountries();
+        List<Country> allCountries = countryService.getAll();
         List<RouteBreakdown> allRoutes = new ArrayList<>();
 
         // Direct route (0 transits)
@@ -65,7 +65,7 @@ public class RouteOptimizationService {
 
         // Routes with 1 or 2 transits
         for (Country transit1 : allCountries) {
-            if (transit1.getIso3n().equals(exporter.getIso3n()) || transit1.getIso3n().equals(importer.getIso3n()))
+            if (transit1.getCode().equals(exporter.getCode()) || transit1.getCode().equals(importer.getCode()))
                 continue;
 
             if (request.getMaxTransits() >= 1) {
@@ -74,9 +74,9 @@ public class RouteOptimizationService {
 
             if (request.getMaxTransits() == 2) {
                 for (Country transit2 : allCountries) {
-                    if (transit2.getIso3n().equals(exporter.getIso3n()) ||
-                        transit2.getIso3n().equals(importer.getIso3n()) ||
-                        transit2.getIso3n().equals(transit1.getIso3n())) continue;
+                    if (transit2.getCode().equals(exporter.getCode()) ||
+                        transit2.getCode().equals(importer.getCode()) ||
+                        transit2.getCode().equals(transit1.getCode())) continue;
 
                     allRoutes.add(computeRoute(exporter, List.of(transit1, transit2), importer, petroleum, request.getUnits()));
                 }
@@ -110,8 +110,11 @@ public class RouteOptimizationService {
 
             double rate;
             try {
-                rate = tariffService.getLatest(from.getIso3n(), to.getIso3n(),
-                        petroleum.getHsCode(), "aveestimated").getSimpleAverage() / 100.0;
+                TariffRequestDTO dto = new TariffRequestDTO(from.getCode(), to.getCode(), petroleum.getHsCode(), null);
+                rate = tariffService.resolveTariff(dto).ratePercent();
+
+                // rate = tariffService.getLatest(from.getCode(), to.getCode(),
+                //         petroleum.getHsCode(), "aveestimated").getSimpleAverage() / 100.0;
             } catch (Exception e) {
                 rate = 0.0; // fallback
             }
@@ -119,7 +122,7 @@ public class RouteOptimizationService {
         }
 
         // VAT only for importing country
-        double vatRate = (importer.getVatRate() != null) ? importer.getVatRate() / 100.0 : 0.0;
+        double vatRate = (importer.getVatRates() != null) ? importer.getVatRates() / 100.0 : 0.0;
         double vatFees = (baseCost + tariffFees) * vatRate;
         double totalLandedCost = baseCost + tariffFees + vatFees;
 
