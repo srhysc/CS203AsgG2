@@ -5,6 +5,9 @@ import { DataTable } from "@/components/ui/datatable"
 import type { Tariff } from "@/components/tablecolumns/edittariffscol"
 import { tariffColumns } from "@/components/tablecolumns/edittariffscol"
 import { EditTariffForm } from "@/components/ui/edittariffform"
+import { Toaster, toast } from "@/components/ui/sonner"
+import { useSidebar } from "@/components/ui/sidebar"
+ 
 
 const initialTariffData: Tariff[] = [
   {
@@ -158,16 +161,26 @@ const COUNTRY_OPTIONS = [
   { label: "China", value: "China" },
 ]
 
-
+function isEqual(obj1: any, obj2: any): boolean {
+  return Object.entries(obj1).every(([key, value]) => obj2[key] === value)
+}
 
 export default function EditTariffsPage() {
   const [tariffData, setTariffData] = React.useState<Tariff[]>(initialTariffData)
-
+  const { open } = useSidebar()
   const handleSaveTariff = async (updatedTariff: Tariff) => {
+    const originalTariff = tariffData.find(t => t.id === updatedTariff.id)
+
+    if (originalTariff && isEqual(originalTariff, updatedTariff)) {
+    toast.info("No changes detected.")
+    return
+   }
+
     try {
       // TODO: Add Firebase integration here
       // Example:
       // await addDoc(collection(db, "tariffs"), updatedTariff);
+
       
       console.log("Saving tariff to Firebase:", updatedTariff)
       
@@ -176,16 +189,26 @@ export default function EditTariffsPage() {
         prev.map(t => t.id === updatedTariff.id ? updatedTariff : t)
       )
       
-      // to add dialog message of success
+      toast.success("Tariff updated successfully!")
     } catch (error) {
       console.error("Error updating tariff:", error)
-      // to add dialog message of success
+      toast.error("Failed to update tariff.")
     }
     
   }
 
   return (
     <div className="relative p-6 min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            transform: open ? "translateX(128px)" : "translateX(0px)",
+            transition: "transform 0.3s ease",
+          },
+        }}
+      />
+
       <a href="/administrator" className="btn-slate absolute top-6 right-6 z-50">
         Back
       </a>
@@ -207,7 +230,10 @@ export default function EditTariffsPage() {
               currentUserName="Admin User" // TODO: Replace with actual auth user from context/session
               countryOptions={COUNTRY_OPTIONS}
               onCancel={onCancel}
-              onSubmit={onSave}
+              onSubmit={(values) => {
+                onSave(values)       // saves in DataTable
+                handleSaveTariff(values)  // triggers toast
+}}
             />
           )}
         />

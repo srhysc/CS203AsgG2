@@ -31,6 +31,9 @@
     --popover-foreground: 222.2 84% 4.9%;
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
+    --toast-bg: 0 0% 100%;
+    --toast-fg: 222.2 84% 4.9%;
+    --toast-border: 214.3 31.8% 91.4%;
   }
 
   .dark {
@@ -42,6 +45,9 @@
     --popover-foreground: 210 40% 98%;
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
+    --toast-bg: 222.2 84% 4.9%;
+    --toast-fg: 210 40% 98%;
+    --toast-border: 217.2 32.6% 17.5%;
   }
 }
 
@@ -65,4 +71,22 @@
   .dark .btn-slate:hover {
     background-color: #8C9CAD;
   }
+}
+
+[data-sonner-toast] {
+  background-color: hsl(var(--toast-bg)) !important;
+  border: 1px solid hsl(var(--toast-border)) !important;
+  color: hsl(var(--toast-fg)) !important;
+}
+
+[data-sonner-toast] [data-content] {
+  color: hsl(var(--toast-fg)) !important;
+}
+
+[data-sonner-toast] [data-title] {
+  color: hsl(var(--toast-fg)) !important;
+}
+
+[data-sonner-toast] [data-description] {
+  color: hsl(var(--toast-fg) / 0.7) !important;
 }
