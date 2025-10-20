@@ -14,18 +14,37 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
-// NEW imports:
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import com.cs203.grp2.Asg2.config.ClerkJwtFilter;  //Clerk authentication
+import com.cs203.grp2.Asg2.UserService;    //User services
+
+
 
 
 @Configuration
 @EnableWebSecurity
 
 public class SecurityConfig {
+ 
+  //create a new jwtDecoder to decode Clerk JWT
+  @Bean
+  public JwtDecoder jwtDecoder() {
+    //Nimbus decoder is library for handling tokens
+    return NimbusJwtDecoder.withJwkSetUri("https://many-hawk-2.clerk.accounts.dev")
+    .build();
+  }
+
+  @Bean
+    public ClerkJwtFilter clerkJwtFilter(JwtDecoder jwtDecoder, UserService userService) {
+        return new ClerkJwtFilter(jwtDecoder, userService);
+    }
 
   //SecurityFilterChain defines which instances invoked for current request
   @Bean
-  SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  SecurityFilterChain filterChain(HttpSecurity http, ClerkJwtFilter clerkJwtFilter) throws Exception {
     //Enable CORS support
     http
       .csrf(csrf -> csrf.disable())
