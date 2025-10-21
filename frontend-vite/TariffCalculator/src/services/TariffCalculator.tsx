@@ -79,11 +79,24 @@ const TariffCalculator: React.FC = () => {
         setTariffs(null);
         setError(null);
 
+        //validation for form inputs - if countries and exist
+         const importerExists = countries?.some(
+            (c) => c.name.toLowerCase() === formData.importcountry.toLowerCase()
+        );
+        const exporterExists = countries?.some(
+            (c) => c.name.toLowerCase() === formData.exportcountry.toLowerCase()
+        );
+
+        if (!importerExists || !exporterExists) {
+            setError("Invalid country selection. Please choose from the list.");
+            setLoading(false);
+            return; // stop execution
+        }
+
         try{
             //try getting all countries
             const tariffs = await tariffService.getByRequirements(formData.importcountry,formData.exportcountry,formData.productcode,formData.units);
             //update tariffs field
-            console.log('tarrifs:', tariffs);
             setTariffs(tariffs);
         } catch (err: any) {
             setError('Failed to fetch Tariffs');

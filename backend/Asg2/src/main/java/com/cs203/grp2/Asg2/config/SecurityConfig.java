@@ -19,7 +19,7 @@ import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointR
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import com.cs203.grp2.Asg2.config.ClerkJwtFilter;  //Clerk authentication
-import com.cs203.grp2.Asg2.user.UserService;    //User services
+import com.cs203.grp2.Asg2.service.UserService;    //User services
 
 
 

@@ -5,7 +5,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import com.cs203.grp2.Asg2.user.UserService;
+import com.cs203.grp2.Asg2.service.UserService;
+import com.cs203.grp2.Asg2.models.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

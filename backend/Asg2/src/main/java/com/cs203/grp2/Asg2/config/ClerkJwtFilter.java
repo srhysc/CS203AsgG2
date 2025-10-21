@@ -18,8 +18,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.io.IOException;
 import java.util.Collections;
-import com.cs203.grp2.Asg2.user.UserService;    //User services
-import com.cs203.grp2.Asg2.user.User;
+import com.cs203.grp2.Asg2.service.UserService;    //User services
+import com.cs203.grp2.Asg2.models.User;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import com.cs203.grp2.Asg2.exceptions.UserAuthorizationException;
@@ -79,7 +79,7 @@ public class ClerkJwtFilter extends OncePerRequestFilter {
                     new SimpleGrantedAuthority("ROLE_" + user.getRole().toString())
                 );
 
-                System.out.println("User created: ");
+                System.out.println("User created: " + authorities);
 
                 //Create a new Token with userID, email, and permission list for other controllers
                 var auth = new UsernamePasswordAuthenticationToken(

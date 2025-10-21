@@ -1,4 +1,4 @@
-package com.cs203.grp2.Asg2.user;
+package com.cs203.grp2.Asg2.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import com.cs203.grp2.Asg2.models.User;
 
 @Service
 public class UserService {

@@ -31,6 +31,10 @@ export const tariffService = {
 
   // Additional methods you might need
   getByRequirements: async (importcountryid: string, exportcountryid: string, productcode:string, units:string): Promise<Tariff> => {
+    if (!importcountryid || !exportcountryid || !productcode || !units) {
+      throw new Error("Missing required parameters for tariff request.");
+    }
+    
     //Create a query string to append to URL when calling API, using method parameters
     const params = new URLSearchParams({
         importer: importcountryid,
@@ -42,7 +46,6 @@ export const tariffService = {
     try {
       console.log(`Testing: ${import.meta.env.VITE_API_URL}/landedcost?${params}`)
         //try getting data from api using parameters(?${params} - ? indicates start of query string)
-console.log(`/landedcost?${params}`)
         const response = await countrytariffapi.get<Tariff>(`/landedcost?${params}`);
       return response.data;
     } catch (error) {
