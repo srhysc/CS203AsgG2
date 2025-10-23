@@ -53,7 +53,7 @@ export function AppSideBar(){
         <SidebarContent className="flex flex-col h-full p-4 bg-gray-200 dark:bg-gray-900 text-black dark:text-white">
 
         {/* Header box */}
-        <div className="p-4 rounded-md mb-4" style={{ backgroundColor: "#71869A" }}>
+        <div className="p-4 rounded-md mb-4 text-white dark:text-slate-900 dark:bg-[#9AA9BA]" style={{ backgroundColor: "#71869A" }}>
           <h1 className="text-lg font-semibold">Welcome to Tariff Calculator</h1>
         </div>
 

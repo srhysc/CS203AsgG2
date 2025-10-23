@@ -1,47 +1,82 @@
 import type { ColumnDef } from "@tanstack/react-table"
+import { ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ArrowUpDown, Pencil } from "lucide-react"
 
 export type Tariff = {
   id: string
-  tariffCode: string
-  tariffName: string
+  productCode: string
   exportingCountry: string
   importingCountry: string
   tariffRate: number
-  status: "active" | "inactive" | "pending"
-  effectiveFrom: string
-  effectiveTo: string
+  lastUpdated?: string
+  updatedBy?: string
 }
 
 export const tariffColumns: ColumnDef<Tariff>[] = [
-
   {
-    accessorKey: "tariffCode",
-    header: "Tariff Code",
+    id: "productCode",
+    accessorKey: "productCode",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Product Code
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
   },
 
   {
-    accessorKey: "tariffName",
-    header: "Tariff Name",
-  },
-
-  {
+    id: "exportingCountry",
     accessorKey: "exportingCountry",
-    header: "Exporting Country",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Exporting Country
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
   },
 
   {
+    id: "importingCountry",
     accessorKey: "importingCountry",
-    header: "Importing Country",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Importing Country
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
   },
 
   {
+    id: "tariffRate",
     accessorKey: "tariffRate",
-    header: "Tariff Rate",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Tariff Rate
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
     cell: ({ row }) => {
       const rate = Number(row.getValue("tariffRate"))
-      // prevent NaN and display as percentage
       return isNaN(rate)
         ? "-"
         : new Intl.NumberFormat("en-US", {
@@ -52,50 +87,42 @@ export const tariffColumns: ColumnDef<Tariff>[] = [
   },
 
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string
+    id: "lastUpdated",
+    accessorKey: "lastUpdated",
+    header: ({ column }) => {
       return (
-        <span
-          className={`capitalize px-2 py-1 rounded-md text-xs font-medium
-            ${
-              status === "active"
-                ? "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200"
-                : status === "pending"
-                ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-800 dark:text-yellow-200"
-                : "bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100"
-            }`}
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          {status}
-        </span>
+          Last Updated
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
       )
     },
   },
 
   {
-    accessorKey: "effectiveFrom",
-    header: "Effective From",
-  },
-
-  {
-    accessorKey: "effectiveTo",
-    header: "Effective To",
+    id: "updatedBy",
+    accessorKey: "updatedBy",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Updated By
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
   },
 
   {
     id: "actions",
     header: "Edit",
-    cell: ({ row }) => (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => console.log("Edit tariff", row.original.id)}
-        aria-label="Edit"
-      >
-        <Pencil className="h-4 w-4" />
-      </Button>
-    ),
+    // Cell will be handled by DataTable component
+    cell: () => null,
     enableHiding: false,
   },
 ]
