@@ -52,6 +52,14 @@ public class CountryService {
 
                     String code = node.child("Code").getValue(String.class);
                     String iso3 = node.child("ISO3").getValue(String.class);
+                    try {
+                        Long vatRate = node.child("VAT rates").getValue(Long.class);
+                        c.setVatRates(vatRate);
+                    } catch (Exception e) {
+                        // TODO: handle exception
+                        System.out.println("no vat rate recorded");
+                    }
+                    
                     System.out.println("DBG " + node.getKey() + " Code=" + code + " ISO3=" + iso3);
 
                     // DB key is the country name — capture it
