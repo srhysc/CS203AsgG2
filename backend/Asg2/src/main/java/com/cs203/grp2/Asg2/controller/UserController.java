@@ -12,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.concurrent.ExecutionException;
 
+import com.cs203.grp2.Asg2.models.User.Role;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -30,9 +32,9 @@ public class UserController {
     }
 
     @GetMapping("/roles")
-    public List<String> getUserRoles() throws ExecutionException, InterruptedException {
+    public String getUserRoles() throws ExecutionException, InterruptedException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userService.getUserRoles(user.getId());
+        return userService.getUserRoles(user.getId()).getName();
     }
 
     @PutMapping("/role")

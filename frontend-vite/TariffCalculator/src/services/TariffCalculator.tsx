@@ -23,12 +23,15 @@ const TariffCalculator: React.FC = () => {
     const [countries, setCountries] = useState<Country[] | null >(null);
     const [petroleum, setPetroleum] = useState<Petroleum[] | null >(null);
 
+    const { getAllCountries } = countryService();
+    const { getByRequirements } = tariffService();
+    const {getAllPetroleum} = petrolService();
 
     //run on render to get all countries
         useEffect(() => {
         const fetchCountries = async () => {
         try {
-            const data = await countryService.getAllCountries();
+            const data = await getAllCountries();
             setCountries(data);
 
         } catch (err) {
@@ -46,7 +49,7 @@ const TariffCalculator: React.FC = () => {
         useEffect(() => {
         const fetchPetroleum = async () => {
         try {
-            const data = await petrolService.getAllPetroleum();
+            const data = await getAllPetroleum();
             setPetroleum(data);
 
         } catch (err) {
@@ -95,7 +98,7 @@ const TariffCalculator: React.FC = () => {
 
         try{
             //try getting all countries
-            const tariffs = await tariffService.getByRequirements(formData.importcountry,formData.exportcountry,formData.productcode,formData.units);
+            const tariffs = await getByRequirements(formData.importcountry,formData.exportcountry,formData.productcode,formData.units);
             //update tariffs field
             setTariffs(tariffs);
         } catch (err: any) {

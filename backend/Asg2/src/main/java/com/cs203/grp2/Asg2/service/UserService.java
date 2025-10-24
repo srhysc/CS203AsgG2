@@ -13,13 +13,16 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+
+import com.cs203.grp2.Asg2.models.User.Role;
+
 import com.cs203.grp2.Asg2.models.User;
 
 @Service
 public class UserService {
 
     @Autowired
-    private FirebaseDatabase firebaseDatabase; // ✅ changed from DatabaseReference
+    private FirebaseDatabase firebaseDatabase; 
 
     // Helper method to read a DataSnapshot asynchronously
     private <T> T readOnce(DatabaseReference ref, Class<T> clazz)
@@ -47,7 +50,7 @@ public class UserService {
 
     public User getUserById(String userId)
             throws ExecutionException, InterruptedException {
-        DatabaseReference ref = firebaseDatabase.getReference("users").child(userId); // ✅ updated
+        DatabaseReference ref = firebaseDatabase.getReference("users").child(userId);
         return readOnce(ref, User.class);
     }
 
@@ -73,13 +76,13 @@ public class UserService {
         firebaseDatabase.getReference("users").child(userId).setValueAsync(user); 
     }
 
-    public List<String> getUserRoles(String userId)
+    public Role getUserRoles(String userId)
             throws ExecutionException, InterruptedException {
         User user = getUserById(userId);
         if (user != null && user.getRole() != null) {
-            return List.of(user.getRole().toString());
+            return user.getRole();
         }
-        return List.of();
+        return null;
     }
 
     public void updateUserRole(String userId, User.Role newRole)

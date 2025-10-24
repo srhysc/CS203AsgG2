@@ -43,17 +43,19 @@ public class ClerkJwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        System.out.println("🔐 ClerkJwtFilter triggered for request: " + request.getRequestURI());
 
         //get authorization header from API request which contains Clerk JWT
         //containts the JWT issued by clerk after a successful login
         //in the form of [Authorization: Bearer xxxxxx]
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+System.out.println("🔐 ClerkJwtFilter triggered for request: " + request.getRequestURI() + "header: " + header);
+
         if (header != null && header.startsWith("Bearer ")) {
             //remove the "Bearer" to get actual JWT
             String token = header.substring(7);
 
-            System.out.println("🔐🔐🔐🔐 checking token " + token);
+    System.out.println("🔐🔐🔐🔐 checking token " + token);
 
             //try decoding JWT 
             try {
@@ -61,7 +63,7 @@ public class ClerkJwtFilter extends OncePerRequestFilter {
                 //decode JWT using spring security OAuth2 JWT library
                 Jwt jwt = jwtDecoder.decode(token);
 
-                System.out.println("🔍🔍🔍🔍 Decoded JWT claims: " + jwt.getClaims());
+    System.out.println("🔍🔍🔍🔍 Decoded JWT claims: " + jwt.getClaims());
 
                 //extract user's id, email and username based on custom template
                 String userId = jwt.getClaimAsString("id");
@@ -79,13 +81,13 @@ public class ClerkJwtFilter extends OncePerRequestFilter {
                     new SimpleGrantedAuthority("ROLE_" + user.getRole().toString())
                 );
 
-                System.out.println("User created: " + authorities);
+    System.out.println("User created: " + authorities);
 
-                //Create a new Token with userID, email, and permission list for other controllers
+                //Create a new authentication object with userID, email, and permission list for other controllers
                 var auth = new UsernamePasswordAuthenticationToken(
-                        user,
+                        user, //user object - taken from firebase
                         null,
-                        authorities
+                        authorities //list of permissions - taken from firebase
                 );
 
                 //tell rest of controllers that JWT is valid and user is authenticated!
