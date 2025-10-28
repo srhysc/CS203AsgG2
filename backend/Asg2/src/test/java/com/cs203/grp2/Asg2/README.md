@@ -1,6 +1,6 @@
 How to test
 
-go to 
+go to .../CS203AsgG2/backend/Asg2
 
 Test shippingfeescontroller
 .\mvnw.cmd -q -Dtest=ShippingFeesControllerTest test
