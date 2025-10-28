@@ -14,4 +14,6 @@ READ THE NAMES
 
 .\mvnw.cmd -q -Dtest=TradeAgreementControllerTest test
 
-.\mvnw.cmd -q -Dtest=RouteOptimizationControllerTest test (Dont use for now)
+
+(Route optimization not implemented yet, can just ignore this)
+.\mvnw.cmd -q -Dtest=RouteOptimizationControllerTest test 
