@@ -34,7 +34,7 @@ public class UserController {
     @GetMapping("/roles")
     public String getUserRoles() throws ExecutionException, InterruptedException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userService.getUserRoles(user.getId()).getName();
+        return userService.getUserRoles(user.getId()).name();
     }
 
     @PutMapping("/role")
