@@ -10,13 +10,14 @@ import TariffCalculator from './services/TariffCalculator';
 import TariffLookup from './services/TariffDisplay';
 import Adminhome from './components/pages/adminhome';
 import EditTariffs from "./components/pages/edittariffs";
-
+import SyncUserToBackend from './services/firebaseusersync';
 
 
 function App() {
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+    <SyncUserToBackend />
     <AuroraBackground>
       <motion.div
         initial={{ opacity: 0.0, y: 40 }}

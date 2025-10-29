@@ -1,6 +1,8 @@
 import axios from 'axios';
 import type{ AxiosInstance} from 'axios';
 import type {Petroleum} from '@/services/types/petroleum'
+import { useAuth } from "@clerk/clerk-react";
+
 
 
 // Base API configuration using env variable
@@ -18,20 +20,26 @@ const countryapi: AxiosInstance = axios.create({
 //gives all the cookies, tokens, etc. no need for interceptors
 
 // Country service with proper typing
-export const petrolService = {
-  getAllPetroleum: async (): Promise<Petroleum[]> => {
+export const petrolService = () => {
+  const { getToken } = useAuth();
+
+  const getAllPetroleum = async (): Promise<Petroleum[]> => {
+
     //Call /Country API endpoint
     try {
-console.log(`Testing: ${import.meta.env.VITE_API_URL}/petroleum`)
+        const token = await getToken();
+
         //try getting data from api
-        const response = await countryapi.get<Petroleum[]>(`/petroleum`);
+        const response = await countryapi.get<Petroleum[]>(`/petroleum`,{
+            headers: { Authorization: `Bearer ${token}` },
+        });
       return response.data;
     } catch (error) {
       console.error(`Error fetching the list of petroleum`, error);
       throw error;
     }
-  },
-
+  };
+  return {getAllPetroleum};
 };
 
 export default countryapi;
