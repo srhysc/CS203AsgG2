@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 @Service
 public class LandedCostService {
     private static final Logger logger = LoggerFactory.getLogger(LandedCostService.class);
@@ -59,6 +60,8 @@ public class LandedCostService {
         // throw new IllegalArgumentException("Invalid importer/exporter HS code or
         // country code/name");
         // }
+
+        RouteOptimizationResponse bestRoutes = optimizeRoutes(importer,exporter);
 
         // debug
         List<String> missing = new ArrayList<>();
@@ -142,4 +145,6 @@ public class LandedCostService {
                 totalCost,
                 "USD");
     }
+
+
 }
