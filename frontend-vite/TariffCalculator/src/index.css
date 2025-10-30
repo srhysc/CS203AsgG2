@@ -1,8 +1,13 @@
+
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
 /* dark mode syntax */
+
+
 @variant dark (&:where(.dark, .dark *));
+
 
 @theme inline {
   --animate-aurora: aurora 60s linear infinite;
@@ -44,3 +49,4 @@
     --primary-foreground: 222.2 47.4% 11.2%;
   }
 }
+

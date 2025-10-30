@@ -1,11 +1,11 @@
 import './App.css';
 import './index.css'
-import { Layout } from '@/components/pages/layout';
+import { Layout } from '@/components/pages/Layout';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuroraBackground } from './components/ui/aurora-background';
-import {motion} from "motion/react"
+import { motion } from "motion/react"
 import { ThemeProvider } from "@/components/ui/theme-provider"
-import  Home  from './components/pages/home';
+import Home from './components/pages/home';
 import TariffCalculator from './services/TariffCalculator';
 import TariffLookup from './services/TariffDisplay';
 import Adminhome from './components/pages/adminhome';
@@ -17,25 +17,25 @@ function App() {
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-    <AuroraBackground>
-      <motion.div
-        initial={{ opacity: 0.0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{
-          delay: 0.3,
-          duration: 0.8,
-          ease: "easeInOut",
-        }}
-        className="relative flex flex-col gap-4 items-center justify-center px-4 w-screen"
-      >
-    <Router>
-    <Layout>
-      
-      <div className="App">
-        <header className="App-header">
-    
-        </header>
-        <main>
+      <AuroraBackground>
+        <motion.div
+          initial={{ opacity: 0.0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{
+            delay: 0.3,
+            duration: 0.8,
+            ease: "easeInOut",
+          }}
+          className="relative flex flex-col gap-4 items-center justify-center px-4 w-screen"
+        >
+          <Router>
+          <Layout>
+
+              <div className="App">
+                <header className="App-header">
+
+                </header>
+                {/* <main>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/calculator" element={<TariffCalculator />}/>
@@ -43,12 +43,26 @@ function App() {
             <Route path="/administrator" element={<Adminhome />} />
             <Route path="/admin/tariffs" element={<EditTariffs />} />
           </Routes>
-        </main>
-      </div>
-    </Layout>
-    </Router>
-    </motion.div>
-    </AuroraBackground>
+        </main> */}
+                <main>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/calculator" element={<TariffCalculator />} />
+                    <Route path="/lookup" element={<TariffLookup />} />
+                    <Route path="/country" element={<div>Country Info Page (coming soon)</div>} />
+                    <Route path="/petroleum" element={<div>Petroleum Details Page (coming soon)</div>} />
+                    <Route path="/refineries" element={<div>Refineries Page (coming soon)</div>} />
+                    <Route path="/shipping" element={<div>Shipping Cost Page (coming soon)</div>} />
+                    <Route path="/route" element={<div>Refinery Route Page (coming soon)</div>} />
+                    <Route path="/administrator" element={<Adminhome />} />
+                    <Route path="/admin/tariffs" element={<EditTariffs />} />
+                  </Routes>
+                </main>
+              </div>
+            </Layout>
+          </Router>
+        </motion.div>
+      </AuroraBackground>
     </ThemeProvider>
   );
 }
