@@ -83,41 +83,92 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Layout } from "./Layout";
-import { useNavigate } from "react-router-dom"; // <--- import
-import CalculatorImg from "../images/Calculator.png";
-import ViewTariffImg from "../images/viewTariff.png";
-import CountryInfoImg from "../images/CountryInfo.png";
-import PetroleumImg from "../images/petroleumInfo.png";
-import RefineriesImg from "../images/refineries.png";
-import ShippingImg from "../images/ships.png";
-import RouteImg from "../images/routeOptimisation.png";
+import { useNavigate } from "react-router-dom";
+import {
+  Calculator,
+  Search,
+  Globe,
+  Droplet,
+  Factory,
+  Ship,
+  Map,
+} from "lucide-react";
 
 interface ToolCard {
   id: string;
-  imageSrc: string;
+  icon: React.FC<any>; // use icon component
   title: string;
   description: string;
   buttonText: string;
-  url: string; // add the URL mapping
+  url: string;
 }
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("home");
-  const navigate = useNavigate(); // <--- hook
+  const navigate = useNavigate();
 
   const toolCards: ToolCard[] = [
-    { id: "calculator", imageSrc: CalculatorImg, title: "Tariff Calculator", description: "Calculate total landed costs including tariffs, VAT, and shipping fees.", buttonText: "Launch Calculator", url: "/calculator" },
-    { id: "tariffs", imageSrc: ViewTariffImg, title: "View Tariffs", description: "Explore historical and current tariff rates between countries.", buttonText: "Browse Tariffs", url: "/lookup" },
-    { id: "country", imageSrc: CountryInfoImg, title: "Country Info", description: "Access detailed information about trading countries and their regulations.", buttonText: "View Countries", url: "/country" },
-    { id: "petroleum", imageSrc: PetroleumImg, title: "Petroleum Details", description: "Get insights into different types of petroleum products and their specifications.", buttonText: "View Details", url: "/petroleum" },
-    { id: "refineries", imageSrc: RefineriesImg, title: "Refineries", description: "Explore global refineries and their processing capabilities.", buttonText: "View Refineries", url: "/refineries" },
-    { id: "shipping", imageSrc: ShippingImg, title: "Shipping Cost", description: "Calculate shipping costs between different ports and routes.", buttonText: "Calculate Shipping", url: "/shipping" },
-    { id: "route", imageSrc: RouteImg, title: "Refinery Route", description: "Plan and optimize refinery routes for efficient transportation.", buttonText: "Plan Route", url: "/route" },
+    {
+      id: "calculator",
+      icon: Calculator,
+      title: "Tariff Calculator",
+      description: "Calculate total landed costs including tariffs, VAT, and shipping fees.",
+      buttonText: "Launch Calculator",
+      url: "/calculator",
+    },
+    {
+      id: "tariffs",
+      icon: Search,
+      title: "View Tariffs",
+      description: "Explore historical and current tariff rates between countries.",
+      buttonText: "Browse Tariffs",
+      url: "/lookup",
+    },
+    {
+      id: "country",
+      icon: Globe,
+      title: "Country Info",
+      description: "Access detailed information about trading countries and their regulations.",
+      buttonText: "View Countries",
+      url: "/country",
+    },
+    {
+      id: "petroleum",
+      icon: Droplet,
+      title: "Petroleum Details",
+      description: "Get insights into different types of petroleum products and their specifications.",
+      buttonText: "View Details",
+      url: "/petroleum",
+    },
+    {
+      id: "refineries",
+      icon: Factory,
+      title: "Refineries",
+      description: "Explore global refineries and their processing capabilities.",
+      buttonText: "View Refineries",
+      url: "/refineries",
+    },
+    {
+      id: "shipping",
+      icon: Ship,
+      title: "Shipping Cost",
+      description: "Calculate shipping costs between different ports and routes.",
+      buttonText: "Calculate Shipping",
+      url: "/shipping",
+    },
+    {
+      id: "route",
+      icon: Map,
+      title: "Refinery Route",
+      description: "Plan and optimize refinery routes for efficient transportation.",
+      buttonText: "Plan Route",
+      url: "/route",
+    },
   ];
 
   const handleCardClick = (card: ToolCard) => {
     setActiveTab(card.id);
-    navigate(card.url); // navigate to URL
+    navigate(card.url);
   };
 
   return (
@@ -149,37 +200,28 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all border border-white/10 cursor-pointer flex flex-col group"
+                  className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all border border-white/10 cursor-pointer flex flex-col items-center justify-center p-6"
                   whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleCardClick(card)}
                 >
-                  {/* Image Container */}
-                  <div className="relative w-full h-48 bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden">
-                    <img
-                      src={card.imageSrc}
-                      alt={card.title}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
-                  </div>
+                  {/* Icon */}
+                  <card.icon size={60} className="text-[#dcff1a] mb-4" />
 
                   {/* Card Content */}
-                  <div className="p-6 flex flex-col flex-1">
-                    <h3 className="text-xl font-semibold mb-2 text-white text-center">{card.title}</h3>
-                    <p className="text-gray-300 mb-4 text-center text-sm leading-relaxed flex-grow">{card.description}</p>
-                    <motion.button
-                      className="w-full py-2.5 px-4 bg-gradient-to-r from-[#dcff1a] to-emerald-400 text-slate-900 rounded-lg font-medium shadow-lg"
-                      whileHover={{ scale: 1.02, boxShadow: "0 10px 40px rgba(220, 255, 26, 0.3)" }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCardClick(card);
-                      }}
-                    >
-                      {card.buttonText}
-                    </motion.button>
-                  </div>
+                  <h3 className="text-xl font-semibold mb-2 text-white text-center">{card.title}</h3>
+                  <p className="text-gray-300 mb-4 text-center text-sm leading-relaxed">{card.description}</p>
+                  <motion.button
+                    className="w-full py-2.5 px-4 bg-gradient-to-r from-[#dcff1a] to-emerald-400 text-slate-900 rounded-lg font-medium shadow-lg"
+                    whileHover={{ scale: 1.02, boxShadow: "0 10px 40px rgba(220, 255, 26, 0.3)" }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCardClick(card);
+                    }}
+                  >
+                    {card.buttonText}
+                  </motion.button>
                 </motion.div>
               ))}
             </div>
