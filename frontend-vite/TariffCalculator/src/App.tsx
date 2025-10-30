@@ -13,6 +13,8 @@ import TariffCalculator from './services/TariffCalculator';
 import TariffLookup from './services/TariffDisplay';
 import Adminhome from './components/pages/adminhome';
 import EditTariffs from "./components/pages/edittariffs";
+import RefineryInfoPage from './components/pages/refineryInfoPage';
+
 
 
 
@@ -55,7 +57,7 @@ function App() {
                     <Route path="/lookup" element={<TariffLookup />} />
                     <Route path="/country" element={<CountryInfoPage />} />
                     <Route path="/petroleum" element={<PetroleumDetailsPage />} />
-                    <Route path="/refineries" element={<div>Refineries Page (coming soon)</div>} />
+                    <Route path="/refineries" element={<RefineryInfoPage/>} />
                     <Route path="/shipping" element={<ShippingCostPage />} />
                     <Route path="/route" element={<div>Refinery Route Page (coming soon)</div>} />
                     <Route path="/administrator" element={<Adminhome />} />
