@@ -7,10 +7,12 @@ import { motion } from "motion/react"
 import { ThemeProvider } from "@/components/ui/theme-provider"
 import Home from './components/pages/home';
 import CountryInfoPage from './components/pages/country-info';
+import RefineryInfoPage from './components/pages/RefineryInfoPage';
 import TariffCalculator from './services/TariffCalculator';
 import TariffLookup from './services/TariffDisplay';
 import Adminhome from './components/pages/adminhome';
 import EditTariffs from "./components/pages/edittariffs";
+
 
 
 
@@ -52,7 +54,7 @@ function App() {
                     <Route path="/lookup" element={<TariffLookup />} />
                     <Route path="/country" element={<CountryInfoPage />} />
                     <Route path="/petroleum" element={<div>Petroleum Details Page (coming soon)</div>} />
-                    <Route path="/refineries" element={<div>Refineries Page (coming soon)</div>} />
+                    <Route path="/refineries" element={<RefineryInfoPage />} />
                     <Route path="/shipping" element={<div>Shipping Cost Page (coming soon)</div>} />
                     <Route path="/route" element={<div>Refinery Route Page (coming soon)</div>} />
                     <Route path="/administrator" element={<Adminhome />} />
