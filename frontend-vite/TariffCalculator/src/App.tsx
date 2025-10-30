@@ -6,6 +6,7 @@ import { AuroraBackground } from './components/ui/aurora-background';
 import { motion } from "motion/react"
 import { ThemeProvider } from "@/components/ui/theme-provider"
 import Home from './components/pages/home';
+import CountryInfoPage from './components/pages/country-info';
 import TariffCalculator from './services/TariffCalculator';
 import TariffLookup from './services/TariffDisplay';
 import Adminhome from './components/pages/adminhome';
@@ -49,7 +50,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/calculator" element={<TariffCalculator />} />
                     <Route path="/lookup" element={<TariffLookup />} />
-                    <Route path="/country" element={<div>Country Info Page (coming soon)</div>} />
+                    <Route path="/country" element={<CountryInfoPage />} />
                     <Route path="/petroleum" element={<div>Petroleum Details Page (coming soon)</div>} />
                     <Route path="/refineries" element={<div>Refineries Page (coming soon)</div>} />
                     <Route path="/shipping" element={<div>Shipping Cost Page (coming soon)</div>} />
