@@ -11,6 +11,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
+import { getUserRole } from "@/services/clerkauthentication";
+
 const items = [
   { 
     title: "Home",
@@ -39,13 +41,22 @@ const items = [
 
 ]
 
-export function AppSideBar(){
 
-  // Check if user is an admin (customize this logic based on your setup)
-  const isAdmin = true;
+export function AppSideBar(){
   
+  //get user role based on backend user created by reading database
+  const { userRole, loading } = getUserRole();
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+            </div>
+        );
+    }
+
   // Filter items based on admin status
-  const visibleItems = items.filter(item => !item.requiresAdmin || isAdmin)
+  const visibleItems = items.filter(item => !item.requiresAdmin || userRole == "ADMIN")
 
   
     return(
