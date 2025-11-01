@@ -8,15 +8,20 @@ import { ThemeProvider } from "@/components/ui/theme-provider"
 import  Home  from './components/pages/home';
 import TariffCalculator from './services/TariffCalculator';
 import TariffLookup from './services/TariffDisplay';
+<<<<<<< HEAD
 import Adminhome from './components/pages/administrator/adminhome';
 import EditTariffs from "./components/pages/administrator/edittariffs";
 
+=======
+import SyncUserToBackend from './services/firebaseusersync';
+>>>>>>> 2687790edb2074beab116fa51584595ce8a4abbb
 
 
 function App() {
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+    <SyncUserToBackend />
     <AuroraBackground>
       <motion.div
         initial={{ opacity: 0.0, y: 40 }}

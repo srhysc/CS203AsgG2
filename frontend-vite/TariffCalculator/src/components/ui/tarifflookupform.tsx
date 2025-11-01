@@ -1,12 +1,13 @@
 "use client";
 
 import React from 'react';
-import {z} from "zod";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormProvider, useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { InlineErrorInput } from "@/components/ui/inlineerrorinput";
 import { FormCombobox } from "@/components/ui/combobox";
+import { DatePicker } from "@/components/ui/date-picker";
 import type { Country } from "@/services/types/country";
 import type { Petroleum } from "@/services/types/petroleum";
 
@@ -15,10 +16,11 @@ type LocalOption = { value: string; label: string };
 
 //declare formschema for form
 export const tariffSchema = z.object({
-    importcountry: z.string().min(1, "Import country is required."),
-    exportcountry:z.string().min(1, "Export country is required."),
-    productcode:z.string().min(1, "A HS code is required."),
-    units: z.string().min(1,"Please select at least 1 unit for calculation.")
+  importcountry: z.string().min(1, "Import country is required."),
+  exportcountry: z.string().min(1, "Export country is required."),
+  productcode: z.string().min(1, "A HS code is required."),
+  units: z.string().min(1, "Please select at least 1 unit for calculation."),
+  date: z.date().optional(),
 })
 
 type TariffFormProps = {
@@ -31,25 +33,27 @@ type TariffFormProps = {
 
 //TariffForm needs an onSubmit function, and will receive tariffSchema 
 //Promise<void> promises to finish task - function can be sync or async, up to parent component
-export function TariffForm({onSubmit, countries, petroleum, clearSignal, onClear} : TariffFormProps) {
+export function TariffForm({ onSubmit, countries, petroleum, clearSignal, onClear }: TariffFormProps) {
   // 1. Define your form.
   const form = useForm<z.infer<typeof tariffSchema>>({
     resolver: zodResolver(tariffSchema),
     defaultValues: {
-        importcountry: "",
-        exportcountry:"",
-        productcode:"",
-        units: ""
-    }});
+      importcountry: "",
+      exportcountry: "",
+      productcode: "",
+      units: "",
+      date: new Date(), // default to current date
+    }
+  });
 
-    // reset form if clearSignal changes to true
-    React.useEffect(() => {
+  // reset form if clearSignal changes to true
+  React.useEffect(() => {
     if (clearSignal) {
       form.reset(); // clears all input fields
     }
-    }, [clearSignal, form]);
-  
-    const countryOptions: LocalOption[] = React.useMemo(
+  }, [clearSignal, form]);
+
+  const countryOptions: LocalOption[] = React.useMemo(
     () =>
       (countries ?? []).map((c) => ({
         label: c.name,
@@ -67,12 +71,12 @@ export function TariffForm({onSubmit, countries, petroleum, clearSignal, onClear
     [petroleum]
   );
 
-  function formSubmit(values:z.infer<typeof tariffSchema>){
+  function formSubmit(values: z.infer<typeof tariffSchema>) {
     //send filled tariffSchema up to parent
     onSubmit(values);
   }
 
-  return(
+  return (
     <div className="flex flex-col items-center px-2">
       <div className="relative w-full max-w-md mb-4 flex justify-center">
         <h2 className="text-2xl font-bold">Calculate your Tariffs !</h2>
@@ -97,70 +101,93 @@ export function TariffForm({onSubmit, countries, petroleum, clearSignal, onClear
         >
           C
         </button>
-     </div>
+      </div>
 
-        <FormProvider {...form}>
-            {/* Form's submit function overriden by one above */}
-            <form onSubmit={form.handleSubmit(formSubmit)} className="space-y-3 w-full max-w-md">
+      <FormProvider {...form}>
+        {/* Form's submit function overriden by one above */}
+        <form onSubmit={form.handleSubmit(formSubmit)} className="space-y-3 w-full max-w-md">
 
-                {/* Grid of fields */}
-                <div className="grid grid-cols-2 gap-3 items-center">
+          {/* Grid of fields */}
+          <div className="grid grid-cols-2 gap-3 items-center">
 
-                {/* Importing Country */}
-                <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Importing Country:</label>
-                <div className="bg-white rounded-md p-2 shadow w-[195px]">
-                    {/* <InlineErrorInput name="importcountry" placeholder="Select/Type to Add" />
+            {/* Importing Country */}
+            <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Importing Country:</label>
+            <div className="bg-white rounded-md p-2 shadow w-[195px]">
+              {/* <InlineErrorInput name="importcountry" placeholder="Select/Type to Add" />
                      */}
-                      <FormCombobox
-                        name="importcountry"
-                        options={countryOptions}
-                        placeholder="Select/Type to add"
-                        widthClass="w-[180px]"    
-                        dropdownWidth="w-[175px]"
-                      />
-                </div>
-
-                {/* Exporting Country */}
-                <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Exporting Country:</label>
-                <div className="bg-white rounded-md p-2 shadow w-[195px]">
-                    {/* <InlineErrorInput name="exportcountry" placeholder="Select/Type to Add" /> */}
-                    <FormCombobox
-                      name="exportcountry"
-                      options={countryOptions}
-                      placeholder="Select/Type to add"
-                      widthClass="w-[180px]"    
-                      dropdownWidth="w-[175px]"
-                    />
-                </div>
-
-                {/* Product Code */}
-                <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Product Code:</label>
-                <div className="bg-white rounded-md p-2 shadow w-[195px]">
-                         {/* <InlineErrorInput name="productcode" placeholder="HSXXX" /> */}
-                         <FormCombobox
-                          name="productcode"
-                          options={productOptions}
-                          placeholder="Select Code"
-                          widthClass="w-[180px]"    
-                          dropdownWidth="w-[175px]"
-                        />
-                </div>
-
-                {/* Quantity */}
-                <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Quantity (Barrels):</label>
-                <div className="bg-white rounded-md p-2 shadow w-[195px]">
-                          <InlineErrorInput name="units" placeholder="1" type="number" />
-                </div>
+              <FormCombobox
+                name="importcountry"
+                options={countryOptions}
+                placeholder="Select/Type to add"
+                widthClass="w-[180px]"
+                dropdownWidth="w-[175px]"
+              />
             </div>
-                {/* Submit button */}
-                <Button
-                    type="submit"
-                    className="w-full bg-[#71869A] hover:bg-[#5a6a7c] text-white font-bold py-3 rounded-md shadow"
-                >
-                    CALCULATE
-                </Button>
-            </form>
-        </FormProvider>
+
+            {/* Exporting Country */}
+            <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Exporting Country:</label>
+            <div className="bg-white rounded-md p-2 shadow w-[195px]">
+              {/* <InlineErrorInput name="exportcountry" placeholder="Select/Type to Add" /> */}
+              <FormCombobox
+                name="exportcountry"
+                options={countryOptions}
+                placeholder="Select/Type to add"
+                widthClass="w-[180px]"
+                dropdownWidth="w-[175px]"
+              />
+            </div>
+
+            {/* Product Code */}
+            <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Product Code:</label>
+            <div className="bg-white rounded-md p-2 shadow w-[195px]">
+              {/* <InlineErrorInput name="productcode" placeholder="HSXXX" /> */}
+              <FormCombobox
+                name="productcode"
+                options={productOptions}
+                placeholder="Select Code"
+                widthClass="w-[180px]"
+                dropdownWidth="w-[175px]"
+              />
+            </div>
+
+            {/*Date Picker*/}
+            <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">
+              Date:
+            </label>
+            <div className="bg-white rounded-md p-2 shadow w-[195px]">
+              <div className="bg-white rounded-md">
+                <DatePicker
+                  value={form.watch("date")}
+                  onChange={(date) => form.setValue("date", date ?? new Date())}
+                  className="w-[180px]"
+                  buttonClassName="
+                  w-full text-left bg-white border-1 border-black
+                  rounded-md h-[38px] px-3 text-gray-700 
+                  focus:outline-none focus:ring-2 focus:ring-[#71869A]
+                  hover:border-[#5a6a7c]
+                  flex items-center gap-0
+                  truncate
+                  "
+                  popoverClassName="rounded-md border-2 border-[#71869A] bg-white shadow-md"
+                />
+              </div>
+            </div>
+
+            {/* Quantity */}
+            <label className="bg-white rounded-md p-3 flex items-center font-medium shadow">Quantity (Barrels):</label>
+            <div className="bg-white rounded-md p-2 shadow w-[195px]">
+              <InlineErrorInput name="units" placeholder="1" type="number" />
+            </div>
+          </div>
+          {/* Submit button */}
+          <Button
+            type="submit"
+            className="w-full bg-[#71869A] hover:bg-[#5a6a7c] text-white font-bold py-3 rounded-md shadow"
+          >
+            CALCULATE
+          </Button>
+        </form>
+      </FormProvider>
     </div>
   )
 
