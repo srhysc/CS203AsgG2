@@ -8,9 +8,13 @@ import { ThemeProvider } from "@/components/ui/theme-provider"
 import  Home  from './components/pages/home';
 import TariffCalculator from './services/TariffCalculator';
 import TariffLookup from './services/TariffDisplay';
-import Adminhome from './components/pages/adminhome';
-import EditTariffs from "./components/pages/edittariffs";
+<<<<<<< HEAD
+import Adminhome from './components/pages/administrator/adminhome';
+import EditTariffs from "./components/pages/administrator/edittariffs";
+
+=======
 import SyncUserToBackend from './services/firebaseusersync';
+>>>>>>> 2687790edb2074beab116fa51584595ce8a4abbb
 
 
 function App() {
@@ -42,7 +46,7 @@ function App() {
             <Route path="/calculator" element={<TariffCalculator />}/>
             <Route path="/lookup" element={<TariffLookup />}/>
             <Route path="/administrator" element={<Adminhome />} />
-            <Route path="/admin/tariffs" element={<EditTariffs />} />
+            <Route path="/administrator/tariffs" element={<EditTariffs />} />
           </Routes>
         </main>
       </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect} from 'react';
 import type { Tariff } from './types/countrytariff'; 
-import { tariffService } from './counttrytariffapi';
+import { tariffService } from './countrytariffapi';
 import { TariffForm } from '@/components/ui/tarifflookupform';
 import { tariffSchema } from '@/components/ui/tarifflookupform';
 import { z } from 'zod';

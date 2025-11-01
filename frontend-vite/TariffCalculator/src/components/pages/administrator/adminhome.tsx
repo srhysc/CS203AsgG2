@@ -1,5 +1,5 @@
 import {motion} from "motion/react"
-import { Card } from "../ui/card";
+import { Card } from "../../ui/card";
 import { FileText,FileSignature,Ship,Plus } from "lucide-react";
 
 
@@ -8,25 +8,25 @@ const adminActions = [
     title: "Edit Tariffs",
     icon: FileText,
     description: "Manage and update tariff rates",
-    url: "/admin/tariffs",
+    url: "/administrator/tariffs",
   },
   {
     title: "Edit Agreements",
     icon: FileSignature,
     description: "Modify trade agreements",
-    url: "/admin/agreements",
+    url: "/administrator/agreements",
   },
   {
     title: "Edit Shipping Fees",
     icon: Ship,
     description: "Update shipping cost structures",
-    url: "/admin/shipping-fees",
+    url: "/administrator/shipping-fees",
   },
   {
     title: "Create New Shipping Cost",
     icon: Plus,
     description: "Add new shipping cost entry",
-    url: "/admin/create-shipping",
+    url: "/administrator/create-shipping",
   },
 ];
 
