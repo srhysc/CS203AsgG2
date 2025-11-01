@@ -97,8 +97,6 @@
 //     )
 // }
 // src/components/TopNavBar.tsx?
-
-
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -118,7 +116,6 @@ import {
   SignInButton,
   UserButton,
 } from "@clerk/clerk-react";
-import React from "react";
 
 interface NavItem {
   id: string;
@@ -152,14 +149,11 @@ export function TopNavBar({ activeTab, setActiveTab }: TopNavBarProps) {
 
   return (
     <nav className="flex items-center justify-between w-full px-6 py-4 bg-white/10 backdrop-blur-md shadow-xl rounded-b-2xl border-b border-white/10">
-      {/* Logo */}
       <div className="flex items-center gap-2 text-2xl font-bold cursor-pointer select-none">
         <span className="bg-gradient-to-r from-[#dcff1a] to-emerald-400 bg-clip-text text-transparent">
           Petro Trade
         </span>
       </div>
-
-      {/* Navigation Tabs */}
       <div className="hidden lg:flex gap-3 relative">
         {visibleItems.map((item) => (
           <motion.div
@@ -184,8 +178,6 @@ export function TopNavBar({ activeTab, setActiveTab }: TopNavBarProps) {
           </motion.div>
         ))}
       </div>
-
-      {/* Profile / Auth */}
       <div className="flex items-center gap-4">
         <SignedOut>
           <SignInButton />

@@ -82,7 +82,6 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Layout } from "./Layout";
 import { useNavigate } from "react-router-dom";
 import {
   Calculator,
@@ -172,62 +171,60 @@ export default function Home() {
   };
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
-      <div className="min-h-[calc(100vh-120px)] flex flex-col">
-        {activeTab === "home" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="flex-1 flex flex-col"
-          >
-            {/* Hero Section */}
-            <div className="text-center mb-12">
-              <h1 className="text-6xl md:text-7xl lg:text-8xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-[#dcff1a] to-emerald-400 cursor-default">
-                Petroleum Trade Analysis Platform
-              </h1>
-              <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed cursor-default">
-                Analyze petroleum import costs with historical data, shipping fees, and refinery insights.
-              </p>
-            </div>
+    <div className="min-h-[calc(100vh-120px)] flex flex-col">
+      {activeTab === "home" && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="flex-1 flex flex-col"
+        >
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-[#dcff1a] to-emerald-400 cursor-default">
+              Petroleum Trade Analysis Platform
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed cursor-default">
+              Analyze petroleum import costs with historical data, shipping fees, and refinery insights.
+            </p>
+          </div>
 
-            {/* Tool Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-              {toolCards.map((card, index) => (
-                <motion.div
-                  key={card.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all border border-white/10 cursor-pointer flex flex-col items-center justify-center p-6"
-                  whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
+          {/* Tool Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+            {toolCards.map((card, index) => (
+              <motion.div
+                key={card.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all border border-white/10 cursor-pointer flex flex-col items-center justify-center p-6"
+                whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleCardClick(card)}
+              >
+                {/* Icon */}
+                <card.icon size={60} className="text-[#dcff1a] mb-4" />
+
+                {/* Card Content */}
+                <h3 className="text-xl font-semibold mb-2 text-white text-center">{card.title}</h3>
+                <p className="text-gray-300 mb-4 text-center text-sm leading-relaxed">{card.description}</p>
+                <motion.button
+                  className="w-full py-2.5 px-4 bg-gradient-to-r from-[#dcff1a] to-emerald-400 text-slate-900 rounded-lg font-medium shadow-lg"
+                  whileHover={{ scale: 1.02, boxShadow: "0 10px 40px rgba(220, 255, 26, 0.3)" }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => handleCardClick(card)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCardClick(card);
+                  }}
                 >
-                  {/* Icon */}
-                  <card.icon size={60} className="text-[#dcff1a] mb-4" />
-
-                  {/* Card Content */}
-                  <h3 className="text-xl font-semibold mb-2 text-white text-center">{card.title}</h3>
-                  <p className="text-gray-300 mb-4 text-center text-sm leading-relaxed">{card.description}</p>
-                  <motion.button
-                    className="w-full py-2.5 px-4 bg-gradient-to-r from-[#dcff1a] to-emerald-400 text-slate-900 rounded-lg font-medium shadow-lg"
-                    whileHover={{ scale: 1.02, boxShadow: "0 10px 40px rgba(220, 255, 26, 0.3)" }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCardClick(card);
-                    }}
-                  >
-                    {card.buttonText}
-                  </motion.button>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </div>
-    </Layout>
+                  {card.buttonText}
+                </motion.button>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </div>
   );
 }

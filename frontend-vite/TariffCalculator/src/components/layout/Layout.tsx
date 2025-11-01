@@ -43,7 +43,7 @@
 // src/components/Layout.tsx
 import type { ReactNode } from "react";
 import { ModeToggle } from "@/components/ui/mode-toggle";
-import { TopNavBar } from "./TopNavBar";
+import { TopNavBar } from "@/components/layout/TopNavBar";
 
 interface LayoutProps {
   children: ReactNode;
@@ -54,15 +54,8 @@ interface LayoutProps {
 export function Layout({ children, activeTab, setActiveTab }: LayoutProps) {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-[#1e1b4b] to-slate-900 text-white">
-      {/* Top navigation */}
       <TopNavBar activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      {/* Main content grows and scrolls if necessary */}
-      <main className="flex-1 w-full overflow-auto px-4 py-6">
-        {children}
-      </main>
-
-      {/* Floating Light/Dark mode button */}
+      <main className="flex-1 w-full overflow-auto px-4 py-6">{children}</main>
       <div className="fixed bottom-4 right-4 z-50">
         <ModeToggle />
       </div>
