@@ -10,6 +10,4 @@ public class RouteOptimizationResponse {
     }
 
     public List<RouteBreakdown> getTopRoutes() { return topRoutes; }
-
-    
 }

@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,126 +30,82 @@ public class LandedCostService {
     private final CountryService countryService;
     private final PetroleumService petroleumService;
     private final WitsService tariffService;
+    private final RouteOptimizeService routeOptimizationService; 
+
 
     public LandedCostService(CountryService countryService,
             PetroleumService petroleumService,
-            WitsService tariffService) {
+            WitsService tariffService,
+            RouteOptimizeService routeOptimizationService) {
         this.countryService = countryService;
         this.petroleumService = petroleumService;
         this.tariffService = tariffService;
+        this.routeOptimizationService = routeOptimizationService;
     }
 
     public LandedCostResponse calculateLandedCost(LandedCostRequest request) {
-        // Importer
-        Country importer = null;
-        if (request.getImporterCode() != null) {
-            importer = countryService.getCountryByCode(request.getImporterCode());
-        } else if (request.getImporterName() != null) {
-            importer = countryService.getCountryByName(request.getImporterName());
-        }
-        System.out.println("✅Importer recieved : " + importer.getCode().toString());
+        // Get exporter/importer
+        Country importer = resolveCountry(request.getImporterCode(), request.getImporterName(), "Importer");
+        Country exporter = resolveCountry(request.getExporterCode(), request.getExporterName(), "Exporter");
 
-        // Exporter
-        Country exporter = null;
-        if (request.getExporterCode() != null) {
-            exporter = countryService.getCountryByCode(request.getExporterCode());
-        } else if (request.getExporterName() != null) {
-            exporter = countryService.getCountryByName(request.getExporterName());
-        }
-        System.out.println("✅Exporter recieved : " + exporter.getCode().toString());
-
-        // Petroleum
-        Petroleum petroleum = petroleumService.getPetroleumByHsCode(request.getHsCode());
-
-        // if (importer == null || exporter == null || petroleum == null) {
-        // throw new IllegalArgumentException("Invalid importer/exporter HS code or
-        // country code/name");
-        // }
-
-        RouteOptimizationResponse bestRoutes = optimizeRoutes(importer,exporter);
-
-        // debug
-        List<String> missing = new ArrayList<>();
-
-        if (importer == null)
-            missing.add("importer");
-        if (exporter == null)
-            missing.add("exporter");
-        if (petroleum == null)
-            missing.add("petroleum");
-
-        if (!missing.isEmpty()) {
-            throw new IllegalArgumentException("❌ Missing or invalid: " + String.join(", ", missing));
-        }
-        
-        if (importer.getCode() == null || exporter.getCode() == null) {
-            throw new IllegalArgumentException("❌ Invalid importer/exporter; country is null.");
-        }
         if (importer.getCode().equals(exporter.getCode())) {
             throw new IllegalArgumentException("Importer and exporter cannot be the same country");
         }
 
-        // Calculations
-        double pricePerUnit = petroleum.getPricePerUnit();
-        double baseCost = pricePerUnit * request.getUnits();
-
-        double tariffRate; // decimal
-
-        try {
-            LocalDate today = LocalDate.now();
-            double tariffRateReq = tariffService.
-            resolveTariff(new TariffRequestDTO(
-                importer.getCode(), 
-                exporter.getCode(), 
-                request.getHsCode(), 
-                /*date for now */today)).ratePercent();
-           
-            // TariffEntry te = tariffService.getLatest(
-            //         importer.getCode(), // reporter (importer)
-            //         exporter.getCode(), // partner (exporter)
-            //         request.getHsCode(),
-            //         "aveestimated");
-            // our TariffEntry stores rate in basis points (int)
-            tariffRate = tariffRateReq / 100.0;
-        } catch (Exception e) {
-            logger.warn(e.getMessage());
-            logger.warn("No tariff available. Using fallback of 0%.", e);
-            tariffRate = 0.0;
+        // get Petroleum
+        Petroleum petroleum = petroleumService.getPetroleumByHsCode(request.getHsCode());
+        if (petroleum == null) {
+            throw new IllegalArgumentException("Invalid HS code for petroleum");
         }
-        // try {
-        //     tariffRate = tariffService.getLatest(
-        //             Integer.parseInt(importer.getIso3n()),
-        //             Integer.parseInt(exporter.getIso3n()),
-        //             request.getHsCode(),
-        //             "aveestimated").getSimpleAverage() / 100.0;
-        // } catch (Exception e) {
-        //     logger.warn("No tariff available. Using fallback of 0%.");
-        //     tariffRate = 0.0;
-        // }
 
-        double tariffFees = baseCost * tariffRate;
-        // Check if importervatRate exists, 0.0 otherwise
-        Long importerVatRate = importer.getVatRates();
+        // Build RouteOptimizationRequest
+        RouteOptimizationRequest optRequest = new RouteOptimizationRequest();
+        optRequest.setExporter(exporter);
+        optRequest.setImporter(importer);
+        optRequest.setHsCode(request.getHsCode());
+        optRequest.setUnits(request.getUnits());
 
-        double vatRate = (importerVatRate != null) ? (double) importerVatRate.doubleValue() : 0.0;
-        double vatFees = (baseCost + tariffFees) * (vatRate / 100);
-        double totalCost = baseCost + tariffFees + vatFees;
+        // Calculate top routes
+        RouteOptimizationResponse routeResponse = routeOptimizationService.optimizeRoutes(optRequest);
+        List<RouteBreakdown> candidateRoutes = routeResponse.getTopRoutes();
 
-        // Build response
+        // Take the cheapest route (first in list)
+        RouteBreakdown directRoute = candidateRoutes.get(0);
+
+        //Populate alternative route map
+        Map<String, RouteBreakdown> alternativeRoutes = candidateRoutes.stream()
+        .skip(1)
+        .collect(Collectors.toMap(
+            RouteBreakdown::getTransitCountry, // key - transit country
+            r -> r                            // value -  full RouteBreakdown object
+        ));
+
+        // Build LandedCostResponse from the direct route, pass in alternative routes map
         return new LandedCostResponse(
                 importer.getName(),
                 exporter.getName(),
                 petroleum.getName(),
                 petroleum.getHsCode(),
-                pricePerUnit,
-                baseCost,
-                tariffRate,
-                tariffFees,
-                vatRate,
-                vatFees,
-                totalCost,
-                "USD");
+                petroleum.getPricePerUnit(),
+                directRoute.getBaseCost(),
+                directRoute.getTariffFees() / directRoute.getBaseCost(), // tariff rate
+                directRoute.getTariffFees(),
+                directRoute.getVatRate(),
+                directRoute.getVatFees(),
+                directRoute.getTotalLandedCost(),
+                "USD",
+                alternativeRoutes
+        );
     }
 
+
+    // Country helper function - get the Country from firebase using code/name
+    private Country resolveCountry(String iso3n, String name, String role) {
+        if (iso3n != null)
+            return countryService.getCountryByCode(String.valueOf(iso3n));
+        if (name != null)
+            return countryService.getCountryByName(name);
+        throw new IllegalArgumentException(role + " not specified");
+    }
 
 }

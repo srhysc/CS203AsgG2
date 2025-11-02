@@ -99,6 +99,8 @@ const TariffCalculator: React.FC = () => {
         try{
             //try getting all countries
             const tariffs = await getByRequirements(formData.importcountry,formData.exportcountry,formData.productcode,formData.units);
+console.log(`the tariffs: ${tariffs}`);
+
             //update tariffs field
             setTariffs(tariffs);
         } catch (err: any) {

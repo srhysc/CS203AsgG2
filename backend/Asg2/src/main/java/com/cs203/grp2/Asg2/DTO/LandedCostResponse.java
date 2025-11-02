@@ -1,6 +1,8 @@
 package com.cs203.grp2.Asg2.DTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.Map;
+import java.util.HashMap;
 
 public class LandedCostResponse {
     private String importingCountry;
@@ -32,12 +34,17 @@ public class LandedCostResponse {
 
     private String currency;
 
+    //map of alternative routes
+    private Map<String, RouteBreakdown> alternativeRoutes;
+
+
     public LandedCostResponse(String importingCountry, String exportingCountry,
                               String petroleumName, String hsCode,
                               double pricePerUnit, double basePrice,
                               double tariffRate, double tariffFees,
                               double vatRate, double vatFees,
-                              double totalLandedCost, String currency) {
+                              double totalLandedCost, String currency,
+                            Map<String, RouteBreakdown> alternativeRoutes) {
         this.importingCountry = importingCountry;
         this.exportingCountry = exportingCountry;
         this.petroleumName = petroleumName;
@@ -50,6 +57,7 @@ public class LandedCostResponse {
         this.vatFees = vatFees;
         this.totalLandedCost = totalLandedCost;
         this.currency = currency;
+        this.alternativeRoutes = alternativeRoutes;
     }
 
     // Getters only (immutability)
@@ -65,4 +73,6 @@ public class LandedCostResponse {
     public double getVatFees() { return vatFees; }
     public double getTotalLandedCost() { return totalLandedCost; }
     public String getCurrency() { return currency; }
+    public Map<String, RouteBreakdown> getAlternativeRoutes() { return alternativeRoutes; }
+
 }

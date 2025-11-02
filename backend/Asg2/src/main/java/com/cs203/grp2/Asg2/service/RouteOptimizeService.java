@@ -5,15 +5,169 @@ import com.cs203.grp2.Asg2.models.Country;
 import com.cs203.grp2.Asg2.models.Petroleum;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+@Service
 public class RouteOptimizeService {
-     public RouteOptimizationResponse optimizeRoutes(RouteOptimizationRequest request) {
-     
+
+    private static final Logger logger = LoggerFactory.getLogger(RouteOptimizeService.class);
+
+
+    private final CountryService countryService;
+    private final PetroleumService petroleumService;
+    private final WitsService tariffService;
+
+    public RouteOptimizeService(CountryService countryService,
+                                    PetroleumService petroleumService,
+                                    WitsService tariffService) {
+        this.countryService = countryService;
+        this.petroleumService = petroleumService;
+        this.tariffService = tariffService;
     }
+
+
+    //FULL FUNCTION
+    public RouteOptimizationResponse optimizeRoutes(RouteOptimizationRequest request) {
+
+logger.info("=== Starting route optimization ===");
+logger.info("Request - HS Code: {}, Units: {}", request.getHsCode(), request.getUnits());
+
+        //establish countries
+        Country exporter = request.getExportingCountry();
+        Country importer = request.getImportingCountry();
+
+logger.info("Exporter: {} ({})", exporter.getName(), exporter.getCode());
+logger.info("Importer: {} ({})", importer.getName(), importer.getCode());
+
+        //ERROR HANDLING
+        if (exporter.getCode().equals(importer.getCode())) {
+            throw new IllegalArgumentException("Importer and exporter cannot be the same country");
+        }
+
+        Petroleum petroleum = petroleumService.getPetroleumByHsCode(request.getHsCode());
+        if (petroleum == null) {
+            throw new IllegalArgumentException("Invalid HS Code for petroleum");
+        }
+
+        //set a new list to return top x results
+        List<RouteBreakdown> candidateRoutes = new ArrayList<>();
+
+        //Calculate direct route
+        RouteBreakdown direct = computeDirectRoute(exporter, importer, petroleum, request.getUnits());
+logger.info("Direct route calculated - Total cost: ${}", direct.getTotalLandedCost());
+        candidateRoutes.add(direct);
+
+        //Calculate transit routes
+         computeFixedEndpointsRoutes(exporter, importer, petroleum, request.getUnits(),candidateRoutes);
+logger.info("Total candidate routes: {}", candidateRoutes.size());
+
+        return new RouteOptimizationResponse(candidateRoutes);
+    }
+
+
+    // LANDED COST CALCULATING FUNCTIONS
+
+    //DIRECT CALCULATION
+    private RouteBreakdown computeDirectRoute(Country exporter, Country importer,
+                                              Petroleum petroleum, int units) {
+        double baseCost = petroleum.getPricePerUnit() * units;
+        double tariffRate = 0.0;
+
+        //get tariffs
+        try {
+            TariffRequestDTO dto = new TariffRequestDTO(exporter.getCode(), importer.getCode(),
+                    petroleum.getHsCode(), LocalDate.now());
+            tariffRate = tariffService.resolveTariff(dto).ratePercent() / 100.0;
+        } catch (Exception e) {
+            tariffRate = 0.0;
+        }
+
+        //calculate tariff fees if any
+        double tariffFees = baseCost * tariffRate;
+
+        //retrieve VAT rate of importing country that you have to pay
+        double vatRate = (importer.getVatRates() != null) ? importer.getVatRates() / 100.0 : 0.0;
+        //calculate VAT fees based on rate
+        double vatFees = (baseCost + tariffFees) * vatRate;
+
+        //calculate total - basecost + tariff fees + vat fees
+        double total = baseCost + tariffFees + vatFees;
+
+        return new RouteBreakdown(exporter.getName(), null, importer.getName(),
+                baseCost, tariffFees, vatFees, total, vatRate * 100);
+    }
+
+
+    //FUNCTION LOOPING THROUGH COUNTRIES AND CALCULATING DIFFERENT PERMUTATIONS
+    private void computeFixedEndpointsRoutes(
+        Country exporter, Country importer, Petroleum petroleum, int units,List<RouteBreakdown> candidateRoutes) {
+
+        List<RouteBreakdown> middleRouteList = new ArrayList<>();
+        //Get all countries in firebase
+        List<Country> allCountries = countryService.getAll();
+
+        // loop through all middle countries
+        for (Country middle : allCountries) {
+            if (middle.getCode().equals(exporter.getCode()) || middle.getCode().equals(importer.getCode()))
+                continue;
+
+            //calculate price with middle country involved
+            middleRouteList.add(computeRouteWithMiddle(exporter, middle, importer, petroleum, units));
+        }
+logger.info("FINISHED - Total routes calculated: {}", middleRouteList.size());
+
+        // Sort by total cost and pick best 5, and add to starting list
+        candidateRoutes.addAll(
+        middleRouteList.stream()
+                .sorted(Comparator.comparingDouble(RouteBreakdown::getTotalLandedCost))
+                .limit(5)
+                .collect(Collectors.toList()));
+    }
+
+
+    //FUNCTION JUST FOR CALCUALTION WITH MIDDLE COUNTRY
+    private RouteBreakdown computeRouteWithMiddle(Country exporter, Country middle,
+                                                  Country importer, Petroleum petroleum, int units) {
+        double baseCost = petroleum.getPricePerUnit() * units;
+        double totalTariff = 0.0;
+
+        try {
+            // Tariff between exporter and middle
+            TariffRequestDTO dto1 = new TariffRequestDTO(exporter.getCode(), middle.getCode(),
+                    petroleum.getHsCode(), LocalDate.now());
+            double rate1 = tariffService.resolveTariff(dto1).ratePercent() / 100.0;
+
+            // Tariff between middle and importer
+            TariffRequestDTO dto2 = new TariffRequestDTO(middle.getCode(), importer.getCode(),
+                    petroleum.getHsCode(), LocalDate.now());
+            double rate2 = tariffService.resolveTariff(dto2).ratePercent() / 100.0;
+
+            totalTariff = baseCost * rate1 + baseCost * rate2; //cost times rate for both countries to get teriff extra cost
+ 
+        } catch (Exception e) {
+            totalTariff = 0.0;
+        }
+
+        //get importing countries' vat rate you will have to pay for
+        double vatRate = (importer.getVatRates() != null) ? importer.getVatRates() / 100.0 : 0.0;
+        //calculate vat fees using vat rate on base cost
+        double vatFees = (baseCost + totalTariff) * vatRate;
+        //add base cost + tariff cost + vat cost
+        double total = baseCost + totalTariff + vatFees;
+
+        return new RouteBreakdown(exporter.getName(),
+                middle.getName(),
+                importer.getName(),
+                baseCost,
+                totalTariff,
+                vatFees,
+                total,
+                vatRate * 100);
+    }
+
 }
