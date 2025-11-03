@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDate;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -64,6 +63,7 @@ public class LandedCostService {
         optRequest.setImporter(importer);
         optRequest.setHsCode(request.getHsCode());
         optRequest.setUnits(request.getUnits());
+        optRequest.setCalculationDate(request.getCalculationDate());
 
         // Calculate top routes
         RouteOptimizationResponse routeResponse = routeOptimizationService.optimizeRoutes(optRequest);
@@ -86,7 +86,7 @@ public class LandedCostService {
                 exporter.getName(),
                 petroleum.getName(),
                 petroleum.getHsCode(),
-                petroleum.getPricePerUnit(),
+                routeResponse.getPetroleumPrice(),
                 directRoute.getBaseCost(),
                 directRoute.getTariffFees() / directRoute.getBaseCost(), // tariff rate
                 directRoute.getTariffFees(),

@@ -7,6 +7,9 @@ import com.cs203.grp2.Asg2.service.CountryService;
 
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
+
 @RestController
 @RequestMapping("/route-optimization")
 public class RouteOptimizationController {
@@ -32,7 +35,10 @@ public class RouteOptimizationController {
             @RequestParam String importer,
             @RequestParam String exporter,
             @RequestParam String hsCode,
-            @RequestParam int units
+            @RequestParam int units,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate date
     ) {
         //use resolveCountry method to get country from url string
         Country importerCountry = resolveCountry(importer);
@@ -44,6 +50,8 @@ public class RouteOptimizationController {
         request.setImporter(importerCountry);
         request.setHsCode(hsCode);
         request.setUnits(units);
+        request.setCalculationDate(date);
+
 
         return service.optimizeRoutes(request);
     }

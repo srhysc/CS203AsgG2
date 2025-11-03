@@ -70,6 +70,7 @@ public class SecurityConfig {
                 "/swagger-resources/**",
                 "/webjars/**"
             ).permitAll()
+  
             //ONLY ADMINS ABLE TO ACCESS USERS
             .requestMatchers("/api/users").hasRole("ADMIN")
             // READ for USER or ADMIN on your domain controllers

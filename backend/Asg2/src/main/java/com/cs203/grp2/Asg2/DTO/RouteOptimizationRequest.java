@@ -3,6 +3,10 @@ package com.cs203.grp2.Asg2.DTO;
 import jakarta.validation.constraints.*;
 import com.cs203.grp2.Asg2.models.Country;
 
+import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+
 
 public class RouteOptimizationRequest {
 
@@ -14,6 +18,10 @@ public class RouteOptimizationRequest {
 
     @Min(1)
     private int units;
+
+    @NotNull(message = "Date cannot be null")
+    @JsonFormat(pattern = "yyyy-MM-dd") 
+    private LocalDate calculationDate;
 
     public RouteOptimizationRequest() {}
 
@@ -31,4 +39,8 @@ public class RouteOptimizationRequest {
     // Units
     public int getUnits() { return units; }
     public void setUnits(int units) { this.units = units; }
+
+    //Calculationdate
+    public LocalDate getCalculationDate() { return calculationDate; }
+    public void setCalculationDate(LocalDate calculationDate) { this.calculationDate = calculationDate; }
 }

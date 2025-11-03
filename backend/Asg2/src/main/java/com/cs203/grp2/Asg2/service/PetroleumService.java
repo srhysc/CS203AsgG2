@@ -11,6 +11,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.time.LocalDate;
 
 import com.cs203.grp2.Asg2.models.*;
 import com.cs203.grp2.Asg2.exceptions.*;
@@ -28,7 +29,8 @@ public class PetroleumService {
 
     public List<Petroleum> getAllPetroleum() throws Exception {
         System.out.println("🔥 [DEBUG] Starting getAllPetroleum()");
-        DatabaseReference productRef = firebaseDatabase.getReference("product");
+// CHANGE FIREBASEREF LATER
+        DatabaseReference productRef = firebaseDatabase.getReference("product_new");
         CompletableFuture<List<Petroleum>> future = new CompletableFuture<>();
 
         petroleumList.clear();
@@ -44,26 +46,29 @@ public class PetroleumService {
                         System.out.println("🔍 [DEBUG] Child: " + child.getKey());
                         String name = child.getKey();
 
-                        // Retrieve all values as Strings
-                        String hsCodeStr = child.child("hsCode").getValue(String.class);
-                        String priceStr = child.child("Price").getValue(String.class);
-
-                        // Parse them into proper types
+                        // Retrieve HSCODE as Strings
+                        String hsCodeStr = child.child("hscode").getValue(String.class);
+                        //try parse into proper type
                         String hsCode = hsCodeStr != null ? hsCodeStr.trim() : null;
-                        Double price = null;
+                        
+                        // Retrieve price lists
+                        List<PetroleumPrice> prices = new ArrayList<>();
+                        //for each row's "price" children
+                        for (DataSnapshot priceNode : child.child("price").getChildren()) {
+                        //get date, average price, unit
+                        String dateStr = priceNode.child("date").getValue(String.class);
+                        Double avgPrice = priceNode.child("avg_price_per_unit_usd").getValue(Double.class);
+                        String unit = priceNode.child("unit").getValue(String.class);
+System.out.println("DATETIME CHILD OF " + hsCode + " TIMESTAMP: " + dateStr + " IS: " + avgPrice);
 
-                        if (priceStr != null && !priceStr.trim().isEmpty()) {
-                            try {
-                                price = Double.parseDouble(priceStr.trim());
-                            } catch (NumberFormatException e) {
-                                System.err.println("⚠️ [DEBUG] Invalid price format for " + name + ": " + priceStr);
+                        if (dateStr != null && avgPrice != null) {
+                            prices.add(new PetroleumPrice(LocalDate.parse(dateStr), avgPrice, unit));
                             }
-                        }
+                        }                        
 
-                        System.out.println("    ↳ hsCode=" + hsCode + " | Price=" + price);
 
                         if (name != null && hsCode != null ) {
-                            petroleumList.add(new Petroleum(name, hsCode, price));
+                            petroleumList.add(new Petroleum(name, hsCode, prices));
                         }
                     }
 
@@ -88,19 +93,6 @@ public class PetroleumService {
         System.out.println("✅ [DEBUG] Returning " + result.size() + " Petroleum objects: " + result);
         return result;
     }
-
-    // public PetroleumService() {
-    // // Get data and add to list
-
-    // // petroleumList.add(new Petroleum("Crude Oil", "2709", 100.0));
-    // // petroleumList.add(new Petroleum("Crude Petroleum", "271012", 120.0));
-    // // petroleumList.add(new Petroleum("Diesel", "2711", 90.0));
-    // }
-
-    // public List<Petroleum> getAllPetroleum() {
-    // getPetroleumDB();
-    // return petroleumList;
-    // }
 
     public Petroleum getPetroleumByHsCode(String hsCode) {
         return petroleumList.stream()
