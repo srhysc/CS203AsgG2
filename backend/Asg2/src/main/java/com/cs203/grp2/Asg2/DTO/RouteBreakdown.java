@@ -4,7 +4,7 @@ import java.util.List;
 
 public class RouteBreakdown {
     private String exportingCountry;
-    private List<String> transitCountries;
+    private String transitCountry;
     private String importingCountry;
 
     private double baseCost;
@@ -13,11 +13,11 @@ public class RouteBreakdown {
     private double totalLandedCost;
     private double vatRate;          // only importing country
 
-    public RouteBreakdown(String exportingCountry, List<String> transitCountries, String importingCountry,
+    public RouteBreakdown(String exportingCountry, String transitCountry, String importingCountry,
                           double baseCost, double tariffFees, double vatFees,
                           double totalLandedCost, double vatRate) {
         this.exportingCountry = exportingCountry;
-        this.transitCountries = transitCountries;
+        this.transitCountry = transitCountry;
         this.importingCountry = importingCountry;
         this.baseCost = baseCost;
         this.tariffFees = tariffFees;
@@ -27,7 +27,7 @@ public class RouteBreakdown {
     }
 
     public String getExportingCountry() { return exportingCountry; }
-    public List<String> getTransitCountries() { return transitCountries; }
+    public String getTransitCountry() { return transitCountry; }
     public String getImportingCountry() { return importingCountry; }
     public double getBaseCost() { return baseCost; }
     public double getTariffFees() { return tariffFees; }

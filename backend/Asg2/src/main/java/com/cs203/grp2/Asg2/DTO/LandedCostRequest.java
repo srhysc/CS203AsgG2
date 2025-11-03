@@ -1,6 +1,12 @@
 package com.cs203.grp2.Asg2.DTO;
 
+import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.validation.constraints.*;
+
 
 public class LandedCostRequest {
   
@@ -17,6 +23,10 @@ public class LandedCostRequest {
 
     @Min(1)
     private int units;
+
+    @NotNull(message = "Date cannot be null")
+    @JsonFormat(pattern = "yyyy-MM-dd") 
+    private LocalDate calculationDate;
 
     public LandedCostRequest() {}
 
@@ -38,4 +48,7 @@ public class LandedCostRequest {
 
     public int getUnits() { return units; }
     public void setUnits(int units) { this.units = units; }
+
+    public LocalDate getCalculationDate() { return calculationDate; }
+    public void setCalculationDate(LocalDate calculationDate) { this.calculationDate = calculationDate; }
 }

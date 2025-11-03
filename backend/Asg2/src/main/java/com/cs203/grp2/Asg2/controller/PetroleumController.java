@@ -13,6 +13,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+
 
 @RestController
 @RequestMapping("/petroleum")
@@ -28,18 +32,23 @@ public class PetroleumController {
     @GetMapping
     public List<Petroleum> getAllPetroleum() {
         try {
-            System.out.println(service.getAllPetroleum());
-            return service.getAllPetroleum();
+            List<Petroleum> list = service.getAllPetroleum();
+            System.out.println(list);
+            return list;
         } catch (Exception e) {
-            log.info("error retrieving data ");
+            log.info("error retrieving data:",e);
      
-            return null;
+            return List.of();
         }
         
     }
 
     @GetMapping("/{hsCode}")
     public Petroleum getPetroleumByHsCode(@PathVariable @Pattern(regexp = "\\d{4,6}") String hsCode) {
-        return service.getPetroleumByHsCode(hsCode);
+        Petroleum petroleum = service.getPetroleumByHsCode(hsCode);
+        if (petroleum == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Petroleum not found for HS code: " + hsCode);
+        }
+        return petroleum;
     }
 }

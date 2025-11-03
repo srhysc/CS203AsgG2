@@ -12,6 +12,9 @@ import com.cs203.grp2.Asg2.controller.*;
 import com.cs203.grp2.Asg2.config.*;
 import com.cs203.grp2.Asg2.service.*;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
+
 @RestController
 @RequestMapping("/landedcost")
 public class LandedCostController {
@@ -34,7 +37,10 @@ public class LandedCostController {
             @RequestParam String importer,
             @RequestParam String exporter,
             @RequestParam String hsCode,
-            @RequestParam int units) {
+            @RequestParam int units,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate date) {
 
         LandedCostRequest request = new LandedCostRequest();
 
@@ -54,6 +60,7 @@ public class LandedCostController {
 
         request.setHsCode(hsCode);
         request.setUnits(units);
+        request.setCalculationDate(date);
 
         return service.calculateLandedCost(request);
     }
