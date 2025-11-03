@@ -62,14 +62,6 @@ public class SecurityConfig {
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(clerkJwtFilter, UsernamePasswordAuthenticationFilter.class)
         .authorizeHttpRequests(auth -> auth
-            // SWAGGER ENDPOINTS - ADD THIS FIRST
-            .requestMatchers(
-                "/swagger-ui/**",
-                "/swagger-ui.html",
-                "/v3/api-docs/**",
-                "/swagger-resources/**",
-                "/webjars/**"
-            ).permitAll()
   
             //ONLY ADMINS ABLE TO ACCESS USERS
             .requestMatchers("/api/users").hasRole("ADMIN")
