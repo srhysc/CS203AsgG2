@@ -163,72 +163,71 @@
 //     </div>
 //   );
 // }import React, { useEffect, useState } from "react";"use client";
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Ship, Search, Loader2, BarChart2, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Loader2, Search, Calendar, ChevronLeft, ChevronRight, Ship, BarChart2 } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 // Types
 interface Country {
   name: string;
-  iso3n: number;
+  iso3: string;
+  code: string;
 }
 
-interface ShippingPoint {
+interface ShippingFeeEntry {
   date: string;
-  cost: number;
-  currency?: string;
+  costs: {
+    [unit: string]: {
+      costPerUnit: number;
+      unit: string;
+    };
+  };
+}
+
+interface ShippingFeeResponse {
+  country1Name: string;
+  country2Name: string;
+  country1Iso3: string;
+  country2Iso3: string;
+  country1IsoNumeric: string;
+  country2IsoNumeric: string;
+  shippingFees: ShippingFeeEntry[];
 }
 
 // Calendar Component
 const CalendarView = ({ date, onDateChange }: { date: Date | null, onDateChange: (date: Date) => void }) => {
-  const [viewDate, setViewDate] = React.useState(date || new Date());
-  
+  const [viewDate, setViewDate] = useState(date || new Date());
   const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
   const lastDay = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
   const daysInMonth = lastDay.getDate();
   const startDay = firstDay.getDay();
-  
   const days = Array.from({ length: 42 }, (_, i) => {
     const dayNumber = i - startDay + 1;
     if (dayNumber < 1 || dayNumber > daysInMonth) return null;
     return new Date(viewDate.getFullYear(), viewDate.getMonth(), dayNumber);
   });
-
   return (
     <div className="p-4 bg-slate-800 rounded-lg border border-slate-700 w-[350px]">
       <div className="flex items-center justify-between mb-4">
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1))}
-          className="text-gray-100 hover:text-[#dcff1a] hover:bg-slate-700"
-        >
-          <ChevronLeft className="h-5 w-5" />
+        <Button variant="ghost" size="icon" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1))}>
+          <ChevronLeft className="h-5 w-5 text-gray-100" />
         </Button>
         <div className="text-lg font-semibold text-gray-100">
           {viewDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
         </div>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1))}
-          className="text-gray-100 hover:text-[#dcff1a] hover:bg-slate-700"
-        >
-          <ChevronRight className="h-5 w-5" />
+        <Button variant="ghost" size="icon" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1))}>
+          <ChevronRight className="h-5 w-5 text-gray-100" />
         </Button>
       </div>
       <div className="grid grid-cols-7 gap-1 mb-2">
         {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
-          <div key={day} className="text-[#dcff1a] font-medium text-center py-2 text-sm">
-            {day}
-          </div>
+          <div key={day} className="text-[#dcff1a] font-medium text-center py-2 text-sm">{day}</div>
         ))}
       </div>
       <div className="grid grid-cols-7 gap-1">
@@ -254,32 +253,14 @@ const CalendarView = ({ date, onDateChange }: { date: Date | null, onDateChange:
   );
 };
 
-// Route Visualization
-const RouteVisualization = ({ origin, destination }: { origin: string; destination: string }) => (
-  <div className="w-full py-12 bg-slate-900/50 rounded-lg border border-white/10">
-    <div className="flex items-center justify-center gap-8">
-      <div className="text-xl font-medium text-white px-6 py-3 bg-slate-800/50 rounded-lg">
-        {origin}
-      </div>
-      <div className="relative w-48 h-2 bg-slate-800">
-        <div className="absolute inset-0 bg-[#dcff1a] animate-[ship-progress_2s_infinite]" />
-        <Ship className="absolute -top-3 -right-3 w-6 h-6 text-[#dcff1a] animate-[ship-bounce_1s_ease-in-out_infinite]" />
-      </div>
-      <div className="text-xl font-medium text-white px-6 py-3 bg-slate-800/50 rounded-lg">
-        {destination}
-      </div>
-    </div>
-  </div>
-);
-
-// Cost History Chart
-const CostHistoryChart = ({ costs }: { costs: ShippingPoint[] }) => (
+// Chart
+const CostHistoryChart = ({ costs, unit }: { costs: { date: string; cost: number; unit: string }[], unit: string }) => (
   <div className="w-full h-[300px] mb-6 p-4 bg-slate-900/50 rounded-lg border border-white/10">
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={costs} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
         <XAxis dataKey="date" stroke="#94a3b8" tick={{ fill: '#94a3b8' }} />
-        <YAxis stroke="#94a3b8" tick={{ fill: '#94a3b8' }} />
+        <YAxis stroke="#94a3b8" tick={{ fill: '#94a3b8' }} label={{ value: unit, angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
         <Tooltip
           contentStyle={{
             backgroundColor: '#1e1b4b',
@@ -288,6 +269,7 @@ const CostHistoryChart = ({ costs }: { costs: ShippingPoint[] }) => (
           }}
           labelStyle={{ color: '#94a3b8' }}
           itemStyle={{ color: '#dcff1a' }}
+          formatter={(value) => [`$${value}`, unit]}
         />
         <Line
           type="monotone"
@@ -302,142 +284,69 @@ const CostHistoryChart = ({ costs }: { costs: ShippingPoint[] }) => (
   </div>
 );
 
-// Country Select Component
-const CountrySelect = ({
-  label,
-  value,
-  onChange,
-  isOpen,
-  onOpenChange,
-  countries,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  countries: Country[];
-}) => (
-  <div className="space-y-2">
-    <label className="text-sm font-medium text-gray-400">{label}</label>
-    <Popover open={isOpen} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          className="w-full justify-between bg-slate-800/50 border-white/10 text-white"
-        >
-          {value || `Select ${label.toLowerCase()}...`}
-          <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0 bg-slate-900 border-white/10">
-        <Command>
-          <CommandInput placeholder="Search..." className="text-white" />
-          <CommandEmpty className="text-gray-400">Not found.</CommandEmpty>
-          <CommandGroup>
-            {countries.map((country) => (
-              <CommandItem
-                key={country.iso3n}
-                value={country.name}
-                onSelect={() => {
-                  onChange(country.name);
-                  onOpenChange(false);
-                }}
-                className="text-white hover:bg-white/10"
-              >
-                {country.name}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  </div>
-);
-
-// API Functions
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
-async function fetchShippingHistory(originIso3n: number, destIso3n: number): Promise<ShippingPoint[]> {
-  const o = String(originIso3n).padStart(3, "0");
-  const d = String(destIso3n).padStart(3, "0");
-
-  const candidates = [
-    `/shipping/costs?origin=${o}&destination=${d}`,
-    `/shipping/history?origin=${o}&destination=${d}`,
-    `/shipping/${o}/${d}/history`,
-    `/routes/${o}/${d}/shipping-costs`,
-  ];
-
-  for (const path of candidates) {
-    try {
-      const { data } = await axios.get<ShippingPoint[]>(API_BASE + path);
-      if (Array.isArray(data)) return data;
-    } catch (_err) {
-      continue;
-    }
-  }
-  throw new Error(`No shipping history endpoint responded for origin=${o} destination=${d}`);
-}
-
-// Main Component
 export default function ShippingCostPage() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [origin, setOrigin] = useState<string>("");
   const [destination, setDestination] = useState<string>("");
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [shippingHistory, setShippingHistory] = useState<ShippingPoint[] | null>(null);
   const [originOpen, setOriginOpen] = useState(false);
   const [destOpen, setDestOpen] = useState(false);
+  const [unit, setUnit] = useState<string>("barrel");
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [shippingData, setShippingData] = useState<ShippingFeeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Fetch countries
   useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const { data } = await axios.get<Country[]>(`${API_BASE}/countries`);
-        setCountries(data || []);
-      } catch (err) {
-        setError("Failed to load countries");
-      }
-    };
-    fetchCountries();
+    axios.get<Country[]>(`${API_BASE}/countries`)
+      .then(res => setCountries(res.data))
+      .catch(() => setError("Failed to load countries"));
   }, []);
 
+  // Fetch shipping fees when origin/destination changes
   useEffect(() => {
     if (!origin || !destination) {
-      setShippingHistory(null);
+      setShippingData(null);
       return;
     }
-
-    const originCountry = countries.find(c => c.name === origin);
-    const destCountry = countries.find(c => c.name === destination);
-
-    if (!originCountry?.iso3n || !destCountry?.iso3n) return;
-
-    const fetchCosts = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchShippingHistory(originCountry.iso3n, destCountry.iso3n);
-        setShippingHistory(data);
-      } catch (err) {
-        setError("Failed to fetch shipping costs");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCosts();
+    setLoading(true);
+    setError("");
+    axios.get<ShippingFeeResponse>(`${API_BASE}/shipping-fees/${origin}/${destination}`)
+      .then(res => setShippingData(res.data))
+      .catch(() => setError("Failed to fetch shipping costs"))
+      .finally(() => setLoading(false));
   }, [origin, destination]);
 
-  const filteredHistory = shippingHistory?.filter(point => {
-    if (!selectedDate) return true;
-    return new Date(point.date) <= selectedDate;
-  });
+  // Prepare unit options
+  const unitOptions = useMemo(() => {
+    if (!shippingData || !shippingData.shippingFees.length) return [];
+    const firstEntry = shippingData.shippingFees[0];
+    return Object.keys(firstEntry.costs);
+  }, [shippingData]);
 
-  const currentCost = selectedDate && filteredHistory ? 
-    filteredHistory[filteredHistory.length - 1] : null;
+  // Prepare filtered cost history
+  const filteredCosts = useMemo(() => {
+    if (!shippingData) return [];
+    let entries = shippingData.shippingFees;
+    if (selectedDate) {
+      entries = entries.filter(e => new Date(e.date) <= selectedDate);
+    }
+    return entries
+      .map(e => ({
+        date: e.date,
+        cost: e.costs[unit]?.costPerUnit ?? 0,
+        unit: e.costs[unit]?.unit ?? unit,
+      }))
+      .filter(e => e.cost > 0);
+  }, [shippingData, selectedDate, unit]);
+
+  // Prepare country dropdown options
+  const countryOptions = useMemo(() => countries.map(c => ({
+    label: `${c.name} (${c.iso3})`,
+    value: c.iso3,
+  })), [countries]);
 
   return (
     <div className="flex-1 space-y-8 p-8">
@@ -456,25 +365,84 @@ export default function ShippingCostPage() {
         <CardHeader>
           <CardTitle>Search Route</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <CountrySelect
-            label="Origin Country"
-            value={origin}
-            onChange={setOrigin}
-            isOpen={originOpen}
-            onOpenChange={setOriginOpen}
-            countries={countries}
-          />
-          <CountrySelect
-            label="Destination Country"
-            value={destination}
-            onChange={setDestination}
-            isOpen={destOpen}
-            onOpenChange={setDestOpen}
-            countries={countries}
-          />
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-400">Filter by Date</label>
+        <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Origin */}
+          <div>
+            <label className="text-sm font-medium text-gray-400 mb-2 block">Country 1</label>
+            <Popover open={originOpen} onOpenChange={setOriginOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className="w-full justify-between bg-slate-800/50 border-white/10 text-white"
+                >
+                  {origin ? countries.find(c => c.iso3 === origin)?.name : "Select country 1..."}
+                  <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[300px] p-0 bg-slate-900 border-white/10">
+                <Command>
+                  <CommandInput placeholder="Search..." className="text-white" />
+                  <CommandEmpty className="text-gray-400">Not found.</CommandEmpty>
+                  <CommandGroup>
+                    {countryOptions.map(option => (
+                      <CommandItem
+                        key={option.value}
+                        value={option.value}
+                        onSelect={() => {
+                          setOrigin(option.value);
+                          setOriginOpen(false);
+                        }}
+                        className="text-white hover:bg-white/10"
+                      >
+                        {option.label}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+          {/* Destination */}
+          <div>
+            <label className="text-sm font-medium text-gray-400 mb-2 block">Country 2</label>
+            <Popover open={destOpen} onOpenChange={setDestOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className="w-full justify-between bg-slate-800/50 border-white/10 text-white"
+                >
+                  {destination ? countries.find(c => c.iso3 === destination)?.name : "Select country 2  ..."}
+                  <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[300px] p-0 bg-slate-900 border-white/10">
+                <Command>
+                  <CommandInput placeholder="Search..." className="text-white" />
+                  <CommandEmpty className="text-gray-400">Not found.</CommandEmpty>
+                  <CommandGroup>
+                    {countryOptions.map(option => (
+                      <CommandItem
+                        key={option.value}
+                        value={option.value}
+                        onSelect={() => {
+                          setDestination(option.value);
+                          setDestOpen(false);
+                        }}
+                        className="text-white hover:bg-white/10"
+                      >
+                        {option.label}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+          {/* Date */}
+          <div>
+            <label className="text-sm font-medium text-gray-400 mb-2 block">Filter by Date</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -495,6 +463,42 @@ export default function ShippingCostPage() {
               </PopoverContent>
             </Popover>
           </div>
+          {/* Unit */}
+          <div>
+            <label className="text-sm font-medium text-gray-400 mb-2 block">Unit</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full h-10 px-3 py-2 text-base flex items-center justify-between
+                    bg-slate-800/50 border-white/10 text-white 
+                    hover:bg-slate-700 hover:border-[#dcff1a] transition-colors"
+                  disabled={unitOptions.length === 0}
+                >
+                  {unit}
+                  <BarChart2 className="ml-2 h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="p-0">
+                <Command>
+                  <CommandInput placeholder="Search unit..." className="text-white" />
+                  <CommandEmpty className="text-gray-400">No unit found.</CommandEmpty>
+                  <CommandGroup>
+                    {unitOptions.map(u => (
+                      <CommandItem
+                        key={u}
+                        value={u}
+                        onSelect={() => setUnit(u)}
+                        className="text-white hover:bg-white/10"
+                      >
+                        {u}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
         </CardContent>
       </Card>
 
@@ -506,22 +510,33 @@ export default function ShippingCostPage() {
       )}
 
       {/* Results */}
-      {origin && destination && shippingHistory && !loading && (
+      {origin && destination && shippingData && !loading && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="bg-white/5 backdrop-blur-lg border border-white/10">
             <CardHeader>
               <CardTitle>Route Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <RouteVisualization origin={origin} destination={destination} />
-              {currentCost && (
+              <div className="flex items-center justify-center gap-8 py-8">
+                <div className="text-xl font-medium text-white px-6 py-3 bg-slate-800/50 rounded-lg">
+                  {countries.find(c => c.iso3 === origin)?.name}
+                </div>
+                <div className="relative w-48 h-2 bg-slate-800">
+                  <div className="absolute inset-0 bg-[#dcff1a]" />
+                  <Ship className="absolute -top-3 -right-3 w-6 h-6 text-[#dcff1a]" />
+                </div>
+                <div className="text-xl font-medium text-white px-6 py-3 bg-slate-800/50 rounded-lg">
+                  {countries.find(c => c.iso3 === destination)?.name}
+                </div>
+              </div>
+              {filteredCosts.length > 0 && (
                 <div className="p-4 bg-slate-800/50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <BarChart2 className="h-5 w-5 text-[#dcff1a]" />
                     <div>
                       <p className="text-sm text-gray-400">Current Cost</p>
                       <p className="text-2xl font-bold text-[#dcff1a]">
-                        ${currentCost.cost.toFixed(2)} {currentCost.currency || 'USD'}
+                        ${filteredCosts[filteredCosts.length - 1].cost.toFixed(2)} {filteredCosts[filteredCosts.length - 1].unit}
                       </p>
                     </div>
                   </div>
@@ -535,20 +550,20 @@ export default function ShippingCostPage() {
               <CardTitle>Cost History</CardTitle>
             </CardHeader>
             <CardContent>
-              {shippingHistory.length > 0 ? (
+              {filteredCosts.length > 0 ? (
                 <>
-                  <CostHistoryChart costs={shippingHistory} />
+                  <CostHistoryChart costs={filteredCosts} unit={unit} />
                   <div className="overflow-auto max-h-[300px]">
                     <Table>
                       <TableHeader>
                         <TableRow>
                           <TableHead className="text-gray-400">Date</TableHead>
                           <TableHead className="text-gray-400">Cost</TableHead>
-                          <TableHead className="text-gray-400">Currency</TableHead>
+                          <TableHead className="text-gray-400">Unit</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {shippingHistory.map((point, idx) => (
+                        {filteredCosts.map((point, idx) => (
                           <TableRow key={idx} className="hover:bg-white/5">
                             <TableCell className="text-gray-300">
                               {new Date(point.date).toLocaleDateString()}
@@ -557,7 +572,7 @@ export default function ShippingCostPage() {
                               ${point.cost.toFixed(2)}
                             </TableCell>
                             <TableCell className="text-gray-300">
-                              {point.currency || 'USD'}
+                              {point.unit}
                             </TableCell>
                           </TableRow>
                         ))}
