@@ -15,7 +15,7 @@ public class RefineryServiceImpl implements RefineryService {
     @Autowired
     private FirebaseDatabase firebaseDatabase;
 
-    private final List<Refinery> refineryList = new ArrayList<>();
+    final List<Refinery> refineryList = new ArrayList<>();
 
     // Helper: Convert Model to DTO
     private RefineryResponseDTO toDTO(Refinery refinery) {
@@ -33,16 +33,15 @@ public class RefineryServiceImpl implements RefineryService {
             }
         }
         return new RefineryResponseDTO(
-            refinery.getName(),
-            refinery.getCompany(),
-            refinery.getLocation(),
-            refinery.getOperationalFrom(),
-            refinery.getOperationalTo(),
-            refinery.isCanRefineAny(),
-            costDTOs,
-            refinery.getCountryIso3(),
-            refinery.getCountryIsoNumeric()
-        );
+                refinery.getName(),
+                refinery.getCompany(),
+                refinery.getLocation(),
+                refinery.getOperationalFrom(),
+                refinery.getOperationalTo(),
+                refinery.isCanRefineAny(),
+                costDTOs,
+                refinery.getCountryIso3(),
+                refinery.getCountryIsoNumeric());
     }
 
     // Helper: Load all refineries from Firebase (once per app run)
@@ -83,10 +82,9 @@ public class RefineryServiceImpl implements RefineryService {
                             }
 
                             refineryList.add(new Refinery(
-                                name, company, location, operationalFrom, operationalTo,
-                                canRefineAny != null && canRefineAny, estimatedCosts,
-                                countryIso3, countryIsoNumeric
-                            ));
+                                    name, company, location, operationalFrom, operationalTo,
+                                    canRefineAny != null && canRefineAny, estimatedCosts,
+                                    countryIso3, countryIsoNumeric));
                         }
                     }
                     future.complete(refineryList);
@@ -94,6 +92,7 @@ public class RefineryServiceImpl implements RefineryService {
                     future.completeExceptionally(e);
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError error) {
                 future.completeExceptionally(error.toException());
@@ -138,8 +137,8 @@ public class RefineryServiceImpl implements RefineryService {
             loadRefineries();
             for (Refinery refinery : refineryList) {
                 if (refinery.getName().equalsIgnoreCase(refineryName) &&
-                    refinery.getCountryIso3() != null &&
-                    refinery.getCountryIso3().equalsIgnoreCase(countryIso3)) {
+                        refinery.getCountryIso3() != null &&
+                        refinery.getCountryIso3().equalsIgnoreCase(countryIso3)) {
                     return toDTO(refinery);
                 }
             }
@@ -175,7 +174,7 @@ public class RefineryServiceImpl implements RefineryService {
         return null;
     }
 
-        @Override
+    @Override
     public CostDetailResponseDTO getCostByUnit(String countryIso3, String refineryName, String unit, LocalDate date) {
         RefineryResponseDTO refinery = getRefinery(countryIso3, refineryName);
         if (refinery != null && refinery.getEstimatedCosts() != null) {
@@ -204,77 +203,86 @@ public class RefineryServiceImpl implements RefineryService {
     }
 
     @Override
-public RefineryResponseDTO addOrUpdateRefinery(String countryIso3, RefineryRequestDTO refineryRequestDTO) {
-    DatabaseReference countryRef = firebaseDatabase.getReference("refineries").child(countryIso3);
+    public RefineryResponseDTO addOrUpdateRefinery(String countryIso3, RefineryRequestDTO refineryRequestDTO) {
+        DatabaseReference countryRef = firebaseDatabase.getReference("refineries").child(countryIso3);
 
-    // Check if country exists
-    CompletableFuture<DataSnapshot> countryFuture = new CompletableFuture<>();
-    countryRef.addListenerForSingleValueEvent(new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot snapshot) {
-            countryFuture.complete(snapshot);
-        }
-        @Override
-        public void onCancelled(DatabaseError error) {
-            countryFuture.completeExceptionally(error.toException());
-        }
-    });
-
-    try {
-        DataSnapshot countrySnap = countryFuture.get();
-        DatabaseReference refineriesRef = countryRef.child("refineries");
-
-        // Check if refinery exists
-        boolean refineryExists = false;
-        String refineryKey = null;
-        for (DataSnapshot refinerySnap : countrySnap.child("refineries").getChildren()) {
-            String name = refinerySnap.child("name").getValue(String.class);
-            if (name != null && name.equalsIgnoreCase(refineryRequestDTO.getName())) {
-                refineryExists = true;
-                refineryKey = refinerySnap.getKey();
-                break;
+        CompletableFuture<DataSnapshot> countryFuture = new CompletableFuture<>();
+        countryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                countryFuture.complete(snapshot);
             }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                countryFuture.completeExceptionally(error.toException());
+            }
+        });
+
+        try {
+            DataSnapshot countrySnap = countryFuture.get();
+            DatabaseReference refineriesRef = countryRef.child("refineries");
+
+            boolean refineryExists = false;
+            String refineryKey = null;
+            for (DataSnapshot refinerySnap : countrySnap.child("refineries").getChildren()) {
+                String name = refinerySnap.child("name").getValue(String.class);
+                if (name != null && name.equalsIgnoreCase(refineryRequestDTO.getName())) {
+                    refineryExists = true;
+                    refineryKey = refinerySnap.getKey();
+                    break;
+                }
+            }
+
+            if (refineryExists) {
+                DatabaseReference estimatedCostsRef = refineriesRef.child(refineryKey).child("estimated_costs");
+                estimatedCostsRef.push().setValueAsync(refineryRequestDTO.getEstimatedCosts().get(0));
+            } else {
+                Map<String, Object> refineryMap = new HashMap<>();
+                refineryMap.put("name", refineryRequestDTO.getName());
+                refineryMap.put("company", refineryRequestDTO.getCompany());
+                refineryMap.put("location", refineryRequestDTO.getLocation());
+                refineryMap.put("operational_from", refineryRequestDTO.getOperationalFrom());
+                refineryMap.put("operational_to", refineryRequestDTO.getOperationalTo());
+                refineryMap.put("can_refine_any", refineryRequestDTO.isCanRefineAny());
+                refineryMap.put("estimated_costs", refineryRequestDTO.getEstimatedCosts());
+
+                refineriesRef.push().setValueAsync(refineryMap);
+            }
+
+            if (!countrySnap.exists()) {
+                countryRef.child("iso3").setValueAsync(countryIso3);
+                countryRef.child("iso_numeric").setValueAsync(refineryRequestDTO.getCountryIsoNumeric());
+            }
+
+            // Convert List<RefineryCostRequestDTO> to List<RefineryCostResponseDTO>
+            List<RefineryCostResponseDTO> costResponses = new ArrayList<>();
+            if (refineryRequestDTO.getEstimatedCosts() != null) {
+                for (RefineryCostRequestDTO req : refineryRequestDTO.getEstimatedCosts()) {
+                    Map<String, CostDetailResponseDTO> costMap = new HashMap<>();
+                    if (req.getCosts() != null) {
+                        for (Map.Entry<String, CostDetailRequestDTO> entry : req.getCosts().entrySet()) {
+                            CostDetailRequestDTO cdReq = entry.getValue();
+                            costMap.put(entry.getKey(),
+                                    new CostDetailResponseDTO(cdReq.getCostPerUnit(), cdReq.getUnit()));
+                        }
+                    }
+                    costResponses.add(new RefineryCostResponseDTO(req.getDate(), costMap));
+                }
+            }
+
+            return new RefineryResponseDTO(
+                    refineryRequestDTO.getName(),
+                    refineryRequestDTO.getCompany(),
+                    refineryRequestDTO.getLocation(),
+                    refineryRequestDTO.getOperationalFrom(),
+                    refineryRequestDTO.getOperationalTo(),
+                    refineryRequestDTO.isCanRefineAny(),
+                    costResponses,
+                    countryIso3,
+                    refineryRequestDTO.getCountryIsoNumeric());
+        } catch (Exception e) {
+            return null;
         }
-
-        if (refineryExists) {
-            // Add new estimated cost entry to existing refinery
-            DatabaseReference estimatedCostsRef = refineriesRef.child(refineryKey).child("estimated_costs");
-            estimatedCostsRef.push().setValueAsync(refineryRequestDTO.getEstimatedCosts().get(0));
-        } else {
-            // Add new refinery entry
-            Map<String, Object> refineryMap = new HashMap<>();
-            refineryMap.put("name", refineryRequestDTO.getName());
-            refineryMap.put("company", refineryRequestDTO.getCompany());
-            refineryMap.put("location", refineryRequestDTO.getLocation());
-            refineryMap.put("operational_from", refineryRequestDTO.getOperationalFrom());
-            refineryMap.put("operational_to", refineryRequestDTO.getOperationalTo());
-            refineryMap.put("can_refine_any", refineryRequestDTO.isCanRefineAny());
-            refineryMap.put("estimated_costs", refineryRequestDTO.getEstimatedCosts());
-
-            refineriesRef.push().setValueAsync(refineryMap);
-        }
-
-        // If country does not exist, add country node
-        if (!countrySnap.exists()) {
-            countryRef.child("iso3").setValueAsync(countryIso3);
-            countryRef.child("iso_numeric").setValueAsync(refineryRequestDTO.getCountryIsoNumeric());
-        }
-
-        // Return the DTO (optionally reload from DB)
-        return new RefineryResponseDTO(
-            refineryRequestDTO.getName(),
-            refineryRequestDTO.getCompany(),
-            refineryRequestDTO.getLocation(),
-            refineryRequestDTO.getOperationalFrom(),
-            refineryRequestDTO.getOperationalTo(),
-            refineryRequestDTO.isCanRefineAny(),
-            refineryRequestDTO.getEstimatedCosts(), // or null
-            countryIso3,
-            refineryRequestDTO.getCountryIsoNumeric()
-        );
-    } catch (Exception e) {
-        // Handle error
-        return null;
     }
-}
 }

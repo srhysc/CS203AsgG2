@@ -143,89 +143,75 @@
 //     </div>
 //   );
 // }import React, { useEffect, useState } from "react";
-"use client";
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Globe, Activity, Search, Building2, Loader2, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Calendar, ChevronLeft, ChevronRight, Building2, Globe, Activity, Loader2, Search } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 // Types
-interface CountryData {
-  iso3: string;
-  iso_numeric: string;
-  refineries: RefineryData[];
+interface CostDetail {
+  cost_per_unit: number;
+  unit: string;
 }
-
-interface RefineryData {
+interface EstimatedCost {
+  date: string;
+  costs: Record<string, CostDetail>;
+}
+interface Refinery {
   name: string;
   company: string;
   location: string;
   operational_from: number;
   operational_to: number | null;
   can_refine_any: boolean;
-  estimated_costs: CostData[];
+  estimated_costs: EstimatedCost[];
+  countryIso3: string;
+  countryIsoNumeric: string;
+  countryName: string;
 }
-
-interface CostData {
-  date: string;
-  cost_per_unit: number;
+interface CountryData {
+  iso3: string;
+  iso_numeric: string;
+  refineries: Refinery[];
 }
-
-interface RefineryInfo {
-  name: string;
-  country: string;
-  data: RefineryData;
+interface DropdownOption {
+  label: string;
+  value: string;
 }
 
 // Calendar Component
 const CalendarView = ({ date, onDateChange }: { date: Date | null, onDateChange: (date: Date) => void }) => {
-  const [viewDate, setViewDate] = React.useState(date || new Date());
-  
+  const [viewDate, setViewDate] = useState(date || new Date());
   const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
   const lastDay = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0);
   const daysInMonth = lastDay.getDate();
   const startDay = firstDay.getDay();
-  
   const days = Array.from({ length: 42 }, (_, i) => {
     const dayNumber = i - startDay + 1;
     if (dayNumber < 1 || dayNumber > daysInMonth) return null;
     return new Date(viewDate.getFullYear(), viewDate.getMonth(), dayNumber);
   });
-
   return (
     <div className="p-4 bg-slate-800 rounded-lg border border-slate-700 w-[350px]">
       <div className="flex items-center justify-between mb-4">
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1))}
-          className="text-gray-100 hover:text-[#dcff1a] hover:bg-slate-700"
-        >
-          <ChevronLeft className="h-5 w-5" />
+        <Button variant="ghost" size="icon" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1))}>
+          <ChevronLeft className="h-5 w-5 text-gray-100" />
         </Button>
         <div className="text-lg font-semibold text-gray-100">
           {viewDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
         </div>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1))}
-          className="text-gray-100 hover:text-[#dcff1a] hover:bg-slate-700"
-        >
-          <ChevronRight className="h-5 w-5" />
+        <Button variant="ghost" size="icon" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1))}>
+          <ChevronRight className="h-5 w-5 text-gray-100" />
         </Button>
       </div>
       <div className="grid grid-cols-7 gap-1 mb-2">
         {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
-          <div key={day} className="text-[#dcff1a] font-medium text-center py-2 text-sm">
-            {day}
-          </div>
+          <div key={day} className="text-[#dcff1a] font-medium text-center py-2 text-sm">{day}</div>
         ))}
       </div>
       <div className="grid grid-cols-7 gap-1">
@@ -238,8 +224,8 @@ const CalendarView = ({ date, onDateChange }: { date: Date | null, onDateChange:
             className={`
               h-10 w-10 p-0 font-normal text-base
               ${!day ? 'invisible' : ''}
-              ${day?.toDateString() === date?.toDateString() 
-                ? 'bg-[#dcff1a] text-slate-900 hover:bg-[#dcff1a]/90' 
+              ${day?.toDateString() === date?.toDateString()
+                ? 'bg-[#dcff1a] text-slate-900 hover:bg-[#dcff1a]/90'
                 : 'text-gray-100 hover:bg-slate-700 hover:text-[#dcff1a]'}
             `}
           >
@@ -251,96 +237,124 @@ const CalendarView = ({ date, onDateChange }: { date: Date | null, onDateChange:
   );
 };
 
-// Price Chart Component
-const PriceChart = ({ costs }: { costs: CostData[] }) => {
-  return (
-    <div className="w-full h-[300px] mb-6 p-4 bg-slate-900/50 rounded-lg border border-white/10">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={costs}
-          margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-          <XAxis
-            dataKey="date"
-            stroke="#94a3b8"
-            tick={{ fill: '#94a3b8' }}
-          />
-          <YAxis
-            stroke="#94a3b8"
-            tick={{ fill: '#94a3b8' }}
-            label={{
-              value: 'Cost per Unit (USD)',
-              angle: -90,
-              position: 'insideLeft',
-              fill: '#94a3b8'
-            }}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: '#1e1b4b',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '6px',
-            }}
-            labelStyle={{ color: '#94a3b8' }}
-            itemStyle={{ color: '#dcff1a' }}
-          />
-          <Line
-            type="monotone"
-            dataKey="cost_per_unit"
-            stroke="#dcff1a"
-            strokeWidth={2}
-            dot={{ fill: '#dcff1a', strokeWidth: 2 }}
-            activeDot={{ r: 8 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
-};
+// Interactive Price Chart
+const PriceChart = ({ costs }: { costs: { date: string; cost_per_unit: number; unit: string }[] }) => (
+  <div className="w-full h-[300px] mb-6 p-4 bg-slate-900/50 rounded-lg border border-white/10">
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart
+        data={costs}
+        margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
+        <XAxis
+          dataKey="date"
+          stroke="#94a3b8"
+          tick={{ fill: '#94a3b8' }}
+        />
+        <YAxis
+          stroke="#94a3b8"
+          tick={{ fill: '#94a3b8' }}
+          label={{
+            value: 'Cost per Unit (USD)',
+            angle: -90,
+            position: 'insideLeft',
+            fill: '#94a3b8'
+          }}
+        />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: '#1e1b4b',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '6px',
+          }}
+          labelStyle={{ color: '#94a3b8' }}
+          itemStyle={{ color: '#dcff1a' }}
+          formatter={(value, name, props) => [`$${value}`, props.payload.unit]}
+        />
+        <Line
+          type="monotone"
+          dataKey="cost_per_unit"
+          stroke="#dcff1a"
+          strokeWidth={2}
+          dot={{ fill: '#dcff1a', strokeWidth: 2 }}
+          activeDot={{ r: 8 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+);
 
-// Main Component
+// Main Page
 export default function RefineryInfoPage() {
-  const [refineries, setRefineries] = useState<RefineryInfo[]>([]);
+  const [refineries, setRefineries] = useState<Refinery[]>([]);
   const [selectedRefinery, setSelectedRefinery] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [unit, setUnit] = useState<string>("barrel");
 
+  // Fetch refineries from backend
   useEffect(() => {
-    const fetchRefineries = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get<Record<string, CountryData>>(
-          `${import.meta.env.VITE_API_URL}/refineries`
-        );
-
-        const refineryList = Object.entries(response.data).flatMap(([country, data]) =>
-          data.refineries.map(refinery => ({
-            name: refinery.name,
-            country,
-            data: refinery
-          }))
-        );
-
+    setLoading(true);
+    axios.get<Record<string, CountryData>>(`${import.meta.env.VITE_API_URL}/refineries`)
+      .then(res => {
+        // Flatten country/refinery structure
+        const refineryList: Refinery[] = [];
+        Object.entries(res.data).forEach(([countryName, countryData]) => {
+          countryData.refineries.forEach(refinery => {
+            refinery.countryName = countryName;
+            refineryList.push(refinery);
+          });
+        });
         setRefineries(refineryList);
-      } catch (err) {
+      })
+      .catch(err => {
         setError("Failed to load refineries. Please try again later.");
-        console.error("Error fetching refineries:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRefineries();
+        console.error(err);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  const selectedRefineryData = refineries.find(r => r.name === selectedRefinery)?.data;
-  const filteredCosts = selectedRefineryData?.estimated_costs.filter(cost => {
-    if (!selectedDate) return true;
-    return new Date(cost.date) <= selectedDate;
-  });
+  // Dropdown options
+  const options: DropdownOption[] = useMemo(() => refineries.map(r => ({
+    label: `${r.name} (${r.countryName})`,
+    value: r.name + "|" + r.countryIso3
+  })), [refineries]);
+
+  // Find selected refinery
+  const refineryData = useMemo(() => {
+    if (!selectedRefinery) return undefined;
+    const [name, iso3] = selectedRefinery.split("|");
+    return refineries.find(r => r.name === name && r.countryIso3 === iso3);
+  }, [selectedRefinery, refineries]);
+
+  // Filter costs by date and unit
+  const filteredCosts = useMemo(() => {
+    if (!refineryData) return [];
+    let costs: { date: string; cost_per_unit: number; unit: string }[] = [];
+    refineryData.estimated_costs.forEach(costEntry => {
+      if (!selectedDate || new Date(costEntry.date) <= selectedDate) {
+        if (costEntry.costs[unit]) {
+          costs.push({
+            date: costEntry.date,
+            cost_per_unit: costEntry.costs[unit].cost_per_unit,
+            unit: costEntry.costs[unit].unit
+          });
+        }
+      }
+    });
+    // Sort by date ascending
+    costs.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    return costs;
+  }, [refineryData, selectedDate, unit]);
+
+  // Available units for dropdown
+  const availableUnits = useMemo(() => {
+    if (!refineryData || refineryData.estimated_costs.length === 0) return [];
+    const first = refineryData.estimated_costs[0];
+    return Object.keys(first.costs);
+  }, [refineryData]);
 
   return (
     <div className="flex-1 w-full min-h-screen">
@@ -375,7 +389,7 @@ export default function RefineryInfoPage() {
                       aria-expanded={open}
                       className="w-full justify-between bg-slate-800/50 border-white/10 text-white h-11 text-base"
                     >
-                      {selectedRefinery || "Select a refinery..."}
+                      {refineryData ? `${refineryData.name} (${refineryData.countryName})` : "Select a refinery..."}
                       <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
@@ -389,18 +403,18 @@ export default function RefineryInfoPage() {
                         No refinery found.
                       </CommandEmpty>
                       <CommandGroup>
-                        {refineries.map((refinery) => (
+                        {options.map((option) => (
                           <CommandItem
-                            key={refinery.name}
-                            value={refinery.name}
+                            key={option.value}
+                            value={option.value}
                             onSelect={() => {
-                              setSelectedRefinery(refinery.name);
+                              setSelectedRefinery(option.value);
                               setOpen(false);
                             }}
                             className="cursor-pointer text-base py-3 text-white hover:bg-white/10"
                           >
                             <Building2 className="mr-3 h-5 w-5 text-[#dcff1a]" />
-                            {refinery.name} ({refinery.country})
+                            {option.label}
                           </CommandItem>
                         ))}
                       </CommandGroup>
@@ -434,6 +448,52 @@ export default function RefineryInfoPage() {
                   </PopoverContent>
                 </Popover>
               </div>
+
+              {/* Unit Filter */}
+              <div className="w-full md:w-[200px]">
+                <label className="block text-sm font-medium text-gray-400 mb-2">
+                  Unit
+                </label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full h-11 px-3 py-2 text-lg flex items-center justify-between
+          bg-slate-800/50 border-white/10 text-white 
+          hover:bg-slate-700 hover:border-[#dcff1a] transition-colors"
+                    >
+                      {unit ? unit : "Select unit"}
+                      <Activity className="ml-2 h-5 w-5 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[200px] p-0 bg-slate-900 border-white/10">
+                    <Command>
+                      <CommandInput
+                        placeholder="Search units..."
+                        className="h-11 text-base text-white"
+                      />
+                      <CommandEmpty className="text-base py-4 text-gray-400">
+                        No unit found.
+                      </CommandEmpty>
+                      <CommandGroup>
+                        {availableUnits.map(u => (
+                          <CommandItem
+                            key={u}
+                            value={u}
+                            onSelect={() => {
+                              setUnit(u);
+                            }}
+                            className="cursor-pointer text-base py-3 text-white hover:bg-white/10"
+                          >
+                            <Activity className="mr-3 h-5 w-5 text-[#dcff1a]" />
+                            {u}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -446,27 +506,27 @@ export default function RefineryInfoPage() {
         )}
 
         {/* Results Section */}
-        {selectedRefineryData && !loading && (
+        {refineryData && !loading && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Refinery Details */}
             <Card className="bg-white/5 backdrop-blur-lg border border-white/10">
               <CardHeader className="p-6">
                 <CardTitle className="text-3xl text-white mb-6">
-                  {selectedRefineryData.name}
+                  {refineryData.name}
                 </CardTitle>
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
                     <Building2 className="w-6 h-6 text-[#dcff1a]" />
                     <div>
                       <p className="text-sm text-gray-400">Company</p>
-                      <p className="text-lg text-gray-300">{selectedRefineryData.company}</p>
+                      <p className="text-lg text-gray-300">{refineryData.company}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <Globe className="w-6 h-6 text-[#dcff1a]" />
                     <div>
                       <p className="text-sm text-gray-400">Location</p>
-                      <p className="text-lg text-gray-300">{selectedRefineryData.location}</p>
+                      <p className="text-lg text-gray-300">{refineryData.location}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -474,7 +534,7 @@ export default function RefineryInfoPage() {
                     <div>
                       <p className="text-sm text-gray-400">Refining Capability</p>
                       <p className="text-lg text-emerald-400">
-                        {selectedRefineryData.can_refine_any ?
+                        {refineryData.can_refine_any ?
                           "Full Refining Capability" :
                           "Limited Refining Capability"}
                       </p>
@@ -488,7 +548,7 @@ export default function RefineryInfoPage() {
             <Card className="bg-white/5 backdrop-blur-lg border border-white/10">
               <CardHeader className="p-6">
                 <CardTitle className="text-3xl text-white mb-6">
-                  Cost History
+                  Cost History ({unit})
                 </CardTitle>
                 {filteredCosts && filteredCosts.length > 0 ? (
                   <div className="space-y-6">
@@ -499,6 +559,7 @@ export default function RefineryInfoPage() {
                           <TableRow className="hover:bg-transparent">
                             <TableHead className="text-gray-400 text-lg">Date</TableHead>
                             <TableHead className="text-gray-400 text-lg">Cost per Unit (USD)</TableHead>
+                            <TableHead className="text-gray-400 text-lg">Unit</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -510,6 +571,9 @@ export default function RefineryInfoPage() {
                               <TableCell className="text-[#dcff1a] text-base font-medium">
                                 ${cost.cost_per_unit.toFixed(2)}
                               </TableCell>
+                              <TableCell className="text-gray-300 text-base">
+                                {cost.unit}
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -518,7 +582,7 @@ export default function RefineryInfoPage() {
                   </div>
                 ) : (
                   <p className="text-gray-400 text-lg">
-                    No cost data available for the selected period
+                    No cost data available for the selected period and unit.
                   </p>
                 )}
               </CardHeader>
