@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.cs203.grp2.Asg2.models.Petroleum;
 import com.cs203.grp2.Asg2.models.Country;
+import com.cs203.grp2.Asg2.models.VATRate;
 import com.cs203.grp2.Asg2.exceptions.*;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.time.LocalDate;
 
 @Service
 public class CountryService {
@@ -44,17 +46,27 @@ public class CountryService {
             byNameCI.clear();
 
             if (snap.exists()) {
-                System.out.println("✅ is this nsap even exist?");
+                System.out.println("✅ is this snap even exist?");
                 for (DataSnapshot node : snap.getChildren()) {
                     System.out.println("✅ is this child even exist?");
                     Country c = node.getValue(Country.class);
                     if (c == null) continue;
 
-                    String code = node.child("Code").getValue(String.class);
-                    String iso3 = node.child("ISO3").getValue(String.class);
+                    String code = node.child("code").getValue(String.class);
+                    String iso3 = node.child("iso3n").getValue(String.class);
                     try {
-                        Long vatRate = node.child("VAT rates").getValue(Long.class);
-                        c.setVatRates(vatRate);
+                        List<VATRate> rateList = new ArrayList<>();
+                        //NEW METHOD TO LOOP
+                        for (DataSnapshot priceNode : node.child("vat_rates").getChildren()) {
+                            String dateStr = priceNode.child("date").getValue(String.class);
+                            Double vatRate = priceNode.child("rate").getValue(Double.class);
+    System.out.println("date " + LocalDate.parse(dateStr) + "VAT rate " + vatRate);
+
+                            if (dateStr != null && vatRate != null) {
+                                rateList.add(new VATRate(LocalDate.parse(dateStr),vatRate));
+                            }
+                        }
+                        c.setVatRates(rateList);
                     } catch (Exception e) {
                         // TODO: handle exception
                         System.out.println("no vat rate recorded");

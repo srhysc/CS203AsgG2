@@ -94,7 +94,7 @@ logger.info("Total candidate routes: {}", candidateRoutes.size());
         double tariffFees = baseCost * tariffRate;
 
         //retrieve VAT rate of importing country that you have to pay
-        double vatRate = (importer.getVatRates() != null) ? importer.getVatRates() / 100.0 : 0.0;
+        double vatRate = (importer.getVatRates() != null) ? importer.getVatRates(date) : 0.0;
         //calculate VAT fees based on rate
         double vatFees = (baseCost + tariffFees) * vatRate;
 
@@ -160,7 +160,7 @@ logger.info("FINISHED - Total routes calculated: {}", middleRouteList.size());
         }
 
         //get importing countries' vat rate you will have to pay for
-        double vatRate = (importer.getVatRates() != null) ? importer.getVatRates() / 100.0 : 0.0;
+        double vatRate = (importer.getVatRates() != null) ? importer.getVatRates(date) : 0.0;
         //calculate vat fees using vat rate on base cost
         double vatFees = (baseCost + totalTariff) * vatRate;
         //add base cost + tariff cost + vat cost
