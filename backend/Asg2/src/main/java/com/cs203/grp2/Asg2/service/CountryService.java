@@ -40,7 +40,7 @@ public class CountryService {
     /** Loads /Country into memory and builds indexes. */
     public final void init() {
         try {
-            DataSnapshot snap = await(firebase.getReference("/Country"));
+            DataSnapshot snap = await(firebase.getReference("/Country_NEW"));
             countries.clear();
             byCode.clear();
             byNameCI.clear();
