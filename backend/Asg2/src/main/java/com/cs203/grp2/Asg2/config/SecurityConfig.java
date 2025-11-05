@@ -52,7 +52,8 @@ public class SecurityConfig {
         "/route-optimization/**", // RouteOptimizationController
         "/shipping-fees/**", // ShippingFeesController
         "/tariffs/**", // TariffController
-        "/trade-agreements/**" // TradeAgreementController
+        "/trade-agreements/**", // TradeAgreementController
+        "/refineries/**"
     };
 
     http
