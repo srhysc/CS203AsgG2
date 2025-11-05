@@ -145,6 +145,7 @@
 // }import React, { useEffect, useState } from "react";
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import { useAuth } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
@@ -184,7 +185,7 @@ interface DropdownOption {
   value: string;
 }
 
-// Calendar Component
+// Calendar Component (unchanged)
 const CalendarView = ({ date, onDateChange }: { date: Date | null, onDateChange: (date: Date) => void }) => {
   const [viewDate, setViewDate] = useState(date || new Date());
   const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
@@ -237,7 +238,7 @@ const CalendarView = ({ date, onDateChange }: { date: Date | null, onDateChange:
   );
 };
 
-// Interactive Price Chart
+// Interactive Price Chart (unchanged)
 const PriceChart = ({ costs }: { costs: { date: string; cost_per_unit: number; unit: string }[] }) => (
   <div className="w-full h-[300px] mb-6 p-4 bg-slate-900/50 rounded-lg border border-white/10">
     <ResponsiveContainer width="100%" height="100%">
@@ -284,8 +285,9 @@ const PriceChart = ({ costs }: { costs: { date: string; cost_per_unit: number; u
   </div>
 );
 
-// Main Page
 export default function RefineryInfoPage() {
+  const { isLoaded, isSignedIn, getToken } = useAuth();
+
   const [refineries, setRefineries] = useState<Refinery[]>([]);
   const [selectedRefinery, setSelectedRefinery] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -294,27 +296,40 @@ export default function RefineryInfoPage() {
   const [error, setError] = useState("");
   const [unit, setUnit] = useState<string>("barrel");
 
-  // Fetch refineries from backend
+  // Fetch refineries from backend with Clerk token
   useEffect(() => {
+    if (!isLoaded) return;
+    if (!isSignedIn) {
+      setError("You must be signed in to view refinery information.");
+      setRefineries([]);
+      return;
+    }
     setLoading(true);
-    axios.get<Record<string, CountryData>>(`${import.meta.env.VITE_API_URL}/refineries`)
-      .then(res => {
-        // Flatten country/refinery structure
-        const refineryList: Refinery[] = [];
-        Object.entries(res.data).forEach(([countryName, countryData]) => {
-          countryData.refineries.forEach(refinery => {
-            refinery.countryName = countryName;
-            refineryList.push(refinery);
+    setError("");
+    getToken().then(token => {
+      axios.get<Record<string, CountryData>>(
+        `${import.meta.env.VITE_API_URL}/refineries`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+        .then(res => {
+          // Flatten country/refinery structure
+          const refineryList: Refinery[] = [];
+          Object.entries(res.data).forEach(([countryName, countryData]) => {
+            countryData.refineries.forEach(refinery => {
+              refinery.countryName = countryName;
+              refineryList.push(refinery);
+            });
           });
-        });
-        setRefineries(refineryList);
-      })
-      .catch(err => {
-        setError("Failed to load refineries. Please try again later.");
-        console.error(err);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+          setRefineries(refineryList);
+        })
+        .catch(err => {
+          setError("Failed to load refineries. Please try again later.");
+          setRefineries([]);
+          console.error(err);
+        })
+        .finally(() => setLoading(false));
+    });
+  }, [isLoaded, isSignedIn, getToken]);
 
   // Dropdown options
   const options: DropdownOption[] = useMemo(() => refineries.map(r => ({
@@ -344,7 +359,6 @@ export default function RefineryInfoPage() {
         }
       }
     });
-    // Sort by date ascending
     costs.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     return costs;
   }, [refineryData, selectedDate, unit]);
@@ -355,6 +369,27 @@ export default function RefineryInfoPage() {
     const first = refineryData.estimated_costs[0];
     return Object.keys(first.costs);
   }, [refineryData]);
+
+  // Show loading if Clerk is not loaded
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-[#dcff1a]" />
+        <span className="ml-4 text-gray-300 text-lg">Loading authentication…</span>
+      </div>
+    );
+  }
+
+  // Show error if not signed in
+  if (!isSignedIn) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-red-400 p-6 rounded-lg bg-red-900/20 border border-red-900 text-lg">
+          You must be signed in to view refinery information.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 w-full min-h-screen">
