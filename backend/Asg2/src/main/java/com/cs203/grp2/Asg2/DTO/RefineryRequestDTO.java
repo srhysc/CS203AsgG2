@@ -6,28 +6,15 @@ public class RefineryRequestDTO {
     private String name;
     private String company;
     private String location;
-    private Integer operationalFrom;
-    private Integer operationalTo;
-    private boolean canRefineAny;
-    private List<RefineryCostRequestDTO> estimatedCosts;
+    private Integer operational_from;
+    private Integer operational_to;
+    private boolean can_refine_any;
+    private List<RefineryCostRequestDTO> estimated_costs;
     private String countryIso3;
     private String countryIsoNumeric;
+    private String countryName;
 
     public RefineryRequestDTO() {
-    }
-
-    public RefineryRequestDTO(String name, String company, String location, Integer operationalFrom,
-            Integer operationalTo, boolean canRefineAny, List<RefineryCostRequestDTO> estimatedCosts,
-            String countryIso3, String countryIsoNumeric) {
-        this.name = name;
-        this.company = company;
-        this.location = location;
-        this.operationalFrom = operationalFrom;
-        this.operationalTo = operationalTo;
-        this.canRefineAny = canRefineAny;
-        this.estimatedCosts = estimatedCosts;
-        this.countryIso3 = countryIso3;
-        this.countryIsoNumeric = countryIsoNumeric;
     }
 
     public String getName() {
@@ -54,36 +41,36 @@ public class RefineryRequestDTO {
         this.location = location;
     }
 
-    public Integer getOperationalFrom() {
-        return operationalFrom;
+    public Integer getOperational_from() {
+        return operational_from;
     }
 
-    public void setOperationalFrom(Integer operationalFrom) {
-        this.operationalFrom = operationalFrom;
+    public void setOperational_from(Integer operational_from) {
+        this.operational_from = operational_from;
     }
 
-    public Integer getOperationalTo() {
-        return operationalTo;
+    public Integer getOperational_to() {
+        return operational_to;
     }
 
-    public void setOperationalTo(Integer operationalTo) {
-        this.operationalTo = operationalTo;
+    public void setOperational_to(Integer operational_to) {
+        this.operational_to = operational_to;
     }
 
-    public boolean isCanRefineAny() {
-        return canRefineAny;
+    public boolean isCan_refine_any() {
+        return can_refine_any;
     }
 
-    public void setCanRefineAny(boolean canRefineAny) {
-        this.canRefineAny = canRefineAny;
+    public void setCan_refine_any(boolean can_refine_any) {
+        this.can_refine_any = can_refine_any;
     }
 
-    public List<RefineryCostRequestDTO> getEstimatedCosts() {
-        return estimatedCosts;
+    public List<RefineryCostRequestDTO> getEstimated_costs() {
+        return estimated_costs;
     }
 
-    public void setEstimatedCosts(List<RefineryCostRequestDTO> estimatedCosts) {
-        this.estimatedCosts = estimatedCosts;
+    public void setEstimated_costs(List<RefineryCostRequestDTO> estimated_costs) {
+        this.estimated_costs = estimated_costs;
     }
 
     public String getCountryIso3() {
@@ -101,4 +88,14 @@ public class RefineryRequestDTO {
     public void setCountryIsoNumeric(String countryIsoNumeric) {
         this.countryIsoNumeric = countryIsoNumeric;
     }
+
+    public String getCountryName() {
+        return countryName;
+    }
+
+    public void setCountryName(String countryName) {
+        this.countryName = countryName;
+    }
+
+    // Getters and setters
 }

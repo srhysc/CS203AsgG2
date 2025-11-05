@@ -6,28 +6,11 @@ public class Refinery {
     private String name;
     private String company;
     private String location;
-    private Integer operationalFrom;
-    private Integer operationalTo;
-    private boolean canRefineAny;
-    private List<RefineryCost> estimatedCosts;
+    private Integer operational_from;
+    private Integer operational_to;
+    private boolean can_refine_any;
+    private List<RefineryCost> estimated_costs;
     private String countryIso3;
-    private String countryIsoNumeric;
-
-    public Refinery() {}
-
-    public Refinery(String name, String company, String location, Integer operationalFrom, Integer operationalTo, boolean canRefineAny, List<RefineryCost> estimatedCosts, String countryIso3, String countryIsoNumeric) {
-        this.name = name;
-        this.company = company;
-        this.location = location;
-        this.operationalFrom = operationalFrom;
-        this.operationalTo = operationalTo;
-        this.canRefineAny = canRefineAny;
-        this.estimatedCosts = estimatedCosts;
-        this.countryIso3 = countryIso3;
-        this.countryIsoNumeric = countryIsoNumeric;
-    }
-
-
     public String getName() {
         return name;
     }
@@ -52,40 +35,81 @@ public class Refinery {
         this.location = location;
     }
 
-    public Integer getOperationalFrom() {
-        return operationalFrom;
+    public Integer getOperational_from() {
+        return operational_from;
     }
 
-    public void setOperationalFrom(Integer operationalFrom) {
-        this.operationalFrom = operationalFrom;
+    public void setOperational_from(Integer operational_from) {
+        this.operational_from = operational_from;
     }
 
-    public Integer getOperationalTo() {
-        return operationalTo;
+    public Integer getOperational_to() {
+        return operational_to;
     }
 
-    public void setOperationalTo(Integer operationalTo) {
-        this.operationalTo = operationalTo;
+    public void setOperational_to(Integer operational_to) {
+        this.operational_to = operational_to;
     }
 
-    public boolean isCanRefineAny() {
-        return canRefineAny;
+    public boolean isCan_refine_any() {
+        return can_refine_any;
     }
 
-    public void setCanRefineAny(boolean canRefineAny) {
-        this.canRefineAny = canRefineAny;
+    public void setCan_refine_any(boolean can_refine_any) {
+        this.can_refine_any = can_refine_any;
     }
 
-    public List<RefineryCost> getEstimatedCosts() {
-        return estimatedCosts;
+    public List<RefineryCost> getEstimated_costs() {
+        return estimated_costs;
     }
 
-    public void setEstimatedCosts(List<RefineryCost> estimatedCosts) {
-        this.estimatedCosts = estimatedCosts;
+    public void setEstimated_costs(List<RefineryCost> estimated_costs) {
+        this.estimated_costs = estimated_costs;
     }
 
-    public String getCountryIso3() { return countryIso3; }
-    public void setCountryIso3(String countryIso3) { this.countryIso3 = countryIso3; }
-    public String getCountryIsoNumeric() { return countryIsoNumeric; }
-    public void setCountryIsoNumeric(String countryIsoNumeric) { this.countryIsoNumeric = countryIsoNumeric; }
+    public String getCountryIso3() {
+        return countryIso3;
+    }
+
+    public void setCountryIso3(String countryIso3) {
+        this.countryIso3 = countryIso3;
+    }
+
+    public String getCountryIsoNumeric() {
+        return countryIsoNumeric;
+    }
+
+    public void setCountryIsoNumeric(String countryIsoNumeric) {
+        this.countryIsoNumeric = countryIsoNumeric;
+    }
+
+    public String getCountryName() {
+        return countryName;
+    }
+
+    public void setCountryName(String countryName) {
+        this.countryName = countryName;
+    }
+
+    private String countryIsoNumeric;
+    private String countryName;
+
+    public Refinery() {}
+
+    public Refinery(String name, String company, String location, Integer operational_from, Integer operational_to,
+                    boolean can_refine_any, List<RefineryCost> estimated_costs,
+                    String countryIso3, String countryIsoNumeric, String countryName) {
+        this.name = name;
+        this.company = company;
+        this.location = location;
+        this.operational_from = operational_from;
+        this.operational_to = operational_to;
+        this.can_refine_any = can_refine_any;
+        this.estimated_costs = estimated_costs;
+        this.countryIso3 = countryIso3;
+        this.countryIsoNumeric = countryIsoNumeric;
+        this.countryName = countryName;
+    }
+
+    // Getters and setters
 }

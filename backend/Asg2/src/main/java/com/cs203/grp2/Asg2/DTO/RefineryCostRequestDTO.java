@@ -1,24 +1,18 @@
 package com.cs203.grp2.Asg2.DTO;
 
-import java.time.LocalDate;
 import java.util.Map;
 
 public class RefineryCostRequestDTO {
-    private LocalDate date;
+    private String date;
     private Map<String, CostDetailRequestDTO> costs;
 
     public RefineryCostRequestDTO() {}
 
-    public RefineryCostRequestDTO(LocalDate date, Map<String, CostDetailRequestDTO> costs) {
-        this.date = date;
-        this.costs = costs;
-    }
-
-    public LocalDate getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -29,4 +23,6 @@ public class RefineryCostRequestDTO {
     public void setCosts(Map<String, CostDetailRequestDTO> costs) {
         this.costs = costs;
     }
+
+    // Getters and setters
 }

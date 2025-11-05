@@ -1,148 +1,3 @@
-// // src/components/pages/RefineryInfoPage.tsx
-// import React, { useEffect, useMemo, useState } from "react";
-// import axios from "axios";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Combobox } from "@/components/ui/combobox";
-// import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
-// type Refinery = {
-//   id: number;
-//   name: string;
-//   country: string;
-//   established: string; // ISO date
-//   active: boolean;
-// };
-
-// type RefineryPrice = {
-//   date: string; // ISO date
-//   price: number;
-// };
-
-// const API_BASE = import.meta.env.VITE_API_URL || "";
-
-// // Try multiple possible endpoints for refinery historical prices
-// async function fetchRefineryPrices(refineryId: number): Promise<RefineryPrice[]> {
-//   const candidates = [
-//     `/refineries/${refineryId}/prices`,
-//     `/refineries/${refineryId}/historicalPrices`,
-//     `/prices?refineryId=${refineryId}`
-//   ];
-//   for (const path of candidates) {
-//     try {
-//       const { data } = await axios.get<RefineryPrice[]>(API_BASE + path);
-//       if (Array.isArray(data)) return data;
-//     } catch (_err) {
-//       // try next candidate
-//     }
-//   }
-//   throw new Error("No refinery prices endpoint responded for refineryId=" + refineryId);
-// }
-
-// export default function RefineryInfoPage() {
-//   const [refineries, setRefineries] = useState<Refinery[]>([]);
-//   const [selectedRefineryId, setSelectedRefineryId] = useState<string>("");
-//   const [prices, setPrices] = useState<RefineryPrice[] | null>(null);
-//   const [loading, setLoading] = useState<boolean>(false);
-//   const [error, setError] = useState<string>("");
-
-//   // Load refinery list
-//   useEffect(() => {
-//     let cancelled = false;
-//     const run = async () => {
-//       setError("");
-//       try {
-//         const { data } = await axios.get<Refinery[]>(API_BASE + "/refineries");
-//         if (!cancelled) setRefineries(data ?? []);
-//       } catch (e: any) {
-//         if (!cancelled) setError("Failed to load refineries. Check VITE_API_URL and /refineries.");
-//         console.error(e);
-//       }
-//     };
-//     run();
-//     return () => { cancelled = true; };
-//   }, []);
-
-//   const options = useMemo(() => refineries.map(r => ({
-//     label: `${r.name} (${r.country})`,
-//     value: String(r.id)
-//   })), [refineries]);
-
-//   // Fetch historical prices when a refinery is selected
-//   useEffect(() => {
-//     const id = Number(selectedRefineryId);
-//     if (!id) { setPrices(null); return; }
-//     let cancelled = false;
-//     setLoading(true);
-//     setError("");
-//     fetchRefineryPrices(id)
-//       .then(list => !cancelled && setPrices(list))
-//       .catch(err => {
-//         console.error(err);
-//         if (!cancelled) setError("Could not fetch historical prices for the selected refinery.");
-//       })
-//       .finally(() => !cancelled && setLoading(false));
-//     return () => { cancelled = true; };
-//   }, [selectedRefineryId]);
-
-//   // Find selected refinery details
-//   const selectedRefinery = refineries.find(r => String(r.id) === selectedRefineryId);
-
-//   return (
-//     <div className="max-w-6xl mx-auto p-6 space-y-8">
-//       <Card className="bg-slate-900/40 border-slate-700">
-//         <CardHeader>
-//           <CardTitle className="text-xl">Select a Refinery</CardTitle>
-//         </CardHeader>
-//         <CardContent className="space-y-4">
-//           <Combobox
-//             options={options}
-//             value={selectedRefineryId}
-//             onChange={(v) => setSelectedRefineryId(v)}
-//             placeholder="Search refinery..."
-//             widthClass="w-full md:w-96"
-//           />
-//           {error && <div className="rounded-md border border-red-600 bg-red-900/40 px-3 py-2 text-red-200">{error}</div>}
-//         </CardContent>
-//       </Card>
-
-//       {selectedRefinery && (
-//         <Card className="bg-slate-900/40 border-slate-700">
-//           <CardHeader>
-//             <CardTitle className="text-xl">{selectedRefinery.name} Info</CardTitle>
-//           </CardHeader>
-//           <CardContent className="space-y-4">
-//             <p><strong>Country:</strong> {selectedRefinery.country}</p>
-//             <p><strong>Established:</strong> {new Date(selectedRefinery.established).toLocaleDateString()}</p>
-//             <p><strong>Status:</strong> {selectedRefinery.active ? "Active" : "Inactive"}</p>
-
-//             {loading && <p className="text-slate-300">Loading historical prices…</p>}
-//             {prices && prices.length === 0 && <p className="text-slate-300">No historical prices found.</p>}
-//             {prices && prices.length > 0 && (
-//               <div className="overflow-x-auto">
-//                 <Table>
-//                   <TableHeader>
-//                     <TableRow>
-//                       <TableHead>Date</TableHead>
-//                       <TableHead>Price (USD)</TableHead>
-//                     </TableRow>
-//                   </TableHeader>
-//                   <TableBody>
-//                     {prices.map((row, idx) => (
-//                       <TableRow key={idx}>
-//                         <TableCell>{new Date(row.date).toLocaleDateString()}</TableCell>
-//                         <TableCell>{row.price}</TableCell>
-//                       </TableRow>
-//                     ))}
-//                   </TableBody>
-//                 </Table>
-//               </div>
-//             )}
-//           </CardContent>
-//         </Card>
-//       )}
-//     </div>
-//   );
-// }import React, { useEffect, useState } from "react";
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
@@ -164,6 +19,7 @@ interface EstimatedCost {
   costs: Record<string, CostDetail>;
 }
 interface Refinery {
+  id: number;
   name: string;
   company: string;
   location: string;
@@ -175,17 +31,12 @@ interface Refinery {
   countryIsoNumeric: string;
   countryName: string;
 }
-interface CountryData {
-  iso3: string;
-  iso_numeric: string;
-  refineries: Refinery[];
-}
 interface DropdownOption {
   label: string;
   value: string;
 }
 
-// Calendar Component (unchanged)
+// Calendar Component
 const CalendarView = ({ date, onDateChange }: { date: Date | null, onDateChange: (date: Date) => void }) => {
   const [viewDate, setViewDate] = useState(date || new Date());
   const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
@@ -223,7 +74,7 @@ const CalendarView = ({ date, onDateChange }: { date: Date | null, onDateChange:
             disabled={!day}
             onClick={() => day && onDateChange(day)}
             className={`
-              h-10 w-10 p-0 font-normal text-base
+              h-10 w-10 p-0 font-normal text-base cursor-pointer
               ${!day ? 'invisible' : ''}
               ${day?.toDateString() === date?.toDateString()
                 ? 'bg-[#dcff1a] text-slate-900 hover:bg-[#dcff1a]/90'
@@ -238,7 +89,7 @@ const CalendarView = ({ date, onDateChange }: { date: Date | null, onDateChange:
   );
 };
 
-// Interactive Price Chart (unchanged)
+// Interactive Price Chart
 const PriceChart = ({ costs }: { costs: { date: string; cost_per_unit: number; unit: string }[] }) => (
   <div className="w-full h-[300px] mb-6 p-4 bg-slate-900/50 rounded-lg border border-white/10">
     <ResponsiveContainer width="100%" height="100%">
@@ -295,6 +146,15 @@ export default function RefineryInfoPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [unit, setUnit] = useState<string>("barrel");
+  const [searchClicked, setSearchClicked] = useState(false);
+
+  // Clear all inputs
+  const handleClear = () => {
+    setSelectedRefinery("");
+    setSelectedDate(null);
+    setUnit("barrel");
+    setSearchClicked(false);
+  };
 
   // Fetch refineries from backend with Clerk token
   useEffect(() => {
@@ -307,20 +167,12 @@ export default function RefineryInfoPage() {
     setLoading(true);
     setError("");
     getToken().then(token => {
-      axios.get<Record<string, CountryData>>(
+      axios.get<Refinery[]>(
         `${import.meta.env.VITE_API_URL}/refineries`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
         .then(res => {
-          // Flatten country/refinery structure
-          const refineryList: Refinery[] = [];
-          Object.entries(res.data).forEach(([countryName, countryData]) => {
-            countryData.refineries.forEach(refinery => {
-              refinery.countryName = countryName;
-              refineryList.push(refinery);
-            });
-          });
-          setRefineries(refineryList);
+          setRefineries(res.data ?? []);
         })
         .catch(err => {
           setError("Failed to load refineries. Please try again later.");
@@ -344,13 +196,13 @@ export default function RefineryInfoPage() {
     return refineries.find(r => r.name === name && r.countryIso3 === iso3);
   }, [selectedRefinery, refineries]);
 
-  // Filter costs by date and unit
+  // Filter costs by date and unit (only after search button is clicked)
   const filteredCosts = useMemo(() => {
-    if (!refineryData) return [];
+    if (!searchClicked || !refineryData || !Array.isArray(refineryData.estimated_costs)) return [];
     let costs: { date: string; cost_per_unit: number; unit: string }[] = [];
     refineryData.estimated_costs.forEach(costEntry => {
       if (!selectedDate || new Date(costEntry.date) <= selectedDate) {
-        if (costEntry.costs[unit]) {
+        if (costEntry.costs && costEntry.costs[unit]) {
           costs.push({
             date: costEntry.date,
             cost_per_unit: costEntry.costs[unit].cost_per_unit,
@@ -360,14 +212,19 @@ export default function RefineryInfoPage() {
       }
     });
     costs.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    // If a date is selected and costs exist, only show the latest cost on/before that date
+    if (selectedDate && costs.length > 0) {
+      const latest = costs.reduce((a, b) => new Date(a.date) > new Date(b.date) ? a : b);
+      return [latest];
+    }
     return costs;
-  }, [refineryData, selectedDate, unit]);
+  }, [refineryData, selectedDate, unit, searchClicked]);
 
-  // Available units for dropdown
+  // Available units for dropdown (defensive check added)
   const availableUnits = useMemo(() => {
-    if (!refineryData || refineryData.estimated_costs.length === 0) return [];
+    if (!refineryData || !Array.isArray(refineryData.estimated_costs) || refineryData.estimated_costs.length === 0) return [];
     const first = refineryData.estimated_costs[0];
-    return Object.keys(first.costs);
+    return first && first.costs ? Object.keys(first.costs) : [];
   }, [refineryData]);
 
   // Show loading if Clerk is not loaded
@@ -422,7 +279,7 @@ export default function RefineryInfoPage() {
                       variant="outline"
                       role="combobox"
                       aria-expanded={open}
-                      className="w-full justify-between bg-slate-800/50 border-white/10 text-white h-11 text-base"
+                      className="w-full justify-between bg-slate-800/50 border-white/10 text-white h-11 text-base cursor-pointer"
                     >
                       {refineryData ? `${refineryData.name} (${refineryData.countryName})` : "Select a refinery..."}
                       <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -461,7 +318,7 @@ export default function RefineryInfoPage() {
               {/* Date Filter */}
               <div className="w-full md:w-[240px]">
                 <label className="block text-sm font-medium text-gray-400 mb-2">
-                  Filter by Date
+                  Filter by Date (optional)
                 </label>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -469,9 +326,9 @@ export default function RefineryInfoPage() {
                       variant="outline"
                       className="w-full h-11 px-3 py-2 text-lg flex items-center justify-between
                         bg-slate-800/50 border-white/10 text-white 
-                        hover:bg-slate-700 hover:border-[#dcff1a] transition-colors"
+                        hover:bg-slate-700 hover:border-[#dcff1a] transition-colors cursor-pointer"
                     >
-                      {selectedDate?.toLocaleDateString() || "Pick a date"}
+                      {selectedDate?.toLocaleDateString() || "Pick a date (optional)"}
                       <Calendar className="ml-2 h-5 w-5 opacity-50" />
                     </Button>
                   </PopoverTrigger>
@@ -494,8 +351,8 @@ export default function RefineryInfoPage() {
                     <Button
                       variant="outline"
                       className="w-full h-11 px-3 py-2 text-lg flex items-center justify-between
-          bg-slate-800/50 border-white/10 text-white 
-          hover:bg-slate-700 hover:border-[#dcff1a] transition-colors"
+                        bg-slate-800/50 border-white/10 text-white 
+                        hover:bg-slate-700 hover:border-[#dcff1a] transition-colors cursor-pointer"
                     >
                       {unit ? unit : "Select unit"}
                       <Activity className="ml-2 h-5 w-5 opacity-50" />
@@ -530,6 +387,24 @@ export default function RefineryInfoPage() {
                 </Popover>
               </div>
             </div>
+            {/* Search & Clear Buttons */}
+            <div className="flex justify-end pt-4 gap-4">
+              <Button
+                variant="outline"
+                className="border border-[#dcff1a] text-[#dcff1a] px-6 py-2 rounded-lg cursor-pointer"
+                onClick={handleClear}
+              >
+                Clear
+              </Button>
+              <Button
+                variant="default"
+                className="bg-[#dcff1a] text-slate-900 font-bold px-6 py-2 rounded-lg cursor-pointer"
+                onClick={() => setSearchClicked(true)}
+                disabled={!selectedRefinery || !unit}
+              >
+                Search
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -541,7 +416,7 @@ export default function RefineryInfoPage() {
         )}
 
         {/* Results Section */}
-        {refineryData && !loading && (
+        {refineryData && !loading && searchClicked && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Refinery Details */}
             <Card className="bg-white/5 backdrop-blur-lg border border-white/10">
@@ -585,7 +460,26 @@ export default function RefineryInfoPage() {
                 <CardTitle className="text-3xl text-white mb-6">
                   Cost History ({unit})
                 </CardTitle>
-                {filteredCosts && filteredCosts.length > 0 ? (
+                {filteredCosts.length === 1 && selectedDate ? (
+                  // Show only the single row, no graph/table
+                  <div className="space-y-6">
+                    <div className="flex flex-col items-start">
+                      <div className="text-lg text-gray-400 mb-2">Date</div>
+                      <div className="text-gray-300 text-base mb-4">
+                        {new Date(filteredCosts[0].date).toLocaleDateString()}
+                      </div>
+                      <div className="text-lg text-gray-400 mb-2">Cost per Unit (USD)</div>
+                      <div className="text-[#dcff1a] text-base font-medium mb-4">
+                        ${filteredCosts[0].cost_per_unit.toFixed(2)}
+                      </div>
+                      <div className="text-lg text-gray-400 mb-2">Unit</div>
+                      <div className="text-gray-300 text-base">
+                        {filteredCosts[0].unit}
+                      </div>
+                    </div>
+                  </div>
+                ) : filteredCosts.length > 0 ? (
+                  // Show graph and table for historical costs
                   <div className="space-y-6">
                     <PriceChart costs={filteredCosts} />
                     <div className="overflow-auto max-h-[300px]">
@@ -599,7 +493,7 @@ export default function RefineryInfoPage() {
                         </TableHeader>
                         <TableBody>
                           {filteredCosts.map((cost) => (
-                            <TableRow key={cost.date} className="hover:bg-white/5">
+                            <TableRow key={cost.date} className="hover:bg-white/5 cursor-pointer">
                               <TableCell className="text-gray-300 text-base">
                                 {new Date(cost.date).toLocaleDateString()}
                               </TableCell>

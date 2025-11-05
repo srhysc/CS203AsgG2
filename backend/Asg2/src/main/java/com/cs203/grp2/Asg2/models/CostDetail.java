@@ -1,22 +1,15 @@
 package com.cs203.grp2.Asg2.models;
 
 public class CostDetail {
-    private double costPerUnit;
+    private double cost_per_unit;
     private String unit;
 
-    public CostDetail() {}
-
-    public CostDetail(double costPerUnit, String unit) {
-        this.costPerUnit = costPerUnit;
-        this.unit = unit;
+    public double getCost_per_unit() {
+        return cost_per_unit;
     }
 
-    public double getCostPerUnit() {
-        return costPerUnit;
-    }
-
-    public void setCostPerUnit(double costPerUnit) {
-        this.costPerUnit = costPerUnit;
+    public void setCost_per_unit(double cost_per_unit) {
+        this.cost_per_unit = cost_per_unit;
     }
 
     public String getUnit() {
@@ -26,4 +19,13 @@ public class CostDetail {
     public void setUnit(String unit) {
         this.unit = unit;
     }
+
+    public CostDetail() {}
+
+    public CostDetail(double cost_per_unit, String unit) {
+        this.cost_per_unit = cost_per_unit;
+        this.unit = unit;
+    }
+
+    // Getters and setters
 }
