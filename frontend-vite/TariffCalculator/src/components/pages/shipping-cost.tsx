@@ -165,6 +165,7 @@
 // }import React, { useEffect, useState } from "react";"use client";
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import { useAuth } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
@@ -287,6 +288,8 @@ const CostHistoryChart = ({ costs, unit }: { costs: { date: string; cost: number
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
 export default function ShippingCostPage() {
+  const { isLoaded, isSignedIn, getToken } = useAuth();
+
   const [countries, setCountries] = useState<Country[]>([]);
   const [origin, setOrigin] = useState<string>("");
   const [destination, setDestination] = useState<string>("");
@@ -298,26 +301,36 @@ export default function ShippingCostPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Fetch countries
+  // Fetch countries with Clerk token
   useEffect(() => {
-    axios.get<Country[]>(`${API_BASE}/countries`)
-      .then(res => setCountries(res.data))
-      .catch(() => setError("Failed to load countries"));
-  }, []);
+    if (!isLoaded || !isSignedIn) return;
+    getToken().then(token => {
+      axios.get<Country[]>(`${API_BASE}/countries`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => setCountries(res.data))
+        .catch(() => setError("Failed to load countries"));
+    });
+  }, [isLoaded, isSignedIn, getToken]);
 
   // Fetch shipping fees when origin/destination changes
   useEffect(() => {
+    if (!isLoaded || !isSignedIn) return;
     if (!origin || !destination) {
       setShippingData(null);
       return;
     }
     setLoading(true);
     setError("");
-    axios.get<ShippingFeeResponse>(`${API_BASE}/shipping-fees/${origin}/${destination}`)
-      .then(res => setShippingData(res.data))
-      .catch(() => setError("Failed to fetch shipping costs"))
-      .finally(() => setLoading(false));
-  }, [origin, destination]);
+    getToken().then(token => {
+      axios.get<ShippingFeeResponse>(`${API_BASE}/shipping-fees/${origin}/${destination}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => setShippingData(res.data))
+        .catch(() => setError("Failed to fetch shipping costs"))
+        .finally(() => setLoading(false));
+    });
+  }, [origin, destination, isLoaded, isSignedIn, getToken]);
 
   // Prepare unit options
   const unitOptions = useMemo(() => {
@@ -347,6 +360,27 @@ export default function ShippingCostPage() {
     label: `${c.name} (${c.iso3})`,
     value: c.iso3,
   })), [countries]);
+
+  // Show loading if Clerk is not loaded
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-[#dcff1a]" />
+        <span className="ml-4 text-gray-300 text-lg">Loading authentication…</span>
+      </div>
+    );
+  }
+
+  // Show error if not signed in
+  if (!isSignedIn) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-red-400 p-6 rounded-lg bg-red-900/20 border border-red-900 text-lg">
+          You must be signed in to view shipping costs.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 space-y-8 p-8">
