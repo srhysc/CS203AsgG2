@@ -180,6 +180,14 @@ const TariffCalculator: React.FC = () => {
     const { getByRequirements } = tariffService();
     const {getAllPetroleum} = petrolService();
 
+    const todayISOString = new Date().toISOString().split('T')[0];
+    const getFormattedDate = (date) => {
+        if (date instanceof Date && !isNaN(date as any)) {
+            return date.toISOString().split('T')[0];
+        }
+        return todayISOString;
+    }
+
     //run on render to get all countries
         useEffect(() => {
         const fetchCountries = async () => {
@@ -249,10 +257,18 @@ const TariffCalculator: React.FC = () => {
             return; // stop execution
         }
 
-        try{
+        try {
+            const formattedDate = getFormattedDate(formData.date);
             //try getting all countries
-            const tariffs = await getByRequirements(formData.importcountry,formData.exportcountry,formData.productcode,formData.units);
-console.log(`the tariffs: ${tariffs}`);
+            //const tariffs = await getByRequirements(formData.importcountry,formData.exportcountry,formData.productcode,formData.units);
+            const tariffs = await getByRequirements(
+                formData.importcountry,
+                formData.exportcountry,
+                formData.productcode,
+                formData.units,
+                formattedDate 
+            );
+            console.log(`the tariffs: ${tariffs}`);
 
             //update tariffs field
             setTariffs(tariffs);
