@@ -46,9 +46,7 @@ public class CountryService {
             byNameCI.clear();
 
             if (snap.exists()) {
-                System.out.println("✅ is this snap even exist?");
                 for (DataSnapshot node : snap.getChildren()) {
-                    System.out.println("✅ is this child even exist?");
                     Country c = node.getValue(Country.class);
                     if (c == null) continue;
 

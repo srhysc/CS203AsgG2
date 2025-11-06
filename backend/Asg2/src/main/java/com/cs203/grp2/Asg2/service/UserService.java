@@ -15,8 +15,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import com.cs203.grp2.Asg2.models.User.Role;
-
+import com.cs203.grp2.Asg2.models.UserSavedRoute;
 import com.cs203.grp2.Asg2.models.User;
+import com.cs203.grp2.Asg2.DTO.LandedCostResponse;
+
 
 @Service
 public class UserService {
@@ -92,6 +94,16 @@ public class UserService {
             user.setRole(newRole);
             saveUser(userId, user);
         }
+    }
+
+    public void addBookmark(LandedCostResponse response, String userId, String bookmarkName) throws ExecutionException, InterruptedException{
+        User u = getUserById(userId);
+        u.addBookmark(response,bookmarkName);
+    }
+
+    public List<UserSavedRoute> getBookmarks(String userId) throws ExecutionException, InterruptedException{
+        User u = getUserById(userId);
+        return u.getBookmarks();
     }
 
     public List<User> getAllUsers()

@@ -122,7 +122,6 @@ logger.info("Total candidate routes: {}", candidateRoutes.size());
             //calculate price with middle country involved
             middleRouteList.add(computeRouteWithMiddle(exporter, middle, importer, petroleum, units, petroleumprice, date));
         }
-logger.info("FINISHED - Total routes calculated: {}", middleRouteList.size());
 
         // Sort by total cost and pick best 5, and add to starting list
         candidateRoutes.addAll(

@@ -1,5 +1,10 @@
 package com.cs203.grp2.Asg2.models;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import com.cs203.grp2.Asg2.DTO.LandedCostResponse;
+
 import jakarta.validation.constraints.NotBlank;
 
 
@@ -21,6 +26,8 @@ public class User {
     }
 
     private Role role;
+
+    private List<UserSavedRoute> bookmarks;
 
     // Default constructor
     public User() {}
@@ -66,5 +73,13 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public List<UserSavedRoute> getBookmarks(){
+        return bookmarks;
+    }
+
+    public void addBookmark(LandedCostResponse response, String name){
+        bookmarks.add(new UserSavedRoute(response,name));
     }
 }
