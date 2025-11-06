@@ -40,7 +40,7 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
 
     // Helper: Load all shipping fees from Firebase
     private void loadShippingFees() throws Exception {
-        DatabaseReference ref = firebaseDatabase.getReference("shipping_fees");
+        DatabaseReference ref = firebaseDatabase.getReference("Shipping_cost");
         CompletableFuture<List<ShippingFee>> future = new CompletableFuture<>();
         shippingFeeList.clear();
 
@@ -186,7 +186,7 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
      */
     @Override
     public ShippingFeeResponseDTO addOrUpdateShippingFee(ShippingFeeRequestDTO requestDTO) {
-        DatabaseReference ref = firebaseDatabase.getReference("shipping_fees");
+        DatabaseReference ref = firebaseDatabase.getReference("Shipping_cost");
         CompletableFuture<DataSnapshot> future = new CompletableFuture<>();
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
