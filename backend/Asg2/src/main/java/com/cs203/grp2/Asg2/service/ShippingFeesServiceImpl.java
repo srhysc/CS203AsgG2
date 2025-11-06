@@ -131,6 +131,28 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
     }
 
     @Override
+    public List<ShippingFeeEntryResponseDTO> getAllCostsByUnit(String country1Iso3, String country2Iso3, String unit) {
+        ShippingFeeResponseDTO fee = getShippingFees(country1Iso3, country2Iso3);
+        if (fee != null && fee.getShippingFees() != null) {
+            List<ShippingFeeEntryResponseDTO> filteredEntries = new ArrayList<>();
+            for (ShippingFeeEntryResponseDTO entry : fee.getShippingFees()) {
+                if (entry.getCosts() != null && entry.getCosts().containsKey(unit)) {
+                    // Create a new entry with only the requested unit
+                    Map<String, ShippingCostDetailResponseDTO> filteredCosts = new HashMap<>();
+                    filteredCosts.put(unit, entry.getCosts().get(unit));
+                    ShippingFeeEntryResponseDTO filteredEntry = new ShippingFeeEntryResponseDTO(
+                        entry.getDate(),
+                        filteredCosts
+                    );
+                    filteredEntries.add(filteredEntry);
+                }
+            }
+            return filteredEntries;
+        }
+        return List.of();
+    }
+
+    @Override
     public ShippingFeeEntryResponseDTO getLatestCost(String country1Iso3, String country2Iso3, LocalDate date) {
         ShippingFeeResponseDTO fee = getShippingFees(country1Iso3, country2Iso3);
         if (fee != null && fee.getShippingFees() != null) {
@@ -156,6 +178,12 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
         return null;
     }
 
+    /**
+     * Adds or updates shipping fee entries.
+     * Business Logic:
+     * 1. If country pair exists -> Add new price entry to existing country pair
+     * 2. If country pair does NOT exist -> Create new country pair with the provided entries
+     */
     @Override
     public ShippingFeeResponseDTO addOrUpdateShippingFee(ShippingFeeRequestDTO requestDTO) {
         DatabaseReference ref = firebaseDatabase.getReference("shipping_fees");
@@ -174,6 +202,8 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
         try {
             DataSnapshot snap = future.get();
             String key = null;
+            
+            // Search for existing country pair (bidirectional match)
             for (DataSnapshot feeSnap : snap.getChildren()) {
                 String c1 = feeSnap.child("country1").child("ISO3").getValue(String.class);
                 String c2 = feeSnap.child("country2").child("ISO3").getValue(String.class);
@@ -188,11 +218,11 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
             }
 
             if (key != null) {
-                // Add new shipping fee entry to existing country pair
+                // CASE 1: Country pair EXISTS -> Add new price entries only
                 DatabaseReference entriesRef = ref.child(key).child("shipping_fees");
                 for (ShippingFeeEntryRequestDTO entryReq : requestDTO.getShippingFees()) {
                     Map<String, Object> entryMap = new HashMap<>();
-                    entryMap.put("date", entryReq.getDate());
+                    entryMap.put("date", entryReq.getDate().toString());
                     for (Map.Entry<String, ShippingCostDetailRequestDTO> cost : entryReq.getCosts().entrySet()) {
                         Map<String, Object> costMap = new HashMap<>();
                         costMap.put("cost_per_unit", cost.getValue().getCostPerUnit());
@@ -202,38 +232,48 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
                     entriesRef.push().setValueAsync(entryMap);
                 }
             } else {
-                // Add new country pair entry
+                // CASE 2: Country pair does NOT exist -> Create new country pair
                 Map<String, Object> feeMap = new HashMap<>();
+                
+                // Add country 1 details
                 Map<String, Object> country1Map = new HashMap<>();
                 country1Map.put("name", requestDTO.getCountry1Name());
                 country1Map.put("ISO3", requestDTO.getCountry1Iso3());
                 country1Map.put("Code", requestDTO.getCountry1IsoNumeric());
+                
+                // Add country 2 details
                 Map<String, Object> country2Map = new HashMap<>();
                 country2Map.put("name", requestDTO.getCountry2Name());
                 country2Map.put("ISO3", requestDTO.getCountry2Iso3());
                 country2Map.put("Code", requestDTO.getCountry2IsoNumeric());
+                
                 feeMap.put("country1", country1Map);
                 feeMap.put("country2", country2Map);
 
-                List<Map<String, Object>> entriesList = new ArrayList<>();
+                // Add shipping fee entries
+                Map<String, Object> entriesMap = new HashMap<>();
                 for (ShippingFeeEntryRequestDTO entryReq : requestDTO.getShippingFees()) {
                     Map<String, Object> entryMap = new HashMap<>();
-                    entryMap.put("date", entryReq.getDate());
+                    entryMap.put("date", entryReq.getDate().toString());
                     for (Map.Entry<String, ShippingCostDetailRequestDTO> cost : entryReq.getCosts().entrySet()) {
                         Map<String, Object> costMap = new HashMap<>();
                         costMap.put("cost_per_unit", cost.getValue().getCostPerUnit());
                         costMap.put("unit", cost.getValue().getUnit());
                         entryMap.put(cost.getKey(), costMap);
                     }
-                    entriesList.add(entryMap);
+                    // Use push() to generate unique keys for each entry
+                    DatabaseReference newEntryRef = ref.push();
+                    entriesMap.put(newEntryRef.getKey(), entryMap);
                 }
-                feeMap.put("shipping_fees", entriesList);
+                feeMap.put("shipping_fees", entriesMap);
                 ref.push().setValueAsync(feeMap);
             }
 
-            // Return DTO (optionally reload from DB)
+            // Wait a moment for Firebase to persist, then reload and return
+            Thread.sleep(500);
             return getShippingFees(requestDTO.getCountry1Iso3(), requestDTO.getCountry2Iso3());
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }

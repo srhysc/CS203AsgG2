@@ -163,7 +163,7 @@
 //     </div>
 //   );
 // }import React, { useEffect, useState } from "react";"use client";
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -295,11 +295,12 @@ export default function ShippingCostPage() {
   const [destination, setDestination] = useState<string>("");
   const [originOpen, setOriginOpen] = useState(false);
   const [destOpen, setDestOpen] = useState(false);
-  const [unit, setUnit] = useState<string>("barrel");
+  const [unit, setUnit] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [shippingData, setShippingData] = useState<ShippingFeeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
 
   // Fetch countries with Clerk token
   useEffect(() => {
@@ -313,30 +314,78 @@ export default function ShippingCostPage() {
     });
   }, [isLoaded, isSignedIn, getToken]);
 
-  // Fetch shipping fees when origin/destination changes
-  useEffect(() => {
+  // Search function
+  const handleSearch = async () => {
     if (!isLoaded || !isSignedIn) return;
     if (!origin || !destination) {
-      setShippingData(null);
+      setError("Please select both countries");
       return;
     }
+    
     setLoading(true);
     setError("");
-    getToken().then(token => {
-      axios.get<ShippingFeeResponse>(`${API_BASE}/shipping-fees/${origin}/${destination}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(res => setShippingData(res.data))
-        .catch(() => setError("Failed to fetch shipping costs"))
-        .finally(() => setLoading(false));
-    });
-  }, [origin, destination, isLoaded, isSignedIn, getToken]);
+    setHasSearched(true);
 
-  // Prepare unit options
+    try {
+      const token = await getToken();
+      
+      // Build query parameters based on selected filters
+      const params = new URLSearchParams();
+      if (selectedDate) {
+        params.append('date', selectedDate.toISOString().split('T')[0]);
+      }
+      if (unit) {
+        params.append('unit', unit);
+      }
+      
+      const queryString = params.toString();
+      const url = `${API_BASE}/shipping-fees/${origin}/${destination}/cost${queryString ? '?' + queryString : ''}`;
+      
+      const response = await axios.get<ShippingFeeEntry[]>(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Transform response to match ShippingFeeResponse format
+      const originCountry = countries.find(c => c.iso3 === origin);
+      const destCountry = countries.find(c => c.iso3 === destination);
+      
+      setShippingData({
+        country1Name: originCountry?.name || origin,
+        country2Name: destCountry?.name || destination,
+        country1Iso3: origin,
+        country2Iso3: destination,
+        country1IsoNumeric: originCountry?.code || "",
+        country2IsoNumeric: destCountry?.code || "",
+        shippingFees: response.data
+      });
+    } catch (err: any) {
+      console.error('Error fetching shipping costs:', err);
+      setError(err.response?.data?.message || "Failed to fetch shipping costs");
+      setShippingData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Clear function
+  const handleClear = () => {
+    setOrigin("");
+    setDestination("");
+    setUnit("");
+    setSelectedDate(null);
+    setShippingData(null);
+    setError("");
+    setHasSearched(false);
+  };
+
+  // Prepare unit options - collect all unique units from all entries
   const unitOptions = useMemo(() => {
     if (!shippingData || !shippingData.shippingFees.length) return [];
-    const firstEntry = shippingData.shippingFees[0];
-    return Object.keys(firstEntry.costs);
+    const units = new Set<string>();
+    shippingData.shippingFees.forEach(entry => {
+      Object.keys(entry.costs).forEach(unit => units.add(unit));
+    });
+    return Array.from(units).sort();
   }, [shippingData]);
 
   // Prepare filtered cost history
@@ -346,13 +395,29 @@ export default function ShippingCostPage() {
     if (selectedDate) {
       entries = entries.filter(e => new Date(e.date) <= selectedDate);
     }
-    return entries
-      .map(e => ({
-        date: e.date,
-        cost: e.costs[unit]?.costPerUnit ?? 0,
-        unit: e.costs[unit]?.unit ?? unit,
-      }))
-      .filter(e => e.cost > 0);
+    
+    // If unit is selected, filter by that unit
+    if (unit) {
+      return entries
+        .map(e => ({
+          date: e.date,
+          cost: e.costs[unit]?.costPerUnit ?? 0,
+          unit: e.costs[unit]?.unit ?? unit,
+        }))
+        .filter(e => e.cost > 0);
+    } else {
+      // If no unit selected, use the first available unit for each entry
+      return entries
+        .map(e => {
+          const firstUnit = Object.keys(e.costs)[0];
+          return {
+            date: e.date,
+            cost: e.costs[firstUnit]?.costPerUnit ?? 0,
+            unit: e.costs[firstUnit]?.unit ?? "",
+          };
+        })
+        .filter(e => e.cost > 0);
+    }
   }, [shippingData, selectedDate, unit]);
 
   // Prepare country dropdown options
@@ -399,140 +464,187 @@ export default function ShippingCostPage() {
         <CardHeader>
           <CardTitle>Search Route</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Origin */}
-          <div>
-            <label className="text-sm font-medium text-gray-400 mb-2 block">Country 1</label>
-            <Popover open={originOpen} onOpenChange={setOriginOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className="w-full justify-between bg-slate-800/50 border-white/10 text-white"
-                >
-                  {origin ? countries.find(c => c.iso3 === origin)?.name : "Select country 1..."}
-                  <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[300px] p-0 bg-slate-900 border-white/10">
-                <Command>
-                  <CommandInput placeholder="Search..." className="text-white" />
-                  <CommandEmpty className="text-gray-400">Not found.</CommandEmpty>
-                  <CommandGroup>
-                    {countryOptions.map(option => (
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {/* Origin */}
+            <div>
+              <label className="text-sm font-medium text-gray-400 mb-2 block">Country 1</label>
+              <Popover open={originOpen} onOpenChange={setOriginOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="w-full justify-between bg-slate-800/50 border-white/10 text-white"
+                  >
+                    {origin ? countries.find(c => c.iso3 === origin)?.name : "Select country 1..."}
+                    <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0 bg-slate-900 border-white/10">
+                  <Command>
+                    <CommandInput placeholder="Search..." className="text-white" />
+                    <CommandEmpty className="text-gray-400">Not found.</CommandEmpty>
+                    <CommandGroup>
+                      {countryOptions.map(option => (
+                        <CommandItem
+                          key={option.value}
+                          value={option.value}
+                          onSelect={() => {
+                            setOrigin(option.value);
+                            setOriginOpen(false);
+                          }}
+                          className="text-white hover:bg-white/10"
+                        >
+                          {option.label}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+            {/* Destination */}
+            <div>
+              <label className="text-sm font-medium text-gray-400 mb-2 block">Country 2</label>
+              <Popover open={destOpen} onOpenChange={setDestOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="w-full justify-between bg-slate-800/50 border-white/10 text-white"
+                  >
+                    {destination ? countries.find(c => c.iso3 === destination)?.name : "Select country 2..."}
+                    <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0 bg-slate-900 border-white/10">
+                  <Command>
+                    <CommandInput placeholder="Search..." className="text-white" />
+                    <CommandEmpty className="text-gray-400">Not found.</CommandEmpty>
+                    <CommandGroup>
+                      {countryOptions.map(option => (
+                        <CommandItem
+                          key={option.value}
+                          value={option.value}
+                          onSelect={() => {
+                            setDestination(option.value);
+                            setDestOpen(false);
+                          }}
+                          className="text-white hover:bg-white/10"
+                        >
+                          {option.label}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+            {/* Date */}
+            <div>
+              <label className="text-sm font-medium text-gray-400 mb-2 block">
+                Filter by Date <span className="text-xs text-gray-500">(optional)</span>
+              </label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full h-10 px-3 py-2 text-base flex items-center justify-between
+                      bg-slate-800/50 border-white/10 text-white 
+                      hover:bg-slate-700 hover:border-[#dcff1a] transition-colors"
+                  >
+                    {selectedDate?.toLocaleDateString() || "All dates"}
+                    <Calendar className="ml-2 h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="p-0">
+                  <CalendarView
+                    date={selectedDate}
+                    onDateChange={setSelectedDate}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            {/* Unit */}
+            <div>
+              <label className="text-sm font-medium text-gray-400 mb-2 block">
+                Unit <span className="text-xs text-gray-500">(optional)</span>
+              </label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full h-10 px-3 py-2 text-base flex items-center justify-between
+                      bg-slate-800/50 border-white/10 text-white 
+                      hover:bg-slate-700 hover:border-[#dcff1a] transition-colors"
+                  >
+                    {unit || "All units"}
+                    <BarChart2 className="ml-2 h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="p-0 bg-slate-900 border-white/10">
+                  <Command>
+                    <CommandInput placeholder="Search unit..." className="text-white" />
+                    <CommandEmpty className="text-gray-400">No unit found.</CommandEmpty>
+                    <CommandGroup>
                       <CommandItem
-                        key={option.value}
-                        value={option.value}
-                        onSelect={() => {
-                          setOrigin(option.value);
-                          setOriginOpen(false);
-                        }}
+                        value=""
+                        onSelect={() => setUnit("")}
                         className="text-white hover:bg-white/10"
                       >
-                        {option.label}
+                        All units
                       </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
+                      {unitOptions.map(u => (
+                        <CommandItem
+                          key={u}
+                          value={u}
+                          onSelect={() => setUnit(u)}
+                          className="text-white hover:bg-white/10"
+                        >
+                          {u}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
-          {/* Destination */}
-          <div>
-            <label className="text-sm font-medium text-gray-400 mb-2 block">Country 2</label>
-            <Popover open={destOpen} onOpenChange={setDestOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className="w-full justify-between bg-slate-800/50 border-white/10 text-white"
-                >
-                  {destination ? countries.find(c => c.iso3 === destination)?.name : "Select country 2  ..."}
-                  <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[300px] p-0 bg-slate-900 border-white/10">
-                <Command>
-                  <CommandInput placeholder="Search..." className="text-white" />
-                  <CommandEmpty className="text-gray-400">Not found.</CommandEmpty>
-                  <CommandGroup>
-                    {countryOptions.map(option => (
-                      <CommandItem
-                        key={option.value}
-                        value={option.value}
-                        onSelect={() => {
-                          setDestination(option.value);
-                          setDestOpen(false);
-                        }}
-                        className="text-white hover:bg-white/10"
-                      >
-                        {option.label}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
+
+          {/* Action Buttons */}
+          <div className="flex gap-4 justify-end">
+            <Button
+              variant="outline"
+              onClick={handleClear}
+              className="px-8 bg-slate-800/50 border-white/10 text-white hover:bg-slate-700"
+            >
+              Clear
+            </Button>
+            <Button
+              onClick={handleSearch}
+              disabled={!origin || !destination || loading}
+              className="px-8 bg-[#dcff1a] text-slate-900 hover:bg-[#dcff1a]/90 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Searching...
+                </>
+              ) : (
+                <>
+                  <Search className="mr-2 h-4 w-4" />
+                  Search
+                </>
+              )}
+            </Button>
           </div>
-          {/* Date */}
-          <div>
-            <label className="text-sm font-medium text-gray-400 mb-2 block">Filter by Date</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full h-10 px-3 py-2 text-base flex items-center justify-between
-                    bg-slate-800/50 border-white/10 text-white 
-                    hover:bg-slate-700 hover:border-[#dcff1a] transition-colors"
-                >
-                  {selectedDate?.toLocaleDateString() || "Pick a date"}
-                  <Calendar className="ml-2 h-4 w-4 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="p-0">
-                <CalendarView
-                  date={selectedDate}
-                  onDateChange={setSelectedDate}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          {/* Unit */}
-          <div>
-            <label className="text-sm font-medium text-gray-400 mb-2 block">Unit</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full h-10 px-3 py-2 text-base flex items-center justify-between
-                    bg-slate-800/50 border-white/10 text-white 
-                    hover:bg-slate-700 hover:border-[#dcff1a] transition-colors"
-                  disabled={unitOptions.length === 0}
-                >
-                  {unit}
-                  <BarChart2 className="ml-2 h-4 w-4 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="p-0">
-                <Command>
-                  <CommandInput placeholder="Search unit..." className="text-white" />
-                  <CommandEmpty className="text-gray-400">No unit found.</CommandEmpty>
-                  <CommandGroup>
-                    {unitOptions.map(u => (
-                      <CommandItem
-                        key={u}
-                        value={u}
-                        onSelect={() => setUnit(u)}
-                        className="text-white hover:bg-white/10"
-                      >
-                        {u}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
+
+          {/* Error Display */}
+          {error && (
+            <div className="rounded-md border border-red-600 bg-red-900/40 px-4 py-3 text-red-200">
+              {error}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -540,11 +652,23 @@ export default function ShippingCostPage() {
       {loading && (
         <div className="flex items-center justify-center h-[400px]">
           <Loader2 className="h-8 w-8 animate-spin text-[#dcff1a]" />
+          <span className="ml-4 text-gray-300 text-lg">Loading shipping costs...</span>
         </div>
       )}
 
+      {/* Empty State */}
+      {!loading && !shippingData && hasSearched && (
+        <Card className="bg-white/5 backdrop-blur-lg border border-white/10">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <Ship className="h-16 w-16 text-gray-600 mb-4" />
+            <p className="text-xl text-gray-400">No shipping data found for this route</p>
+            <p className="text-sm text-gray-500 mt-2">Try searching for a different country pair</p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Results */}
-      {origin && destination && shippingData && !loading && (
+      {shippingData && !loading && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="bg-white/5 backdrop-blur-lg border border-white/10">
             <CardHeader>
@@ -563,15 +687,37 @@ export default function ShippingCostPage() {
                   {countries.find(c => c.iso3 === destination)?.name}
                 </div>
               </div>
-              {filteredCosts.length > 0 && (
+              {shippingData && shippingData.shippingFees.length > 0 && (
                 <div className="p-4 bg-slate-800/50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <BarChart2 className="h-5 w-5 text-[#dcff1a]" />
-                    <div>
-                      <p className="text-sm text-gray-400">Current Cost</p>
-                      <p className="text-2xl font-bold text-[#dcff1a]">
-                        ${filteredCosts[filteredCosts.length - 1].cost.toFixed(2)} {filteredCosts[filteredCosts.length - 1].unit}
-                      </p>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-400 mb-2">Latest Costs</p>
+                      {unit ? (
+                        // Show single unit cost
+                        filteredCosts.length > 0 && (
+                          <p className="text-2xl font-bold text-[#dcff1a]">
+                            ${filteredCosts[filteredCosts.length - 1].cost.toFixed(2)} / {filteredCosts[filteredCosts.length - 1].unit}
+                          </p>
+                        )
+                      ) : (
+                        // Show all units
+                        <div className="space-y-1">
+                          {(() => {
+                            const latestEntry = shippingData.shippingFees
+                              .filter(e => !selectedDate || new Date(e.date) <= selectedDate)
+                              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+                            return latestEntry && Object.entries(latestEntry.costs).map(([key, cost]) => (
+                              <div key={key} className="flex items-baseline gap-2">
+                                <span className="text-xl font-bold text-[#dcff1a]">
+                                  ${cost.costPerUnit.toFixed(2)}
+                                </span>
+                                <span className="text-sm text-gray-400">/ {cost.unit}</span>
+                              </div>
+                            ));
+                          })()}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -594,22 +740,49 @@ export default function ShippingCostPage() {
                           <TableHead className="text-gray-400">Date</TableHead>
                           <TableHead className="text-gray-400">Cost</TableHead>
                           <TableHead className="text-gray-400">Unit</TableHead>
+                          {!unit && <TableHead className="text-gray-400">All Units</TableHead>}
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filteredCosts.map((point, idx) => (
-                          <TableRow key={idx} className="hover:bg-white/5">
-                            <TableCell className="text-gray-300">
-                              {new Date(point.date).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell className="text-[#dcff1a] font-medium">
-                              ${point.cost.toFixed(2)}
-                            </TableCell>
-                            <TableCell className="text-gray-300">
-                              {point.unit}
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        {unit ? (
+                          // Show filtered costs when unit is selected
+                          filteredCosts.map((point, idx) => (
+                            <TableRow key={idx} className="hover:bg-white/5">
+                              <TableCell className="text-gray-300">
+                                {new Date(point.date).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell className="text-[#dcff1a] font-medium">
+                                ${point.cost.toFixed(2)}
+                              </TableCell>
+                              <TableCell className="text-gray-300">
+                                {point.unit}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          // Show all units when no unit is selected
+                          shippingData?.shippingFees
+                            .filter(entry => !selectedDate || new Date(entry.date) <= selectedDate)
+                            .map((entry, idx) => (
+                              <TableRow key={idx} className="hover:bg-white/5">
+                                <TableCell className="text-gray-300">
+                                  {new Date(entry.date).toLocaleDateString()}
+                                </TableCell>
+                                <TableCell className="text-gray-300" colSpan={2}>
+                                  <div className="space-y-1">
+                                    {Object.entries(entry.costs).map(([unitKey, cost]) => (
+                                      <div key={unitKey} className="flex justify-between">
+                                        <span className="text-gray-400">{cost.unit}:</span>
+                                        <span className="text-[#dcff1a] font-medium">
+                                          ${cost.costPerUnit.toFixed(2)}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                        )}
                       </TableBody>
                     </Table>
                   </div>
@@ -619,13 +792,6 @@ export default function ShippingCostPage() {
               )}
             </CardContent>
           </Card>
-        </div>
-      )}
-
-      {/* Error Display */}
-      {error && (
-        <div className="rounded-md border border-red-600 bg-red-900/40 px-3 py-2 text-red-200">
-          {error}
         </div>
       )}
     </div>

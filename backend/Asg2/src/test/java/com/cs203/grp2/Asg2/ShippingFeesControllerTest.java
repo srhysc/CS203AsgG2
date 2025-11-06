@@ -56,9 +56,7 @@ class ShippingFeesControllerTest {
 
     @Test
     void getCost_ReturnsCostForUnitAndDate() {
-        ShippingCostDetailResponseDTO costDTO = new ShippingCostDetailResponseDTO();
-        costDTO.setCostPerUnit(2.10);
-        costDTO.setUnit("USD per barrel");
+        ShippingCostDetailResponseDTO costDTO = new ShippingCostDetailResponseDTO(2.10, "USD per barrel");
         when(shippingFeesService.getCostByUnit("SAU", "IND", "barrel", LocalDate.of(2022, 2, 15))).thenReturn(costDTO);
 
         Object result = shippingFeesController.getCost("SAU", "IND", "2022-02-15", "barrel");
