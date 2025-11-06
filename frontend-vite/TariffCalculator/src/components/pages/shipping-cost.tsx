@@ -163,9 +163,10 @@
 //     </div>
 //   );
 // }import React, { useEffect, useState } from "react";"use client";
-import { useEffect, useState, useMemo } from "react";
+"use client";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import { useAuth } from "@clerk/clerk-react";
+import { SignOutButton, useAuth } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
@@ -200,6 +201,9 @@ interface ShippingFeeResponse {
   country2IsoNumeric: string;
   shippingFees: ShippingFeeEntry[];
 }
+
+// Only allow these units
+const ALLOWED_UNITS = ["barrel", "ton"];
 
 // Calendar Component
 const CalendarView = ({ date, onDateChange }: { date: Date | null, onDateChange: (date: Date) => void }) => {
@@ -321,34 +325,40 @@ export default function ShippingCostPage() {
       setError("Please select both countries");
       return;
     }
-    
     setLoading(true);
     setError("");
     setHasSearched(true);
 
     try {
       const token = await getToken();
-      
-      // Build query parameters based on selected filters
       const params = new URLSearchParams();
-      if (selectedDate) {
-        params.append('date', selectedDate.toISOString().split('T')[0]);
-      }
-      if (unit) {
-        params.append('unit', unit);
-      }
-      
+      if (selectedDate) params.append('date', selectedDate.toISOString().split('T')[0]);
+      if (unit) params.append('unit', unit);
       const queryString = params.toString();
       const url = `${API_BASE}/shipping-fees/${origin}/${destination}/cost${queryString ? '?' + queryString : ''}`;
-      
-      const response = await axios.get<ShippingFeeEntry[]>(url, {
+
+      const response = await axios.get<ShippingFeeEntry[] | { message: string }>(url, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      // Transform response to match ShippingFeeResponse format
+      if (!Array.isArray(response.data)) {
+        response.data
+        setError("Unexpected response from server.");
+        setShippingData(null);
+        return;
+      }
+
+      // Only keep allowed units
+      const validEntries = response.data.map((entry: ShippingFeeEntry) => ({
+        ...entry,
+        costs: Object.fromEntries(
+          Object.entries(entry.costs).filter(([k]) => ALLOWED_UNITS.includes(k))
+        )
+      })).filter(entry => Object.keys(entry.costs).length > 0);
+
       const originCountry = countries.find(c => c.iso3 === origin);
       const destCountry = countries.find(c => c.iso3 === destination);
-      
+
       setShippingData({
         country1Name: originCountry?.name || origin,
         country2Name: destCountry?.name || destination,
@@ -356,10 +366,9 @@ export default function ShippingCostPage() {
         country2Iso3: destination,
         country1IsoNumeric: originCountry?.code || "",
         country2IsoNumeric: destCountry?.code || "",
-        shippingFees: response.data
+        shippingFees: validEntries
       });
     } catch (err: any) {
-      console.error('Error fetching shipping costs:', err);
       setError(err.response?.data?.message || "Failed to fetch shipping costs");
       setShippingData(null);
     } finally {
@@ -378,27 +387,23 @@ export default function ShippingCostPage() {
     setHasSearched(false);
   };
 
-  // Prepare unit options - collect all unique units from all entries
+  // Prepare unit options - only allowed units
   const unitOptions = useMemo(() => {
-    if (!shippingData || !shippingData.shippingFees.length) return [];
-    const units = new Set<string>();
-    shippingData.shippingFees.forEach(entry => {
-      Object.keys(entry.costs).forEach(unit => units.add(unit));
-    });
-    return Array.from(units).sort();
+    return ALLOWED_UNITS.filter(u =>
+      shippingData?.shippingFees.some(entry => entry.costs[u])
+    );
   }, [shippingData]);
 
   // Prepare filtered cost history
   const filteredCosts = useMemo(() => {
-    if (!shippingData) return [];
+    if (!shippingData || !Array.isArray(shippingData.shippingFees)) return [];
     let entries = shippingData.shippingFees;
     if (selectedDate) {
       entries = entries.filter(e => new Date(e.date) <= selectedDate);
     }
-    
-    // If unit is selected, filter by that unit
+    let result;
     if (unit) {
-      return entries
+      result = entries
         .map(e => ({
           date: e.date,
           cost: e.costs[unit]?.costPerUnit ?? 0,
@@ -406,27 +411,28 @@ export default function ShippingCostPage() {
         }))
         .filter(e => e.cost > 0);
     } else {
-      // If no unit selected, use the first available unit for each entry
-      return entries
+      result = entries
         .map(e => {
-          const firstUnit = Object.keys(e.costs)[0];
+          const firstUnit = ALLOWED_UNITS.find(u => e.costs[u]);
           return {
             date: e.date,
-            cost: e.costs[firstUnit]?.costPerUnit ?? 0,
-            unit: e.costs[firstUnit]?.unit ?? "",
+            cost: firstUnit ? e.costs[firstUnit].costPerUnit : 0,
+            unit: firstUnit ? e.costs[firstUnit].unit : "",
           };
         })
         .filter(e => e.cost > 0);
     }
+    return result;
   }, [shippingData, selectedDate, unit]);
 
   // Prepare country dropdown options
-  const countryOptions = useMemo(() => countries.map(c => ({
-    label: `${c.name} (${c.iso3})`,
-    value: c.iso3,
-  })), [countries]);
+  const countryOptions = useMemo(() => {
+    return countries.map(c => ({
+      label: `${c.name} (${c.iso3})`,
+      value: c.iso3,
+    }));
+  }, [countries]);
 
-  // Show loading if Clerk is not loaded
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -436,7 +442,6 @@ export default function ShippingCostPage() {
     );
   }
 
-  // Show error if not signed in
   if (!isSignedIn) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -694,25 +699,23 @@ export default function ShippingCostPage() {
                     <div className="flex-1">
                       <p className="text-sm text-gray-400 mb-2">Latest Costs</p>
                       {unit ? (
-                        // Show single unit cost
                         filteredCosts.length > 0 && (
                           <p className="text-2xl font-bold text-[#dcff1a]">
                             ${filteredCosts[filteredCosts.length - 1].cost.toFixed(2)} / {filteredCosts[filteredCosts.length - 1].unit}
                           </p>
                         )
                       ) : (
-                        // Show all units
                         <div className="space-y-1">
                           {(() => {
                             const latestEntry = shippingData.shippingFees
                               .filter(e => !selectedDate || new Date(e.date) <= selectedDate)
                               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-                            return latestEntry && Object.entries(latestEntry.costs).map(([key, cost]) => (
+                            return latestEntry && ALLOWED_UNITS.filter(u => latestEntry.costs[u]).map((key) => (
                               <div key={key} className="flex items-baseline gap-2">
                                 <span className="text-xl font-bold text-[#dcff1a]">
-                                  ${cost.costPerUnit.toFixed(2)}
+                                  ${latestEntry.costs[key].costPerUnit.toFixed(2)}
                                 </span>
-                                <span className="text-sm text-gray-400">/ {cost.unit}</span>
+                                <span className="text-sm text-gray-400">/ {latestEntry.costs[key].unit}</span>
                               </div>
                             ));
                           })()}
@@ -745,7 +748,6 @@ export default function ShippingCostPage() {
                       </TableHeader>
                       <TableBody>
                         {unit ? (
-                          // Show filtered costs when unit is selected
                           filteredCosts.map((point, idx) => (
                             <TableRow key={idx} className="hover:bg-white/5">
                               <TableCell className="text-gray-300">
@@ -760,7 +762,6 @@ export default function ShippingCostPage() {
                             </TableRow>
                           ))
                         ) : (
-                          // Show all units when no unit is selected
                           shippingData?.shippingFees
                             .filter(entry => !selectedDate || new Date(entry.date) <= selectedDate)
                             .map((entry, idx) => (
@@ -770,11 +771,11 @@ export default function ShippingCostPage() {
                                 </TableCell>
                                 <TableCell className="text-gray-300" colSpan={2}>
                                   <div className="space-y-1">
-                                    {Object.entries(entry.costs).map(([unitKey, cost]) => (
+                                    {ALLOWED_UNITS.filter(u => entry.costs[u]).map((unitKey) => (
                                       <div key={unitKey} className="flex justify-between">
-                                        <span className="text-gray-400">{cost.unit}:</span>
+                                        <span className="text-gray-400">{entry.costs[unitKey].unit}:</span>
                                         <span className="text-[#dcff1a] font-medium">
-                                          ${cost.costPerUnit.toFixed(2)}
+                                          ${entry.costs[unitKey].costPerUnit.toFixed(2)}
                                         </span>
                                       </div>
                                     ))}

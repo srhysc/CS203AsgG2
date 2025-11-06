@@ -49,7 +49,7 @@ public class ShippingFeesController {
         if (unit != null && !unit.isEmpty()) {
             return shippingFeesService.getCostByUnit(country1Iso3, country2Iso3, unit, inputDate);
         }
-        
+    System.out.println("FAILLELLELELDLLLLLDLLDLDLDL");
         // Case 4: With date, no unit -> return single most applicable entry (all units)
         return shippingFeesService.getLatestCost(country1Iso3, country2Iso3, inputDate);
     }
