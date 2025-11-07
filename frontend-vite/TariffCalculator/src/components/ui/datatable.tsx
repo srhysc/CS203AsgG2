@@ -1,13 +1,37 @@
 "use client"
 
 import * as React from "react"
-import type { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from "@tanstack/react-table"
-import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState
+} from "@tanstack/react-table"
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable
+} from "@tanstack/react-table"
 import { ChevronDown, Pencil } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 type DataTableProps<T> = {
@@ -15,7 +39,13 @@ type DataTableProps<T> = {
   data: T[]
   setData?: React.Dispatch<React.SetStateAction<T[]>>
   filterPlaceholder?: string
-  renderRowEditForm?: (row: T, onSave: (updatedRow: T) => void, onCancel: () => void) => React.ReactNode
+  renderRowEditForm?: (
+    row: T,
+    onSave: (updatedRow: T) => void,
+    onCancel: () => void
+  ) => React.ReactNode
+  tableHeight?: string
+  tableWidth?: string
 }
 
 export function DataTable<T extends Record<string, any>>({
@@ -24,6 +54,8 @@ export function DataTable<T extends Record<string, any>>({
   setData,
   filterPlaceholder,
   renderRowEditForm,
+  tableHeight = "auto",
+  tableWidth = "100%"
 }: DataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -60,7 +92,7 @@ export function DataTable<T extends Record<string, any>>({
               size="sm"
               onClick={() => handleEditClick(row.original)}
               aria-label="Edit"
-              className="h-8 w-8 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+              className="h-8 w-8 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -82,8 +114,15 @@ export function DataTable<T extends Record<string, any>>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    state: { sorting, columnFilters, columnVisibility, rowSelection },
-    initialState: { pagination: { pageSize: 8 } },
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection
+    },
+    initialState: {
+      pagination: { pageSize: 8 }
+    },
     globalFilterFn: (row, columnId, filterValue) => {
       if (!filterValue) return true
       const search = filterValue.toString().toLowerCase().trim().replace(/[%\s]/g, "")
@@ -97,16 +136,16 @@ export function DataTable<T extends Record<string, any>>({
         if (typeof value === "string") return value.toLowerCase().includes(search)
         return false
       })
-    },
+    }
   })
 
   const pageIndex = table.getState().pagination.pageIndex
   const pageCount = table.getPageCount()
 
   return (
-    <div className="w-full mx-auto">
+    <div className="w-full" style={{ maxWidth: tableWidth }}>
       {/* Search + Column visibility */}
-      <div className="flex items-center py-4">
+      <div className="flex items-center py-4 gap-2">
         {filterPlaceholder && (
           <Input
             placeholder={filterPlaceholder}
@@ -115,73 +154,113 @@ export function DataTable<T extends Record<string, any>>({
             className="max-w-sm"
           />
         )}
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto cursor-pointer">
               Columns <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow-lg p-2 rounded-md min-w-[160px] text-gray-900 dark:text-gray-100">
-            {table.getAllColumns().filter((col) => col.getCanHide()).map((col) => (
-              <DropdownMenuCheckboxItem
-                key={col.id}
-                className="capitalize relative pl-8 pr-2 py-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
-                checked={col.getIsVisible()}
-                onCheckedChange={(value) => col.toggleVisibility(!!value)}
-              >
-                {col.id.replace(/([A-Z])/g, ' $1').trim()}
-              </DropdownMenuCheckboxItem>
-            ))}
+          <DropdownMenuContent
+            align="end"
+            className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 shadow-lg p-2 rounded-md min-w-[160px] text-gray-900 dark:text-gray-100"
+          >
+            {table
+              .getAllColumns()
+              .filter((col) => col.getCanHide())
+              .map((col) => (
+                <DropdownMenuCheckboxItem
+                  key={col.id}
+                  className="capitalize relative pl-8 pr-2 py-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  checked={col.getIsVisible()}
+                  onCheckedChange={(value) => col.toggleVisibility(!!value)}
+                >
+                  {col.id.replace(/([A-Z])/g, ' $1').trim()}
+                </DropdownMenuCheckboxItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-center">
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-center">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
+      {/* Table with fixed size */}
+      <div 
+        className="overflow-hidden rounded-md border"
+        style={{ 
+          height: tableHeight,
+          display: tableHeight !== 'auto' ? 'flex' : 'block',
+          flexDirection: 'column'
+        }}
+      >
+        <div className={tableHeight !== 'auto' ? 'overflow-auto flex-1' : 'overflow-auto'}>
+          <Table className="w-full table-fixed">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead 
+                      key={header.id} 
+                      className="text-center overflow-hidden text-ellipsis"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell 
+                        key={cell.id} 
+                        className="text-center overflow-hidden text-ellipsis"
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell 
+                    colSpan={columns.length} 
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       {/* Pagination */}
       <div className="flex justify-center items-center py-4 gap-4">
-        <Button size="sm" variant="outline" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} className="hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+          className="hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer disabled:opacity-50"
+        >
           Previous
         </Button>
         <span className="text-sm text-gray-600 dark:text-gray-300">
           Page <strong>{pageIndex + 1}</strong> of <strong>{pageCount || 1}</strong>
         </span>
-        <Button size="sm" variant="outline" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} className="hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+          className="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer disabled:opacity-50"
+        >
           Next
         </Button>
       </div>

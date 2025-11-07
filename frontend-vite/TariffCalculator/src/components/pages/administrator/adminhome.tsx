@@ -11,10 +11,10 @@ const adminActions = [
     url: "/administrator/tariffs",
   },
   {
-    title: "Edit Agreements",
+    title: "Edit VAT Rates",
     icon: FileSignature,
-    description: "Modify trade agreements",
-    url: "/administrator/agreements",
+    description: "Modify value-added tax rates",
+    url: "/administrator/VATrates",
   },
   {
     title: "Edit Shipping Fees",

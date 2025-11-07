@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormProvider } from "react-hook-form";
@@ -13,7 +13,7 @@ const formSchema = z.object({
   productCode: z.string().min(1, "Product Code is required"),
   importingCountry: z.string().min(1, "Importing Country is required"),
   exportingCountry: z.string().min(1, "Exporting Country is required"),
-  tariffRate: z.number().nonnegative("Tariff Rate must be a positive number"),
+  tariffRate: z.number().min(0).max(1, "Use decimal: e.g., 0.07 for 7%"),
   lastUpdated: z.string().optional(),
   updatedBy: z.string().optional(),
 });
@@ -25,7 +25,6 @@ interface EditTariffFormProps {
   onSubmit: (values: EditTariffFormValues) => Promise<void> | void;
   onCancel?: () => void;
   currentUserName: string;
-  countryOptions: { label: string; value: string }[];
 }
 
 export function EditTariffForm({
@@ -33,7 +32,6 @@ export function EditTariffForm({
   onSubmit,
   onCancel,
   currentUserName,
-  countryOptions,
 }: EditTariffFormProps) {
   const methods = useForm<EditTariffFormValues>({
   resolver: zodResolver(formSchema),
@@ -43,7 +41,6 @@ export function EditTariffForm({
 const {
   register,
   handleSubmit,
-  control,
   formState: { errors, isSubmitting },
 } = methods;
   
@@ -61,7 +58,7 @@ const {
   return (
     <FormProvider {...methods}>
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 p-6">
-      <h2 className="text-xl font-semibold mb-4">Edit Tariff</h2>
+      <h2 className="text-xl font-semibold">Edit Tariff</h2>
 
       {/* Hidden ID field */}
       <input type="hidden" {...register("id")} />

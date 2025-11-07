@@ -75,6 +75,8 @@ import TariffCalculator from "@/services/TariffCalculator";
 import TariffLookup from "@/services/TariffDisplay";
 import Adminhome from "@/components/pages/administrator/adminhome";
 import EditTariffs from "@/components/pages/administrator/edittariffs";
+import EditVATRates from "@/components/pages/administrator/editvatrates";
+
 import RefineryInfoPage from "@/components/pages/RefineryInfoPage";
 
 function AnimatedRoutes() {
@@ -93,6 +95,7 @@ function AnimatedRoutes() {
         <Route path="/route" element={<div>Refinery Route Page (coming soon)</div>} />
         <Route path="/administrator" element={<Adminhome />} />
         <Route path="/administrator/tariffs" element={<EditTariffs />} />
+        <Route path="/administrator/VATrates" element={<EditVATRates />} />
       </Routes>
     </AnimatePresence>
   );
