@@ -44,7 +44,7 @@ public class PetroleumController {
     }
 
     @GetMapping("/{hsCode}")
-    public Petroleum getPetroleumByHsCode(@PathVariable @Pattern(regexp = "\\d{4,6}") String hsCode) {
+    public Petroleum getPetroleumByHsCode(@PathVariable @Pattern(regexp = "\\d{4,8}") String hsCode) {
         Petroleum petroleum = service.getPetroleumByHsCode(hsCode);
         if (petroleum == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Petroleum not found for HS code: " + hsCode);
