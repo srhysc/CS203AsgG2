@@ -5,9 +5,7 @@ import { DataTable } from "@/components/ui/datatable"
 import type { Tariff } from "@/components/tablecolumns/edittariffscol"
 import { tariffColumns } from "@/components/tablecolumns/edittariffscol"
 import { EditTariffForm } from "@/components/ui/edittariffform"
-import { Toaster, toast } from "@/components/ui/sonner"
-import { useSidebar } from "@/components/ui/sidebar"
- 
+import { Toaster, toast } from "@/components/ui/sonner" 
 
 const initialTariffData: Tariff[] = [
   {
@@ -167,7 +165,6 @@ function isEqual(obj1: any, obj2: any): boolean {
 
 export default function EditTariffsPage() {
   const [tariffData, setTariffData] = React.useState<Tariff[]>(initialTariffData)
-  const { open } = useSidebar()
   const handleSaveTariff = async (updatedTariff: Tariff) => {
     const originalTariff = tariffData.find(t => t.id === updatedTariff.id)
 
@@ -198,12 +195,12 @@ export default function EditTariffsPage() {
   }
 
   return (
-    <div className="relative p-6 min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
+    <div className="h-screen w-screen overflow-hidden flex flex-col text-gray-900 dark:text-gray-100 transition-colors">
+      {/* <div className="h-screen w-screen overflow-hidden flex flex-col"></div> */}
       <Toaster
         position="top-center"
         toastOptions={{
           style: {
-            transform: open ? "translateX(128px)" : "translateX(0px)",
             transition: "transform 0.3s ease",
           },
         }}

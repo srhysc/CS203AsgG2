@@ -92,7 +92,7 @@ function AnimatedRoutes() {
         <Route path="/shipping" element={<ShippingCostPage />} />
         <Route path="/route" element={<div>Refinery Route Page (coming soon)</div>} />
         <Route path="/administrator" element={<Adminhome />} />
-        <Route path="/admin/tariffs" element={<EditTariffs />} />
+        <Route path="/administrator/tariffs" element={<EditTariffs />} />
       </Routes>
     </AnimatePresence>
   );
