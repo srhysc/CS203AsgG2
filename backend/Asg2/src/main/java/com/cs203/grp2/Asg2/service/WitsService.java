@@ -42,13 +42,11 @@ public class WitsService {
         if (mfn.isPresent()) return mfn.get();
 
         // 3) Fallback to WITS (or any HTTP data source you wire in)
-        // Optional<WitsTariff> wits = fetchFromWits(req);
-        // return wits.orElseGet(() ->
-        //     new WitsTariff(req.importerIso3(), req.exporterIso3(), req.hs6(), req.date(), 0.0, "none",
-        //                    "No rate found in DB; WITS returned none/invalid")
-        // );
-        return new WitsTariff(req.importerIso3(), req.exporterIso3(), req.hs6(), req.date(), 0.0, "none",
-                           "No rate found in DB; WITS returned none/invalid");
+        Optional<WitsTariff> wits = fetchFromWits(req);
+        return wits.orElseGet(() ->
+            new WitsTariff(req.importerIso3(), req.exporterIso3(), req.hs6(), req.date(), 0.0, "none",
+                           "No rate found in DB; WITS returned none/invalid")
+        );
     }
 
     /* =====================  DB LOOKUPS  ===================== */
