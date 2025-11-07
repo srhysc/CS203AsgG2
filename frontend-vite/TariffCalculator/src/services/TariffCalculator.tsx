@@ -159,7 +159,7 @@ import { tariffService } from './countrytariffapi';
 import { TariffForm } from '@/components/ui/tarifflookupform';
 import { tariffSchema } from '@/components/ui/tarifflookupform';
 import { z } from 'zod';
-import ToggleTable from "@/components/ui/tariffbreakdowntable";
+import TariffBreakdownTable from "@/components/ui/tariffbreakdowntable";
 import { countryService } from './countryapi';
 import { petrolService } from './petroleumapi';
 import type { Petroleum } from './types/petroleum';
@@ -178,7 +178,7 @@ const TariffCalculator: React.FC = () => {
 
     const { getAllCountries } = countryService();
     const { getByRequirements } = tariffService();
-    const {getAllPetroleum} = petrolService();
+    const { getAllPetroleum } = petrolService();
 
     const todayISOString = new Date().toISOString().split('T')[0];
     const getFormattedDate = (date) => {
@@ -194,7 +194,6 @@ const TariffCalculator: React.FC = () => {
         try {
             const data = await getAllCountries();
             setCountries(data);
-
         } catch (err) {
             setError('Failed to load countries.');
             console.error(err);
@@ -271,7 +270,7 @@ const TariffCalculator: React.FC = () => {
             console.log(`the tariffs: ${tariffs}`);
 
             //update tariffs field
-            setTariffs(tariffs);
+            setTariffs(tariffs);      
         } catch (err: any) {
             setError('Failed to fetch Tariffs');
             setError(err.response?.data?.message || 'Failed to fetch tariffs');
@@ -336,8 +335,9 @@ const TariffCalculator: React.FC = () => {
                             </div>
                         </div>
 
+                        {/* Tariff Breakdown Table with Routes */}
                         <div className="p-6 bg-slate-800/50 rounded-lg">
-                            <ToggleTable tariffObject={tariffs} />
+                            <TariffBreakdownTable tariffObject={tariffs} />
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -381,6 +381,107 @@ const TariffCalculator: React.FC = () => {
             )}
         </div>
     );
+    // return (
+    //     <div className="flex-1 space-y-8 p-8">
+    //         {/* Header */}
+    //         <div className="text-center space-y-4">
+    //             <h1 className="text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#dcff1a] to-emerald-400">
+    //                 Tariff Calculator
+    //             </h1>
+    //             <p className="text-xl text-gray-400">
+    //                 Calculate import tariffs and fees between countries
+    //             </p>
+    //         </div>
+
+    //         {/* Calculator Form */}
+    //         <Card className="bg-white/5 backdrop-blur-lg border border-white/10">
+    //             <CardHeader>
+    //                 <CardTitle className="flex items-center gap-2">
+    //                     <Calculator className="w-6 h-6 text-[#dcff1a]" />
+    //                     Calculate Tariffs
+    //                 </CardTitle>
+    //             </CardHeader>
+    //             <CardContent>
+    //                 <TariffForm 
+    //                     onSubmit={tariffFormSubmission} 
+    //                     countries={countries} 
+    //                     petroleum={petroleum} 
+    //                     clearSignal={clearFormSignal} 
+    //                     onClear={handleClearAll} 
+    //                 />
+    //             </CardContent>
+    //         </Card>
+
+    //         {/* Results */}
+    //         {tariffs && !loading && (
+    //             <Card className="bg-white/5 backdrop-blur-lg border border-white/10">
+    //                 <CardHeader>
+    //                     <CardTitle className="flex items-center gap-2">
+    //                         <Calculator className="w-6 h-6 text-[#dcff1a]" />
+    //                         Cost Summary
+    //                     </CardTitle>
+    //                 </CardHeader>
+    //                 <CardContent className="space-y-6">
+    //                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    //                         <div className="p-6 bg-slate-800/50 rounded-lg">
+    //                             <p className="text-sm text-gray-400 mb-2">Total Cost</p>
+    //                             <p className="text-3xl font-bold text-[#dcff1a]">
+    //                                 {tariffs.totalLandedCost} {tariffs.currency}
+    //                             </p>
+    //                         </div>
+    //                         <div className="p-6 bg-slate-800/50 rounded-lg">
+    //                             <p className="text-sm text-gray-400 mb-2">Base Price</p>
+    //                             <p className="text-3xl font-bold text-gray-300">
+    //                                 {tariffs.basePrice} {tariffs.currency}
+    //                             </p>
+    //                         </div>
+    //                     </div>
+
+    //                     <div className="p-6 bg-slate-800/50 rounded-lg">
+    //                         <ToggleTable tariffObject={tariffs} optimizedRoutes={optimizedRoutes ?? undefined}/>
+    //                     </div>
+
+    //                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    //                         <div className="p-4 bg-slate-800/50 rounded-lg">
+    //                             <p className="text-sm text-gray-400">Tariff Rate</p>
+    //                             <p className="text-lg text-[#dcff1a]">{tariffs.tariffRate}%</p>
+    //                         </div>
+    //                         <div className="p-4 bg-slate-800/50 rounded-lg">
+    //                             <p className="text-sm text-gray-400">VAT Rate</p>
+    //                             <p className="text-lg text-[#dcff1a]">{tariffs.vatRate}%</p>
+    //                         </div>
+    //                         <div className="p-4 bg-slate-800/50 rounded-lg">
+    //                             <p className="text-sm text-gray-400">Tariff Fees</p>
+    //                             <p className="text-lg text-gray-300">
+    //                                 {tariffs.tariffFees} {tariffs.currency}
+    //                             </p>
+    //                         </div>
+    //                         <div className="p-4 bg-slate-800/50 rounded-lg">
+    //                             <p className="text-sm text-gray-400">VAT Fees</p>
+    //                             <p className="text-lg text-gray-300">
+    //                                 {tariffs.vatFees} {tariffs.currency}
+    //                             </p>
+    //                         </div>
+    //                     </div>
+    //                 </CardContent>
+    //             </Card>
+    //         )}
+
+    //         {/* Loading State */}
+    //         {loading && (
+    //             <div className="flex items-center justify-center p-8">
+    //                 <Loader2 className="w-8 h-8 animate-spin text-[#dcff1a]" />
+    //             </div>
+    //         )}
+
+    //         {/* Error Display */}
+    //         {error && (
+    //             <div className="rounded-lg border border-red-600 bg-red-900/40 px-4 py-3 text-red-200">
+    //                 {error}
+    //             </div>
+    //         )}
+    //     </div>
+    // );
 };
 
 export default TariffCalculator;
