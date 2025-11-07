@@ -37,6 +37,7 @@ public class LandedCostResponse {
     //map of alternative routes
     private Map<String, RouteBreakdown> alternativeRoutes;
 
+    public LandedCostResponse(){};
 
     public LandedCostResponse(String importingCountry, String exportingCountry,
                               String petroleumName, String hsCode,
@@ -75,4 +76,20 @@ public class LandedCostResponse {
     public String getCurrency() { return currency; }
     public Map<String, RouteBreakdown> getAlternativeRoutes() { return alternativeRoutes; }
 
+    //setters so firebase can populate
+    public void setImportingCountry(String importingCountry) { this.importingCountry = importingCountry; }
+    public void setExportingCountry(String exportingCountry) { this.exportingCountry = exportingCountry; }
+    public void setPetroleumName(String petroleumName) { this.petroleumName = petroleumName; }
+    public void setHsCode(String hsCode) { this.hsCode = hsCode; }
+    public void setPricePerUnit(double pricePerUnit) { this.pricePerUnit = pricePerUnit; }
+    public void setBasePrice(double basePrice) { this.basePrice = basePrice; }
+    public void setTariffRate(double tariffRate) { this.tariffRate = tariffRate; }
+    public void setTariffFees(double tariffFees) { this.tariffFees = tariffFees; }
+    public void setVatRate(double vatRate) { this.vatRate = vatRate; }
+    public void setVatFees(double vatFees) { this.vatFees = vatFees; }
+    public void setTotalLandedCost(double totalLandedCost) { this.totalLandedCost = totalLandedCost; }
+    public void setCurrency(String currency) { this.currency = currency; }
+    public void setAlternativeRoutes(Map<String, RouteBreakdown> alternativeRoutes) {
+        this.alternativeRoutes = alternativeRoutes;
+    }
 }

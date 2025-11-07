@@ -94,15 +94,15 @@ logger.info("Total candidate routes: {}", candidateRoutes.size());
         double tariffFees = baseCost * tariffRate;
 
         //retrieve VAT rate of importing country that you have to pay
-        double vatRate = (importer.getVatRates() != null) ? importer.getVatRates() / 100.0 : 0.0;
+        double vatRate = (importer.getVatRates() != null) ? importer.getVatRates(date) : 0.0;
         //calculate VAT fees based on rate
-        double vatFees = (baseCost + tariffFees) * vatRate;
+        double vatFees = (baseCost + tariffFees) * (vatRate/100);
 
         //calculate total - basecost + tariff fees + vat fees
         double total = baseCost + tariffFees + vatFees;
 
         return new RouteBreakdown(exporter.getName(), null, importer.getName(),
-                baseCost, tariffFees, vatFees, total, vatRate * 100);
+                baseCost, tariffFees, vatFees, total, vatRate * 100, petroleum.getName());
     }
 
 
@@ -122,7 +122,6 @@ logger.info("Total candidate routes: {}", candidateRoutes.size());
             //calculate price with middle country involved
             middleRouteList.add(computeRouteWithMiddle(exporter, middle, importer, petroleum, units, petroleumprice, date));
         }
-logger.info("FINISHED - Total routes calculated: {}", middleRouteList.size());
 
         // Sort by total cost and pick best 5, and add to starting list
         candidateRoutes.addAll(
@@ -160,9 +159,9 @@ logger.info("FINISHED - Total routes calculated: {}", middleRouteList.size());
         }
 
         //get importing countries' vat rate you will have to pay for
-        double vatRate = (importer.getVatRates() != null) ? importer.getVatRates() / 100.0 : 0.0;
+        double vatRate = (importer.getVatRates() != null) ? importer.getVatRates(date) : 0.0;
         //calculate vat fees using vat rate on base cost
-        double vatFees = (baseCost + totalTariff) * vatRate;
+        double vatFees = (baseCost + totalTariff) * (vatRate/100);
         //add base cost + tariff cost + vat cost
         double total = baseCost + totalTariff + vatFees;
 
@@ -173,7 +172,8 @@ logger.info("FINISHED - Total routes calculated: {}", middleRouteList.size());
                 totalTariff,
                 vatFees,
                 total,
-                vatRate * 100);
+                vatRate * 100,
+                petroleum.getName());
     }
 
 }
