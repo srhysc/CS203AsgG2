@@ -481,22 +481,21 @@ export default function PetroleumDetailsPage() {
                 </Popover>
               </div>
             </div>
-            <div className="flex gap-4 mt-4">
+            <div className="flex justify-end pt-4 gap-4">
+              <Button
+                variant="outline"
+                className="border border-[#dcff1a] text-[#dcff1a] px-6 py-2 rounded-lg cursor-pointer"
+                onClick={handleClear}
+              >
+                Clear
+              </Button>
               <Button
                 variant="default"
-                className="bg-[#dcff1a] text-slate-900 font-bold px-6 py-2 rounded"
+                className="bg-[#dcff1a] text-slate-900 font-bold px-6 py-2 rounded-lg cursor-pointer"
                 onClick={handleSearch}
                 disabled={!selectedPetroleum || loading}
               >
                 Search
-              </Button>
-              <Button
-                variant="outline"
-                className="border border-slate-700 text-white px-6 py-2 rounded"
-                onClick={handleClear}
-                disabled={loading && !selectedPetroleum && !selectedDate}
-              >
-                Clear
               </Button>
             </div>
           </CardContent>
