@@ -165,7 +165,7 @@ import { petrolService } from './petroleumapi';
 import type { Petroleum } from './types/petroleum';
 import type { Country } from '@/services/types/country';
 import BookmarkList from './BookmarkList'
-import BookmarkButton from './BookmarkAddButton'
+import BookmarkAddButton from './BookmarkAddButton'
 
 
 
@@ -313,6 +313,12 @@ const TariffCalculator: React.FC = () => {
                         onClear={handleClearAll} 
                     />
                 </CardContent>
+
+                <CardContent>
+                    <div>
+                        <BookmarkList />
+                    </div>
+                </CardContent>
             </Card>
 
             {/* Results */}
@@ -325,10 +331,7 @@ const TariffCalculator: React.FC = () => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <BookmarkButton request={tariffs} bookmarkName="Test"/>
-                        <div>
-                            <BookmarkList />
-                        </div>
+                        <BookmarkAddButton savedResponse={tariffs} onSuccess={() => alert('Bookmark added!')} />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="p-6 bg-slate-800/50 rounded-lg">

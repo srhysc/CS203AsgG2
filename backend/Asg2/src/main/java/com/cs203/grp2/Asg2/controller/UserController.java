@@ -2,6 +2,8 @@ package com.cs203.grp2.Asg2.user;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+
 
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class UserController {
     @GetMapping("/profile")
     public User getProfile() throws ExecutionException, InterruptedException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userService.getUserById(user.getId());
+        return userService.getUserById(user.getId()).join();
     }
 
     @GetMapping("/roles")
@@ -58,18 +60,30 @@ public class UserController {
 
 
     @PostMapping("/bookmarks")
-    public void addBookmark(@RequestBody BookmarkRequest bookmarkRequest)
+    public ResponseEntity<?> addBookmark(@RequestBody BookmarkRequest bookmarkRequest)
         throws ExecutionException, InterruptedException {
+
+    if (bookmarkRequest.getSavedResponse() == null) {
+        return ResponseEntity.badRequest().body("Missing savedResponse in request");
+    }
+    if (bookmarkRequest.getSavedResponse().getImportingCountry() == null) {
+        return ResponseEntity.badRequest().body("Missing importingCountry in savedResponse");
+    }
+
+System.out.println("BOOKMARK RESPONSE: " + bookmarkRequest.getBookmarkName() + "IMPORTER: " + bookmarkRequest.getSavedResponse().getImportingCountry() + "EXPORTER: " + bookmarkRequest.getSavedResponse().getExportingCountry() + bookmarkRequest.getSavedResponse().getPricePerUnit() + bookmarkRequest.getSavedResponse().getTotalLandedCost()); 
 
     // Get the authenticated user object from clerk jwt filter
     User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
     // Call the service using the actual verified user ID
     userService.addBookmark(
-        bookmarkRequest.getReponse(),
+        bookmarkRequest.getSavedResponse(),
         user.getId(),
         bookmarkRequest.getBookmarkName()
     );
+
+        return ResponseEntity.ok("Bookmark added successfully");
+
     }
 
 

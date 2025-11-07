@@ -6,15 +6,19 @@ import com.cs203.grp2.Asg2.DTO.LandedCostResponse;
 public class UserSavedRoute {
     
     //snapshot of calculation
-    private LandedCostResponse response;
+    private LandedCostResponse savedResponse;
     private String name;           
 
+    public UserSavedRoute() {}
 
-    public UserSavedRoute(LandedCostResponse response,String name) {
-        this.response = response;
+    public UserSavedRoute(LandedCostResponse savedResponse,String name) {
+        this.savedResponse = savedResponse;
         this.name = name;
     }
 
-    public LandedCostResponse getRequest() { return response; }
+    public LandedCostResponse getSavedResponse() { return savedResponse; }
+    public void setSavedResponse(LandedCostResponse savedResponse){this.savedResponse = savedResponse;}
     public String getName() { return name; }
+    public void setName(String name){this.name = name;}
+
 }

@@ -4,13 +4,13 @@ import type { Tariff } from '@/services/types/countrytariff';
 
 
 export interface UserSavedRoute {
-  request: Tariff;
-  name: string;
+    savedResponse: Tariff;
+    name: string;
 }
 
 export interface BookmarkRequest {
-  request: Tariff;
-  bookmarkName: string;
+    savedResponse: Tariff;
+    bookmarkName: string;
 }
 
 // Base API config
@@ -31,21 +31,22 @@ export const useBookmarkService = () => {
     const response = await api.get<UserSavedRoute[]>('/api/users/bookmarks', {
       headers: { Authorization: `Bearer ${token}` },
     });
+console.log(response.data);
     return response.data;
   };
 
   const addBookmark = async (
-    request: Tariff,
+    savedResponse: Tariff,
     bookmarkName: string
   ): Promise<UserSavedRoute> => {
     const token = await getToken();
-    const body: BookmarkRequest = { request, bookmarkName };
-    const response = await api.post<UserSavedRoute>(
+    const body: BookmarkRequest = { savedResponse, bookmarkName };
+    const apiresponse = await api.post<UserSavedRoute>(
       '/api/users/bookmarks',
       body,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    return response.data;
+    return apiresponse.data;
   };
 
   return { getBookmarks, addBookmark };
