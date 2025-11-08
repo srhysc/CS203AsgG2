@@ -27,7 +27,7 @@ const adminActions = [
     url: "/administrator/product-prices",
   },
   {
-    title: "Manage Admins",
+    title: "Manage User Roles",
     icon: UserPlus,
     description: "Grant admin privileges",
     url: "/administrator/manage-admins",

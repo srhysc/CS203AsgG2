@@ -78,8 +78,10 @@ import EditTariffs from "@/components/pages/administrator/edittariffs";
 import EditVATRates from "@/components/pages/administrator/editvatrates";
 import EditShippingFee from "@/components/pages/administrator/editshippingfees";
 import EditProductPricesPage from "./components/pages/administrator/editproductprices";
+import ManageAdminsPage from "./components/pages/administrator/manageuserroles";
 
 import RefineryInfoPage from "@/components/pages/RefineryInfoPage";
+
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -100,6 +102,7 @@ function AnimatedRoutes() {
         <Route path="/administrator/VAT-rates" element={<EditVATRates />} />
         <Route path="/administrator/shipping-fees" element={<EditShippingFee />} />
         <Route path="/administrator/product-prices" element={<EditProductPricesPage />} />
+        <Route path = "/administrator/manage-admins" element= {<ManageAdminsPage/>} />
       </Routes>
     </AnimatePresence>
   );
