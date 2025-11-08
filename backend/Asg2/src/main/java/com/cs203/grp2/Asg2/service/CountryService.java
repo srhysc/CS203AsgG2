@@ -130,6 +130,49 @@ public class CountryService {
         throw new CountryNotFoundException("No country with iso3=" + iso3);
     }
 
+    //ADD VAT RATE TO FIREBASE
+    public void addVatRate(String countryName, VATRate newRate) throws Exception {
+    if (countryName == null || newRate == null) {
+        throw new IllegalArgumentException("Country name and VAT rate must not be null.");
+    }
+
+    // Ensure country exists in memory
+    Country country = getCountryByName(countryName);
+    if (country == null) {
+        throw new CountryNotFoundException("Country not found: " + countryName);
+    }
+
+    DatabaseReference vatRef = firebase.getReference("/Country_NEW")
+            .child(countryName)
+            .child("vat_rates")
+            .push(); // creates a new unique key (e.g. vat_rates/-Nsg92Kdj123)
+
+    Map<String, Object> vatData = new HashMap<>();
+    vatData.put("date", newRate.getDate().toString());
+    vatData.put("rate", newRate.getRate());
+
+    CompletableFuture<Void> future = new CompletableFuture<>();
+
+    vatRef.setValue(vatData, (error, ref) -> {
+        if (error != null) {
+            System.err.println("❌ Failed to add VAT rate: " + error.getMessage());
+            future.completeExceptionally(error.toException());
+        } else {
+            System.out.println("✅ Added new VAT rate for " + countryName + " under vat_rates/");
+            future.complete(null);
+        }
+    });
+
+    // Wait until Firebase write completes
+    future.get();
+
+    // Optional: also update in-memory object for fast access
+    List<VATRate> vatRates = new ArrayList<>(country.getVatRates());
+    vatRates.add(newRate);
+    country.setVatRates(vatRates);
+    }
+
+
     // ====== Firebase await helper ======
     private DataSnapshot await(DatabaseReference ref) throws Exception {
         CompletableFuture<DataSnapshot> fut = new CompletableFuture<>();
@@ -144,4 +187,5 @@ public class CountryService {
         });
         return fut.get();
     }
+
 }

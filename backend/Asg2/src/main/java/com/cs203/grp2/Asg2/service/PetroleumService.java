@@ -111,4 +111,33 @@ public class PetroleumService {
         }
         return petroleum;
     }
+
+    public void addPetroleumPrice(String petroleumName, PetroleumPrice newPrice) throws Exception {
+    DatabaseReference priceRef = firebaseDatabase.getReference("product_new")
+            .child(petroleumName)
+            .child("price")
+            .push(); // make new child under price/
+
+        //create new pricedata object 
+        Map<String, Object> priceData = new HashMap<>();
+        priceData.put("date", newPrice.getDate().toString());
+        priceData.put("avg_price_per_unit_usd", newPrice.getAvgPricePerUnitUsd());
+        priceData.put("unit", newPrice.getUnit());
+
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        //update new child with pricedata values
+        priceRef.setValue(priceData, (error, ref) -> {
+            if (error != null) {
+                System.err.println("❌ Failed to add price: " + error.getMessage());
+                future.completeExceptionally(error.toException());
+            } else {
+                System.out.println("✅ Added new price entry under " + petroleumName + "/price/");
+                future.complete(null);
+            }
+        });
+
+    future.get();
+}
+
 }

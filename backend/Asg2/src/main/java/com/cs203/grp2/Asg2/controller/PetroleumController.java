@@ -52,4 +52,14 @@ public class PetroleumController {
         }
         return petroleum;
     }
+
+    
+    @PostMapping("/{hsCode}/prices")
+    public void addPetroleumPrice(
+        @PathVariable @Pattern(regexp = "\\d{4,8}") String hsCode,
+        @RequestBody PetroleumPrice newPrice
+    ) throws Exception {
+        return service.addPetroleumPrice(hsCode, newPrice);
+    }
+
 }

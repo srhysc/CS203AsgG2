@@ -109,4 +109,21 @@ public class CountryController {
         }
     }
 
+
+    @PostMapping("/{countryName}/vat-ratenew")
+    public ResponseEntity<String> addVatRate(
+        @PathVariable String countryName,
+        @RequestBody VATRate newRate
+        ) {
+        try {
+            countryService.addVatRate(countryName, newRate);
+            return ResponseEntity.ok("VAT rate added for " + countryName);
+        } catch (CountryNotFoundException e) {
+            throw e; // handled by your GlobalControllerExceptionHandler
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to add VAT rate: " + e.getMessage(), e);
+        }
+    }
+
+
 }
