@@ -137,11 +137,11 @@ public class RouteOptimizeService {
         // for (RouteBreakdown routeBreakdown : candidateRoutes) {
         //     System.out.println("😈 " + routeBreakdown.getTariffFees());
         // }
-        return new RouteOptimizationResponse(candidateRoutes,latestprice);
-        // Calculate transit routes
-        computeFixedEndpointsRoutes(exporter, importer, petroleum, request.getUnits(), candidateRoutes, latestprice,
-                request.getCalculationDate());
-        logger.info("Total candidate routes: {}", candidateRoutes.size());
+     
+        // // Calculate transit routes
+        // computeFixedEndpointsRoutes(exporter, importer, petroleum, request.getUnits(), candidateRoutes, latestprice,
+        //         request.getCalculationDate());
+        // logger.info("Total candidate routes: {}", candidateRoutes.size());
 
         if (candidateRoutes.isEmpty()) {
             throw new RouteOptimizationNotFoundException("No route found for route optimization.");
