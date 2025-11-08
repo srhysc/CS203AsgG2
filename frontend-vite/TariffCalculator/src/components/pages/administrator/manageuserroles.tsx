@@ -16,7 +16,6 @@ const initialUserData: User[] = [
     currentRole: "user",
     createdOn: "2024-01-15",
     lastLogin: "2024-11-08",
-    updatedBy: undefined,
     updatedAt: undefined
   },
   {
@@ -27,7 +26,6 @@ const initialUserData: User[] = [
     currentRole: "admin",
     createdOn: "2024-02-20",
     lastLogin: "2024-11-07",
-    updatedBy: "Admin User",
     updatedAt: "2024-03-15"
   },
   {
@@ -38,7 +36,6 @@ const initialUserData: User[] = [
     currentRole: "user",
     createdOn: "2024-03-10",
     lastLogin: "2024-10-15",
-    updatedBy: undefined,
     updatedAt: undefined
   }
 ]

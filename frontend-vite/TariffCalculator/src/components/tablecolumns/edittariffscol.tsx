@@ -9,7 +9,6 @@ export type Tariff = {
   importingCountry: string
   tariffRate: number
   lastUpdated?: string
-  updatedBy?: string
 }
 
 export const tariffColumns: ColumnDef<Tariff>[] = [
@@ -95,21 +94,6 @@ export const tariffColumns: ColumnDef<Tariff>[] = [
         </Button>
     ),
     meta: { label: "Last Updated" }
-  },
-
-  {
-    id: "updatedBy",
-    accessorKey: "updatedBy",
-    header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Updated By
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-    ),
-    meta: { label: "Updated By" }
   },
 
   {

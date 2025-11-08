@@ -16,7 +16,6 @@ const initialShippingFeeData: ShippingFee[] = [
     costPerBarrel: 75,
     costPerMMBtu: 8,
     lastUpdated: "2025-09-01",
-    updatedBy: "Admin"
   },
   {
     id: "2",
@@ -26,7 +25,6 @@ const initialShippingFeeData: ShippingFee[] = [
     costPerBarrel: 85,
     costPerMMBtu: 9,
     lastUpdated: "2025-09-01",
-    updatedBy: "Admin"
   }
 ]
 

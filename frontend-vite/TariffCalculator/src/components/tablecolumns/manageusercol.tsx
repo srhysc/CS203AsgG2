@@ -11,7 +11,6 @@ export type User = {
   currentRole: "user" | "admin"
   createdOn: string
   lastLogin?: string
-  updatedBy?: string
   updatedAt?: string
 }
 
@@ -120,24 +119,6 @@ export const userColumns: ColumnDef<User>[] = [
       return date || <span className="text-gray-400">Never</span>
     },
     meta: { label: "Last Login" }
-  },
-  {
-    id: "updatedBy",
-    accessorKey: "updatedBy",
-    header: ({ column }) => (
-      <Button 
-        variant="ghost" 
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Updated By
-        <ArrowUpDown className="h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const updatedBy = row.getValue("updatedBy") as string | undefined
-      return updatedBy || <span className="text-gray-400">-</span>
-    },
-    meta: { label: "Updated By" }
   },
   {
     id: "updatedAt",

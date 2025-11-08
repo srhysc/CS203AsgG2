@@ -10,7 +10,6 @@ export type ShippingFee = {
   costPerBarrel: number
   costPerMMBtu: number
   lastUpdated?: string
-  updatedBy?: string
 }
 
 export const shippingFeeColumns: ColumnDef<ShippingFee>[] = [
@@ -121,20 +120,6 @@ export const shippingFeeColumns: ColumnDef<ShippingFee>[] = [
         </Button>
     ),
     meta: { label: "Last Updated" }
-  },
-  {
-    id: "updatedBy",
-    accessorKey: "updatedBy",
-    header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Updated By
-          <ArrowUpDown className="h-4 w-4" />
-        </Button>
-    ),
-    meta: { label: "Updated By" }
   },
   { id: "actions", header: "Edit", cell: () => null, enableHiding: false, meta: { label: "Actions" } },
 ]

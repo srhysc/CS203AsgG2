@@ -15,7 +15,6 @@ const formSchema = z.object({
   exportingCountry: z.string().min(1, "Exporting Country is required"),
   tariffRate: z.number().min(0).max(1, "Use decimal: e.g., 0.07 for 7%"),
   lastUpdated: z.string().optional(),
-  updatedBy: z.string().optional(),
 });
 
 export type EditTariffFormValues = z.infer<typeof formSchema>;
@@ -50,7 +49,6 @@ const handleFormSubmit = async (values: EditTariffFormValues) => {
   const updatedValues = {
   ...values,
   lastUpdated: hasChanged ? new Date().toISOString().split('T')[0] : defaultValues.lastUpdated,
-  updatedBy: hasChanged ? currentUserName : defaultValues.updatedBy,
   };
   await onSubmit(updatedValues);
 };
@@ -127,19 +125,6 @@ return (
           </label>
           <Input
             value={new Date().toISOString().split('T')[0]}
-            readOnly
-            tabIndex={-1}
-            className="w-full h-9 text-sm bg-gray-100 dark:bg-gray-700"
-          />
-        </div>
-
-        {/* Updated By (preview) */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            Updated By
-          </label>
-          <Input
-            value={currentUserName}
             readOnly
             tabIndex={-1}
             className="w-full h-9 text-sm bg-gray-100 dark:bg-gray-700"

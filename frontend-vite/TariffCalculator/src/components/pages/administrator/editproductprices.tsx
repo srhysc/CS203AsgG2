@@ -14,7 +14,6 @@ const initialProductPriceData: ProductPrice[] = [
     productName: "Premium High Quality Industrial Lubricant (5L Container)",
     price: 49.99,
     lastUpdated: "2025-09-01",
-    updatedBy: "Admin"
   },
   {
     id: "2",
@@ -22,7 +21,6 @@ const initialProductPriceData: ProductPrice[] = [
     productName: "Standard Machinery Cleaning Solvent (20L Drum)",
     price: 80.50,
     lastUpdated: "2025-09-01",
-    updatedBy: "Admin"
   }
 ]
 
