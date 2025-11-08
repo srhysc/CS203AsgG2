@@ -159,7 +159,7 @@ import { tariffService } from './countrytariffapi';
 import { TariffForm } from '@/components/ui/tarifflookupform';
 import { tariffSchema } from '@/components/ui/tarifflookupform';
 import { z } from 'zod';
-import ToggleTable from "@/components/ui/tariffbreakdowntable";
+import TariffBreakdownTable from "@/components/ui/tariffbreakdowntable";
 import { countryService } from './countryapi';
 import { petrolService } from './petroleumapi';
 import type { Petroleum } from './types/petroleum';
@@ -182,7 +182,7 @@ const TariffCalculator: React.FC = () => {
 
     const { getAllCountries } = countryService();
     const { getByRequirements } = tariffService();
-    const {getAllPetroleum} = petrolService();
+    const { getAllPetroleum } = petrolService();
 
     const todayISOString = new Date().toISOString().split('T')[0];
     const getFormattedDate = (date) => {
@@ -198,7 +198,6 @@ const TariffCalculator: React.FC = () => {
         try {
             const data = await getAllCountries();
             setCountries(data);
-
         } catch (err) {
             setError('Failed to load countries.');
             console.error(err);
@@ -275,7 +274,7 @@ const TariffCalculator: React.FC = () => {
             console.log(`the tariffs: ${tariffs}`);
 
             //update tariffs field
-            setTariffs(tariffs);
+            setTariffs(tariffs);      
         } catch (err: any) {
             setError('Failed to fetch Tariffs');
             setError(err.response?.data?.message || 'Failed to fetch tariffs');
@@ -348,8 +347,9 @@ const TariffCalculator: React.FC = () => {
                             </div>
                         </div>
 
+                        {/* Tariff Breakdown Table with Routes */}
                         <div className="p-6 bg-slate-800/50 rounded-lg">
-                            <ToggleTable tariffObject={tariffs} />
+                            <TariffBreakdownTable tariffObject={tariffs} />
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
