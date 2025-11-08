@@ -1,6 +1,9 @@
 package com.cs203.grp2.Asg2.controller;
 
 import com.cs203.grp2.Asg2.DTO.*;
+import com.cs203.grp2.Asg2.exceptions.CountryNotFoundException;
+import com.cs203.grp2.Asg2.exceptions.GeneralBadRequestException;
+import com.cs203.grp2.Asg2.exceptions.RouteOptimizationNotFoundException;
 import com.cs203.grp2.Asg2.models.Country;  
 import com.cs203.grp2.Asg2.service.RouteOptimizeService;
 import com.cs203.grp2.Asg2.service.CountryService; 
@@ -40,9 +43,20 @@ public class RouteOptimizationController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate date
     ) {
+
+        if (importer == null || exporter == null || hsCode == null || units <= 0 || date == null) {
+            throw new GeneralBadRequestException("Missing or invalid parameters for route optimization.");
+        }
         //use resolveCountry method to get country from url string
         Country importerCountry = resolveCountry(importer);
         Country exporterCountry = resolveCountry(exporter);
+
+        if (importerCountry == null) {
+            throw new CountryNotFoundException("Importer country not found: " + importer);
+        }
+        if (exporterCountry == null) {
+            throw new CountryNotFoundException("Exporter country not found: " + exporter);
+        }
 
         RouteOptimizationRequest request = new RouteOptimizationRequest();
 
@@ -53,7 +67,11 @@ public class RouteOptimizationController {
         request.setCalculationDate(date);
 
 
-        return service.optimizeRoutes(request);
+        RouteOptimizationResponse response = service.optimizeRoutes(request);
+        if (response == null) {
+            throw new RouteOptimizationNotFoundException("Route optimization failed or not found.");
+        }
+        return response;
     }
 
     //get country by code or name

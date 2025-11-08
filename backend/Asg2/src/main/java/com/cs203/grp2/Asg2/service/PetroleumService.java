@@ -98,9 +98,17 @@ public class PetroleumService {
     }
 
     public Petroleum getPetroleumByHsCode(String hsCode) {
-        return petroleumList.stream()
+        // return petroleumList.stream()
+        //         .filter(p -> p.getHsCode().equalsIgnoreCase(hsCode))
+        //         .findFirst()
+        //         .orElse(null);
+        Petroleum petroleum = petroleumList.stream()
                 .filter(p -> p.getHsCode().equalsIgnoreCase(hsCode))
                 .findFirst()
                 .orElse(null);
+        if (petroleum == null) {
+            throw new PetroleumNotFoundException("Petroleum not found for HS code: " + hsCode);
+        }
+        return petroleum;
     }
 }

@@ -1,4 +1,5 @@
 package com.cs203.grp2.Asg2.controller;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
 import org.springframework.validation.annotation.Validated;
@@ -30,50 +31,81 @@ public class CountryController {
 
     @GetMapping
     public List<Country> getAllCountries() {
+        // try {
+
+        // return svc.getAll();
+        // } catch (Exception e) {
+
+        // // TODO: handle exception
+        // System.out.println("return failed");
+        // }
+        // return null;
         try {
-            
             return svc.getAll();
         } catch (Exception e) {
-            // TODO: handle exception
-            System.out.println("return failed");
+            throw new CountryNotFoundException("Failed to retrieve countries: " + e.getMessage());
         }
-        return null;
-        
+
     }
 
     // Use numeric ISO3 code in path
     @GetMapping("/{iso3n}")
     public Country getCountryByCode(@PathVariable @Min(1) @Max(999) int iso3n) {
         String s = "" + iso3n;
-        return svc.getCountryByCode(s);
+        Country country = svc.getCountryByCode(s);
+        if (country == null) {
+            throw new CountryNotFoundException("Country not found for code: " + iso3n);
+        }
+        return country;
     }
 
-    // Added this to connect to the frontend: Get VAT rate for a country by name and date
+    // Added this to connect to the frontedn: Get VAT rate for a country by name and
+    // date
     @GetMapping("/{countryName}/vat-rate")
     public VATRate getVatRateForCountryAndDate(
             @PathVariable String countryName,
-            @RequestParam String date
-    ) {
-        System.out.println("Received VAT rate request for: " + countryName + " on " + date);
+            @RequestParam String date) {
+        // System.out.println("Received VAT rate request for: " + countryName + " on " +
+        // date);
         Country country = svc.getCountryByName(countryName);
-        System.out.println("Country object: " + country);
-
-        if (country.getVatRates() == null || country.getVatRates().isEmpty()) {
-            System.out.println("No VAT rates found for country: " + countryName);
-            throw new RuntimeException("No VAT rates found for country: " + countryName);
+        // System.out.println("Country object: " + country);
+        if (country == null) {
+            throw new CountryNotFoundException("Country not found: " + countryName);
         }
 
-        LocalDate queryDate = LocalDate.parse(date);
+        if (country.getVatRates() == null || country.getVatRates().isEmpty()) {
+            // System.out.println("No VAT rates found for country: " + countryName);
+            throw new CountryNotFoundException("No VAT rates found for country: " + countryName);
+        }
+
+        // LocalDate queryDate = LocalDate.parse(date);
+        // Optional<VATRate> found = country.getVatRates().stream()
+        // .filter(rate -> !rate.getDate().isAfter(queryDate))
+        // .max(Comparator.comparing(VATRate::getDate));
+
+        // if (found.isPresent()) {
+        // System.out.println("Found VAT rate: " + found.get().getVATRate() + " on " +
+        // found.get().getDate());
+        // return found.get();
+        // } else {
+        // System.out.println("No VAT rate found for country " + countryName + " on or
+        // before " + date);
+        // throw new RuntimeException("No VAT rate found for this date.");
+        // }
+        LocalDate queryDate;
+        try {
+            queryDate = LocalDate.parse(date);
+        } catch (Exception e) {
+            throw new GeneralBadRequestException("Invalid date format: " + date);
+        }
         Optional<VATRate> found = country.getVatRates().stream()
                 .filter(rate -> !rate.getDate().isAfter(queryDate))
                 .max(Comparator.comparing(VATRate::getDate));
-
         if (found.isPresent()) {
-            System.out.println("Found VAT rate: " + found.get().getVATRate() + " on " + found.get().getDate());
             return found.get();
         } else {
-            System.out.println("No VAT rate found for country " + countryName + " on or before " + date);
-            throw new RuntimeException("No VAT rate found for this date.");
+            throw new CountryNotFoundException(
+                    "No VAT rate found for country " + countryName + " on or before " + date);
         }
     }
 
