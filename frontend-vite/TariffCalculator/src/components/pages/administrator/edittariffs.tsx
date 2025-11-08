@@ -212,7 +212,7 @@ export default function EditTariffsPage() {
           columns={tariffColumns}
           data={tariffData}
           setData={setTariffData}
-          filterPlaceholder="Search tariffs..."
+          filterPlaceholder="Search..."
           renderRowEditForm={(row, onSave, onCancel) => (
             <EditTariffForm
               defaultValues={row}

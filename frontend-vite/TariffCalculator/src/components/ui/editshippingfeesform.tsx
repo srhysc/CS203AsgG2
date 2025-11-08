@@ -7,40 +7,47 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormProvider } from "react-hook-form";
 
-
 const formSchema = z.object({
   id: z.string(),
-  country: z.string(),
-  vatRate: z.number().min(0).max(1, "Use decimal: e.g., 0.07 for 7%"),
+  originCountry: z.string(),
+  destinationCountry: z.string(),
+  costPerTon: z.number().nonnegative(),
+  costPerBarrel: z.number().nonnegative(),
+  costPerMMBtu: z.number().nonnegative(),
   lastUpdated: z.string().optional(),
   updatedBy: z.string().optional(),
 })
 
-export type EditVATRateFormValues = z.infer<typeof formSchema>
+export type EditShippingFeeFormValues = z.infer<typeof formSchema>
 
-interface EditVATRateFormProps {
-  defaultValues: EditVATRateFormValues;
-  onSubmit: (values: EditVATRateFormValues) => Promise<void> | void;
-  onCancel?: () => void;
-  currentUserName: string;
+interface EditShippingFeeFormProps {
+  defaultValues: EditShippingFeeFormValues
+  onSubmit: (values: EditShippingFeeFormValues) => Promise<void> | void
+  onCancel?: () => void
+  currentUserName: string
 }
 
-export function EditVATRateForm({
+export function EditShippingFeeForm({
   defaultValues,
   onSubmit,
   onCancel,
-  currentUserName
-}: EditVATRateFormProps) {
-  const methods = useForm<EditVATRateFormValues>({
+  currentUserName,
+}: EditShippingFeeFormProps) {
+  const methods = useForm<EditShippingFeeFormValues>({
   resolver: zodResolver(formSchema),
   defaultValues,
 });
 
-const { register, handleSubmit, formState: { errors, isSubmitting } } = methods;
-  
+const { 
+    register, 
+    handleSubmit, 
+    formState: { errors, isSubmitting },
+} = methods;
 
-const handleFormSubmit = async (values: EditVATRateFormValues) => {
-    const hasChanged = values.vatRate !== defaultValues.vatRate;
+const handleFormSubmit = async (values: EditShippingFeeFormValues) => {
+    const hasChanged = values.costPerTon !== defaultValues.costPerTon ||
+                       values.costPerBarrel !== defaultValues.costPerBarrel ||
+                       values.costPerMMBtu !== defaultValues.costPerMMBtu;
     const updatedValues = {
     ...values,
     lastUpdated: hasChanged ? new Date().toISOString().split('T')[0] : defaultValues.lastUpdated,
@@ -48,46 +55,95 @@ const handleFormSubmit = async (values: EditVATRateFormValues) => {
     };
     await onSubmit(updatedValues);
 };
- 
+
 return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 p-6">
-        <h2 className="text-xl font-semibold">Edit VAT rates</h2>
+        <h2 className="text-xl font-semibold">Edit Shipping Fee</h2>
   
         {/* Hidden ID field */}
         <input type="hidden" {...register("id")} />
   
-        {/* Country (read-only) */}
+        {/* Origin Country (read-only) */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            Country
+            Origin Country
           </label>
           <Input
-            {...register("country")}
+            {...register("originCountry")}
+            readOnly
+            tabIndex={-1}
+            className="w-full h-9 text-sm bg-gray-100 dark:bg-gray-700"
+          />
+        </div>
+
+        {/* Destination Country (read-only) */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            Destination Country
+          </label>
+          <Input
+            {...register("destinationCountry")}
             readOnly
             tabIndex={-1}
             className="w-full h-9 text-sm bg-gray-100 dark:bg-gray-700"
           />
         </div>
   
-        {/* VAT Rate (editable) */}
+        {/* Cost per Ton (editable) */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            VAT Rate (decimal, e.g., 0.05 for 5%)
+            Cost per Ton 
           </label>
           <Input
-            {...register("vatRate", { valueAsNumber: true })}
+            {...register("costPerTon", { valueAsNumber: true })}
             type="number"
             step="0.0001"
             className="w-full h-9 text-sm"
           />
-          {errors.vatRate && (
+          {errors.costPerTon && (
             <p className="text-xs text-red-600 mt-1">
-              {errors.vatRate.message}
+              {errors.costPerTon.message}
             </p>
           )}
         </div>
-  
+
+        {/* Cost per Barrel (editable) */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            Cost per Barrel 
+          </label>
+          <Input
+            {...register("costPerBarrel", { valueAsNumber: true })}
+            type="number"
+            step="0.0001"
+            className="w-full h-9 text-sm"
+          />
+          {errors.costPerBarrel && (
+            <p className="text-xs text-red-600 mt-1">
+              {errors.costPerBarrel.message}
+            </p>
+          )}
+        </div>
+      
+        {/* Cost per MMBtu (editable) */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            Cost per MMBtu
+          </label>
+          <Input
+            {...register("costPerMMBtu", { valueAsNumber: true })}
+            type="number"
+            step="0.0001"
+            className="w-full h-9 text-sm"
+          />
+          {errors.costPerMMBtu && (
+            <p className="text-xs text-red-600 mt-1">
+              {errors.costPerMMBtu.message}
+            </p>
+          )}
+        </div>
+
         {/* Last Updated (preview) */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">

@@ -174,7 +174,7 @@ export function DataTable<T extends Record<string, any>>({
                   checked={col.getIsVisible()}
                   onCheckedChange={(value) => col.toggleVisibility(!!value)}
                 >
-                  {col.id.replace(/([A-Z])/g, ' $1').trim()}
+                  {col.columnDef.meta?.label ?? ""}
                 </DropdownMenuCheckboxItem>
               ))}
           </DropdownMenuContent>
@@ -198,7 +198,8 @@ export function DataTable<T extends Record<string, any>>({
                   {headerGroup.headers.map((header) => (
                     <TableHead 
                       key={header.id} 
-                      className="text-center overflow-hidden text-ellipsis"
+                      className="text-center px-2 py-2"
+                      style={{ width: header.id === 'actions' ? '80px' : 'auto' }}
                     >
                       {header.isPlaceholder
                         ? null
@@ -218,7 +219,7 @@ export function DataTable<T extends Record<string, any>>({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell 
                         key={cell.id} 
-                        className="text-center overflow-hidden text-ellipsis"
+                        className="text-center whitespace-nowrap px-4 py-2"
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>

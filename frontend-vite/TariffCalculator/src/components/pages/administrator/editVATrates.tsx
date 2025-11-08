@@ -56,7 +56,7 @@ export default function EditVATRatesPage() {
           columns={VATRateColumns}
           data={VATRates}
           setData={setVATRates}
-          filterPlaceholder="Search countries..."
+          filterPlaceholder="Search..."
           renderRowEditForm={(row, onSave, onCancel) => (
             <EditVATRateForm
               defaultValues={row}
