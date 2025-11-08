@@ -6,6 +6,7 @@ import com.cs203.grp2.Asg2.models.Petroleum;
 import com.cs203.grp2.Asg2.service.PetroleumService;
 
 import com.cs203.grp2.Asg2.config.FirebaseConfig;
+import com.cs203.grp2.Asg2.exceptions.PetroleumNotFoundException;
 
 import jakarta.validation.constraints.Pattern; 
 
@@ -37,8 +38,8 @@ public class PetroleumController {
             return list;
         } catch (Exception e) {
             log.info("error retrieving data:",e);
-     
-            return List.of();
+            throw new PetroleumNotFoundException("Failed to retrieve petroleum data: " + e.getMessage());
+            // return List.of();
         }
         
     }
@@ -47,8 +48,20 @@ public class PetroleumController {
     public Petroleum getPetroleumByHsCode(@PathVariable @Pattern(regexp = "\\d{4,8}") String hsCode) {
         Petroleum petroleum = service.getPetroleumByHsCode(hsCode);
         if (petroleum == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Petroleum not found for HS code: " + hsCode);
+            throw new PetroleumNotFoundException("Petroleum not found for HS code: " + hsCode);
         }
         return petroleum;
     }
+
+    
+    @PostMapping("/{hsCode}/prices")
+    public void addPetroleumPrice(
+        @PathVariable @Pattern(regexp = "\\d{4,8}") String hsCode,
+        @RequestBody PetroleumPrice newPrice
+    )
+    //handled by global controller 
+    throws Exception {
+        service.addPetroleumPrice(hsCode, newPrice);
+    }
+
 }
