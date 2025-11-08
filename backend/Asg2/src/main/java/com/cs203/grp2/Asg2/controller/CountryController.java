@@ -119,7 +119,7 @@ public class CountryController {
             countryService.addVatRate(countryName, newRate);
             return ResponseEntity.ok("VAT rate added for " + countryName);
         } catch (CountryNotFoundException e) {
-            throw e; // handled by your GlobalControllerExceptionHandler
+            throw e; // handled by GlobalControllerExceptionHandler
         } catch (Exception e) {
             throw new RuntimeException("Failed to add VAT rate: " + e.getMessage(), e);
         }

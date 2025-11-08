@@ -58,8 +58,10 @@ public class PetroleumController {
     public void addPetroleumPrice(
         @PathVariable @Pattern(regexp = "\\d{4,8}") String hsCode,
         @RequestBody PetroleumPrice newPrice
-    ) throws Exception {
-        return service.addPetroleumPrice(hsCode, newPrice);
+    )
+    //handled by global controller 
+    throws Exception {
+        service.addPetroleumPrice(hsCode, newPrice);
     }
 
 }
