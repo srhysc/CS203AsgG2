@@ -110,7 +110,7 @@ return (
           <Input
             {...register("tariffRate", { valueAsNumber: true })}
             type="number"
-            step="0.0001"
+            step="0.01"
             className="w-full h-9 text-sm"
           />
           {errors.tariffRate && (

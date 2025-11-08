@@ -12,7 +12,7 @@ const adminActions = [
     title: "Edit VAT Rates",
     icon: FileSignature,
     description: "Update tax percentages",
-    url: "/administrator/VATrates",
+    url: "/administrator/VAT-rates",
   },
   {
     title: "Edit Shipping Rates",

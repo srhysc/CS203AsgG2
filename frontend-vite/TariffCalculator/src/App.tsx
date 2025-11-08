@@ -77,6 +77,7 @@ import Adminhome from "@/components/pages/administrator/adminhome";
 import EditTariffs from "@/components/pages/administrator/edittariffs";
 import EditVATRates from "@/components/pages/administrator/editvatrates";
 import EditShippingFee from "@/components/pages/administrator/editshippingfees";
+import EditProductPricesPage from "./components/pages/administrator/editproductprices";
 
 import RefineryInfoPage from "@/components/pages/RefineryInfoPage";
 
@@ -96,8 +97,9 @@ function AnimatedRoutes() {
         <Route path="/route" element={<div>Refinery Route Page (coming soon)</div>} />
         <Route path="/administrator" element={<Adminhome />} />
         <Route path="/administrator/tariffs" element={<EditTariffs />} />
-        <Route path="/administrator/VATrates" element={<EditVATRates />} />
+        <Route path="/administrator/VAT-rates" element={<EditVATRates />} />
         <Route path="/administrator/shipping-fees" element={<EditShippingFee />} />
+        <Route path="/administrator/product-prices" element={<EditProductPricesPage />} />
       </Routes>
     </AnimatePresence>
   );

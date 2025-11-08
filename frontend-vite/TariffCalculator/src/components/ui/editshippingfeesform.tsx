@@ -98,7 +98,7 @@ return (
           <Input
             {...register("costPerTon", { valueAsNumber: true })}
             type="number"
-            step="0.0001"
+            step="0.01"
             className="w-full h-9 text-sm"
           />
           {errors.costPerTon && (
@@ -116,7 +116,7 @@ return (
           <Input
             {...register("costPerBarrel", { valueAsNumber: true })}
             type="number"
-            step="0.0001"
+            step="0.01"
             className="w-full h-9 text-sm"
           />
           {errors.costPerBarrel && (
@@ -134,7 +134,7 @@ return (
           <Input
             {...register("costPerMMBtu", { valueAsNumber: true })}
             type="number"
-            step="0.0001"
+            step="0.01"
             className="w-full h-9 text-sm"
           />
           {errors.costPerMMBtu && (
