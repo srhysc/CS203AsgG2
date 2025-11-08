@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -45,7 +46,7 @@ class UserControllerTest {
     @Test
     void testGetProfile_ShouldReturnUserProfile() throws Exception {
         // Arrange
-        when(userService.getUserById("user123")).thenReturn(testUser);
+        when(userService.getUserById("user123")).thenReturn(CompletableFuture.completedFuture(testUser));
 
         // Act
         User result = userController.getProfile();
@@ -147,7 +148,7 @@ class UserControllerTest {
         var auth = new UsernamePasswordAuthenticationToken(adminUser, null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        when(userService.getUserById("admin123")).thenReturn(adminUser);
+        when(userService.getUserById("admin123")).thenReturn(CompletableFuture.completedFuture(adminUser));
 
         // Act
         User result = userController.getProfile();
@@ -157,5 +158,91 @@ class UserControllerTest {
         assertEquals("admin123", result.getId());
         assertEquals("admin@example.com", result.getEmail());
         verify(userService).getUserById("admin123");
+    }
+
+    @Test
+    void testGetBookmarks_ShouldReturnUserBookmarks() throws Exception {
+        // Arrange
+        com.cs203.grp2.Asg2.models.UserSavedRoute route1 = new com.cs203.grp2.Asg2.models.UserSavedRoute();
+        route1.setName("My Route 1");
+        
+        com.cs203.grp2.Asg2.models.UserSavedRoute route2 = new com.cs203.grp2.Asg2.models.UserSavedRoute();
+        route2.setName("My Route 2");
+        
+        List<com.cs203.grp2.Asg2.models.UserSavedRoute> bookmarks = Arrays.asList(route1, route2);
+        when(userService.getBookmarks("user123")).thenReturn(bookmarks);
+
+        // Act
+        List<com.cs203.grp2.Asg2.models.UserSavedRoute> result = userController.getBookmarks();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("My Route 1", result.get(0).getName());
+        verify(userService).getBookmarks("user123");
+    }
+
+    @Test
+    void testAddBookmark_WithValidRequest_ShouldReturnSuccess() throws Exception {
+        // Arrange
+        com.cs203.grp2.Asg2.DTO.LandedCostResponse response = new com.cs203.grp2.Asg2.DTO.LandedCostResponse(
+            "USA", "China", "Crude Oil", "270900",
+            50.0, 5000.0, 10.0, 500.0, 5.0, 250.0, 5750.0, "USD", null
+        );
+        
+        com.cs203.grp2.Asg2.DTO.BookmarkRequest request = new com.cs203.grp2.Asg2.DTO.BookmarkRequest();
+        request.setSavedResponse(response);
+        request.setBookmarkName("Test Bookmark");
+        
+        doNothing().when(userService).addBookmark(any(), eq("user123"), eq("Test Bookmark"));
+
+        // Act
+        org.springframework.http.ResponseEntity<?> result = userController.addBookmark(request);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode().value());
+        assertEquals("Bookmark added successfully", result.getBody());
+        verify(userService).addBookmark(any(com.cs203.grp2.Asg2.DTO.LandedCostResponse.class), 
+                                       eq("user123"), eq("Test Bookmark"));
+    }
+
+    @Test
+    void testAddBookmark_WithNullSavedResponse_ShouldReturnBadRequest() throws Exception {
+        // Arrange
+        com.cs203.grp2.Asg2.DTO.BookmarkRequest request = new com.cs203.grp2.Asg2.DTO.BookmarkRequest();
+        request.setSavedResponse(null);
+        request.setBookmarkName("Test Bookmark");
+
+        // Act
+        org.springframework.http.ResponseEntity<?> result = userController.addBookmark(request);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(400, result.getStatusCode().value());
+        assertEquals("Missing savedResponse in request", result.getBody());
+        verify(userService, never()).addBookmark(any(), any(), any());
+    }
+
+    @Test
+    void testAddBookmark_WithNullImportingCountry_ShouldReturnBadRequest() throws Exception {
+        // Arrange
+        com.cs203.grp2.Asg2.DTO.LandedCostResponse response = new com.cs203.grp2.Asg2.DTO.LandedCostResponse(
+            null, "China", "Crude Oil", "270900",
+            50.0, 5000.0, 10.0, 500.0, 5.0, 250.0, 5750.0, "USD", null
+        );
+        
+        com.cs203.grp2.Asg2.DTO.BookmarkRequest request = new com.cs203.grp2.Asg2.DTO.BookmarkRequest();
+        request.setSavedResponse(response);
+        request.setBookmarkName("Test Bookmark");
+
+        // Act
+        org.springframework.http.ResponseEntity<?> result = userController.addBookmark(request);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(400, result.getStatusCode().value());
+        assertEquals("Missing importingCountry in savedResponse", result.getBody());
+        verify(userService, never()).addBookmark(any(), any(), any());
     }
 }

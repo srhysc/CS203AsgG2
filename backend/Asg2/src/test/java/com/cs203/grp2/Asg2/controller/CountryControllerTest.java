@@ -154,4 +154,111 @@ class CountryControllerTest {
         assertTrue(result.isEmpty());
         verify(countryService).getAll();
     }
+
+    @Test
+    void testGetVatRateForCountryAndDate_WithValidData_ShouldReturnVATRate() {
+        // Arrange
+        Country country = new Country();
+        country.setName("Singapore");
+        
+        com.cs203.grp2.Asg2.models.VATRate rate1 = new com.cs203.grp2.Asg2.models.VATRate(
+            java.time.LocalDate.of(2020, 1, 1), 7.0);
+        com.cs203.grp2.Asg2.models.VATRate rate2 = new com.cs203.grp2.Asg2.models.VATRate(
+            java.time.LocalDate.of(2023, 1, 1), 8.0);
+        
+        country.setVatRates(Arrays.asList(rate1, rate2));
+        
+        when(countryService.getCountryByName("Singapore")).thenReturn(country);
+
+        // Act
+        com.cs203.grp2.Asg2.models.VATRate result = 
+            countryController.getVatRateForCountryAndDate("Singapore", "2024-01-01");
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(8.0, result.getVATRate());
+        assertEquals(java.time.LocalDate.of(2023, 1, 1), result.getDate());
+        verify(countryService).getCountryByName("Singapore");
+    }
+
+    @Test
+    void testGetVatRateForCountryAndDate_WithNoVATRates_ShouldThrowException() {
+        // Arrange
+        Country country = new Country();
+        country.setName("Singapore");
+        country.setVatRates(Arrays.asList());
+        
+        when(countryService.getCountryByName("Singapore")).thenReturn(country);
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            countryController.getVatRateForCountryAndDate("Singapore", "2024-01-01");
+        });
+        
+        assertTrue(exception.getMessage().contains("No VAT rates found for country"));
+        verify(countryService).getCountryByName("Singapore");
+    }
+
+    @Test
+    void testGetVatRateForCountryAndDate_WithNullVATRates_ShouldThrowException() {
+        // Arrange
+        Country country = new Country();
+        country.setName("Singapore");
+        country.setVatRates(null);
+        
+        when(countryService.getCountryByName("Singapore")).thenReturn(country);
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            countryController.getVatRateForCountryAndDate("Singapore", "2024-01-01");
+        });
+        
+        assertTrue(exception.getMessage().contains("No VAT rates found for country"));
+        verify(countryService).getCountryByName("Singapore");
+    }
+
+    @Test
+    void testGetVatRateForCountryAndDate_NoRateBeforeDate_ShouldThrowException() {
+        // Arrange
+        Country country = new Country();
+        country.setName("Singapore");
+        
+        com.cs203.grp2.Asg2.models.VATRate rate1 = new com.cs203.grp2.Asg2.models.VATRate(
+            java.time.LocalDate.of(2025, 1, 1), 7.0);
+        
+        country.setVatRates(Arrays.asList(rate1));
+        
+        when(countryService.getCountryByName("Singapore")).thenReturn(country);
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            countryController.getVatRateForCountryAndDate("Singapore", "2020-01-01");
+        });
+        
+        assertTrue(exception.getMessage().contains("No VAT rate found for this date"));
+        verify(countryService).getCountryByName("Singapore");
+    }
+
+    @Test
+    void testGetVatRateForCountryAndDate_WithExactDate_ShouldReturnRate() {
+        // Arrange
+        Country country = new Country();
+        country.setName("Singapore");
+        
+        com.cs203.grp2.Asg2.models.VATRate rate = new com.cs203.grp2.Asg2.models.VATRate(
+            java.time.LocalDate.of(2023, 1, 1), 9.0);
+        
+        country.setVatRates(Arrays.asList(rate));
+        
+        when(countryService.getCountryByName("Singapore")).thenReturn(country);
+
+        // Act
+        com.cs203.grp2.Asg2.models.VATRate result = 
+            countryController.getVatRateForCountryAndDate("Singapore", "2023-01-01");
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(9.0, result.getVATRate());
+        verify(countryService).getCountryByName("Singapore");
+    }
 }
