@@ -59,7 +59,7 @@ public class CountryService {
                         for (DataSnapshot priceNode : node.child("vat_rates").getChildren()) {
                             String dateStr = priceNode.child("date").getValue(String.class);
                             Double vatRate = priceNode.child("rate").getValue(Double.class);
-                            System.out.println("date " + LocalDate.parse(dateStr) + "VAT rate " + vatRate);
+                            //System.out.println("date " + LocalDate.parse(dateStr) + "VAT rate " + vatRate);
 
                             if (dateStr != null && vatRate != null) {
                                 rateList.add(new VATRate(LocalDate.parse(dateStr), vatRate));
@@ -70,14 +70,14 @@ public class CountryService {
                         // TODO: handle exception
                         System.out.println("no vat rate recorded");
                     }
-
-                    System.out.println("DBG " + node.getKey() + " Code=" + code + " ISO3=" + iso3);
+                    
+                   // System.out.println("DBG " + node.getKey() + " Code=" + code + " ISO3=" + iso3);
 
                     // DB key is the country name — capture it
                     c.setName(node.getKey());
-
-                    // normalize all null numeric fields to 0/0.0 as per your rule
-                    c.normalize();
+                    c.setISO3(iso3);
+                    System.out.println("🌍 set iso3 for " + c.getName() + " " + c.getISO3());
+                  
 
                     countries.add(c);
 
@@ -86,8 +86,8 @@ public class CountryService {
                     if (c.getName() != null)
                         byNameCI.put(c.getName().toLowerCase(Locale.ROOT), c);
 
-                    System.out.println("✅ Country code check: Entries " + byCode.size());
-                    System.out.println("✅ Country name check: Entries " + byNameCI.size());
+                    // System.out.println("✅ Country code check: Entries " + byCode.size());
+                    // System.out.println("✅ Country name check: Entries " + byNameCI.size());
                 }
             }
         } catch (Exception e) {

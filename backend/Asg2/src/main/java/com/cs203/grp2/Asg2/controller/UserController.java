@@ -1,4 +1,4 @@
-package com.cs203.grp2.Asg2.user;
+package com.cs203.grp2.Asg2.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
