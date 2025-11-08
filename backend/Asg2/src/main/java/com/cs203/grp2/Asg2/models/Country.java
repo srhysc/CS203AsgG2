@@ -1,35 +1,26 @@
 package com.cs203.grp2.Asg2.models;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Comparator;
+
+import java.time.LocalDate;
 
 import com.google.firebase.database.PropertyName;
 
-//import jakarta.persistence.*;
+import com.cs203.grp2.Asg2.models.VATRate;
 
 
 //@Table(name = "country_view") // mapping to SQL View
 public class Country {
 
-    // @Id
-    // private Integer iso3n;   // use Integer consistently
-
-    // private String name;
-
-    // @Column(name = "vatRate")
-    // private Double vatRate;
-
-    // required by JPA
-    //protected Country() {}
-
     // Parameterized constructor
     private String name;     // node key, e.g. "Albania"
-    @PropertyName("Code")
     private String Code;    // "Code" like 702
-    @PropertyName("ISO3")
     private String ISO3;     // "ISO3" like SGP
 
-    @PropertyName("VAT rates")
-    private Long vatRates;   // <-- now Long
+    private List<VATRate> rates = new ArrayList<>();
+
 
     private Hs27Taxes hs27_taxes;
 
@@ -38,27 +29,28 @@ public class Country {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-    @PropertyName("ISO3")
     public String getISO3() { return ISO3; }
-    @PropertyName("ISO3")
     public void setISO3(String ISO3) { this.ISO3 = ISO3; }
 
-    @PropertyName("Code")
     public String getCode() { return Code; }
-    @PropertyName("Code")
     public void setCode(String Code) { this.Code = Code; }
 
-    @PropertyName("VAT rates")
-    public Long getVatRates() { return vatRates; }
-    @PropertyName("VAT rates")
-    public void setVatRates(Long vatRates) { this.vatRates = vatRates; }
+    public List<VATRate> getVatRates() { return rates; }
+    public double getVatRates(LocalDate inputDate){
+        return rates.stream()
+            .filter(p -> !p.getDate().isAfter(inputDate)) // not later than date
+            .max(Comparator.comparing(VATRate::getDate)) // pick the latest date
+            .map(VATRate::getVATRate) //extract VAT rate to return
+            .orElse(null);
+    }
+
+    public void setVatRates(List<VATRate> rates) { this.rates = rates; }
 
     public Hs27Taxes getHs27_taxes() { return hs27_taxes; }
     public void setHs27_taxes(Hs27Taxes hs27_taxes) { this.hs27_taxes = hs27_taxes; }
 
     // --- convenience: normalize nulls to 0 / 0.0 ---
     public void normalize() {
-        if (vatRates == null) vatRates = 0L;
         if (hs27_taxes == null) hs27_taxes = new Hs27Taxes();
         hs27_taxes.normalize();
     }

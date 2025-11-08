@@ -159,11 +159,15 @@ import { tariffService } from './countrytariffapi';
 import { TariffForm } from '@/components/ui/tarifflookupform';
 import { tariffSchema } from '@/components/ui/tarifflookupform';
 import { z } from 'zod';
-import ToggleTable from "@/components/ui/tariffbreakdowntable";
+import TariffBreakdownTable from "@/components/ui/tariffbreakdowntable";
 import { countryService } from './countryapi';
 import { petrolService } from './petroleumapi';
 import type { Petroleum } from './types/petroleum';
 import type { Country } from '@/services/types/country';
+import BookmarkList from './BookmarkList'
+import BookmarkAddButton from './BookmarkAddButton'
+
+
 
 const TariffCalculator: React.FC = () => {
     // ...existing state declarations...
@@ -178,7 +182,15 @@ const TariffCalculator: React.FC = () => {
 
     const { getAllCountries } = countryService();
     const { getByRequirements } = tariffService();
-    const {getAllPetroleum} = petrolService();
+    const { getAllPetroleum } = petrolService();
+
+    const todayISOString = new Date().toISOString().split('T')[0];
+    const getFormattedDate = (date) => {
+        if (date instanceof Date && !isNaN(date as any)) {
+            return date.toISOString().split('T')[0];
+        }
+        return todayISOString;
+    }
 
     //run on render to get all countries
         useEffect(() => {
@@ -186,7 +198,6 @@ const TariffCalculator: React.FC = () => {
         try {
             const data = await getAllCountries();
             setCountries(data);
-
         } catch (err) {
             setError('Failed to load countries.');
             console.error(err);
@@ -249,13 +260,21 @@ const TariffCalculator: React.FC = () => {
             return; // stop execution
         }
 
-        try{
+        try {
+            const formattedDate = getFormattedDate(formData.date);
             //try getting all countries
-            const tariffs = await getByRequirements(formData.importcountry,formData.exportcountry,formData.productcode,formData.units);
-console.log(`the tariffs: ${tariffs}`);
+            //const tariffs = await getByRequirements(formData.importcountry,formData.exportcountry,formData.productcode,formData.units);
+            const tariffs = await getByRequirements(
+                formData.importcountry,
+                formData.exportcountry,
+                formData.productcode,
+                formData.units,
+                formattedDate 
+            );
+            console.log(`the tariffs: ${tariffs}`);
 
             //update tariffs field
-            setTariffs(tariffs);
+            setTariffs(tariffs);      
         } catch (err: any) {
             setError('Failed to fetch Tariffs');
             setError(err.response?.data?.message || 'Failed to fetch tariffs');
@@ -293,6 +312,12 @@ console.log(`the tariffs: ${tariffs}`);
                         onClear={handleClearAll} 
                     />
                 </CardContent>
+
+                <CardContent>
+                    <div>
+                        <BookmarkList />
+                    </div>
+                </CardContent>
             </Card>
 
             {/* Results */}
@@ -305,6 +330,8 @@ console.log(`the tariffs: ${tariffs}`);
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
+                        <BookmarkAddButton savedResponse={tariffs} onSuccess={() => alert('Bookmark added!')} />
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="p-6 bg-slate-800/50 rounded-lg">
                                 <p className="text-sm text-gray-400 mb-2">Total Cost</p>
@@ -320,8 +347,9 @@ console.log(`the tariffs: ${tariffs}`);
                             </div>
                         </div>
 
+                        {/* Tariff Breakdown Table with Routes */}
                         <div className="p-6 bg-slate-800/50 rounded-lg">
-                            <ToggleTable tariffObject={tariffs} />
+                            <TariffBreakdownTable tariffObject={tariffs} />
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

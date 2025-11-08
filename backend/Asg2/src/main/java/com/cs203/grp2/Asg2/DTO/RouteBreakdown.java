@@ -12,10 +12,13 @@ public class RouteBreakdown {
     private double vatFees;          // only applied for importing country
     private double totalLandedCost;
     private double vatRate;          // only importing country
+    private String petroleumName;
+
+    public RouteBreakdown(){}
 
     public RouteBreakdown(String exportingCountry, String transitCountry, String importingCountry,
                           double baseCost, double tariffFees, double vatFees,
-                          double totalLandedCost, double vatRate) {
+                          double totalLandedCost, double vatRate, String petroleumName) {
         this.exportingCountry = exportingCountry;
         this.transitCountry = transitCountry;
         this.importingCountry = importingCountry;
@@ -24,6 +27,7 @@ public class RouteBreakdown {
         this.vatFees = vatFees;
         this.totalLandedCost = totalLandedCost;
         this.vatRate = vatRate;
+        this.petroleumName = petroleumName;
     }
 
     public String getExportingCountry() { return exportingCountry; }
@@ -34,4 +38,13 @@ public class RouteBreakdown {
     public double getVatFees() { return vatFees; }
     public double getTotalLandedCost() { return totalLandedCost; }
     public double getVatRate() { return vatRate; }
+
+
+        //setters so firebase can populate
+    public void setImportingCountry(String importingCountry) { this.importingCountry = importingCountry; }
+    public void setExportingCountry(String exportingCountry) { this.exportingCountry = exportingCountry; }
+    public void setPetroleumName(String petroleumName) { this.petroleumName = petroleumName; }
+    public void setTariffFees(double tariffFees) { this.tariffFees = tariffFees; }
+    public void setVatRate(double vatRate) { this.vatRate = vatRate; }
+    public void setTotalLandedCost(double totalLandedCost) { this.totalLandedCost = totalLandedCost; }
 }

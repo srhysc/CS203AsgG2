@@ -13,6 +13,9 @@ import com.cs203.grp2.Asg2.config.*;
 import com.cs203.grp2.Asg2.service.*;
 
 import java.util.List;
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.Optional;
 
 @Validated
 @RestController
@@ -44,4 +47,34 @@ public class CountryController {
         String s = "" + iso3n;
         return svc.getCountryByCode(s);
     }
+
+    // Added this to connect to the frontend: Get VAT rate for a country by name and date
+    @GetMapping("/{countryName}/vat-rate")
+    public VATRate getVatRateForCountryAndDate(
+            @PathVariable String countryName,
+            @RequestParam String date
+    ) {
+        System.out.println("Received VAT rate request for: " + countryName + " on " + date);
+        Country country = svc.getCountryByName(countryName);
+        System.out.println("Country object: " + country);
+
+        if (country.getVatRates() == null || country.getVatRates().isEmpty()) {
+            System.out.println("No VAT rates found for country: " + countryName);
+            throw new RuntimeException("No VAT rates found for country: " + countryName);
+        }
+
+        LocalDate queryDate = LocalDate.parse(date);
+        Optional<VATRate> found = country.getVatRates().stream()
+                .filter(rate -> !rate.getDate().isAfter(queryDate))
+                .max(Comparator.comparing(VATRate::getDate));
+
+        if (found.isPresent()) {
+            System.out.println("Found VAT rate: " + found.get().getVATRate() + " on " + found.get().getDate());
+            return found.get();
+        } else {
+            System.out.println("No VAT rate found for country " + countryName + " on or before " + date);
+            throw new RuntimeException("No VAT rate found for this date.");
+        }
+    }
+
 }
