@@ -38,20 +38,27 @@ public class ShippingFeesController {
         if ((date == null || date.isEmpty()) && (unit == null || unit.isEmpty())) {
             return shippingFeesService.getAllCosts(country1Iso3, country2Iso3);
         }
-        
-        // Case 2: No date, but with unit -> return all historical costs for that unit only
+
+        // Case 2: No date, but with unit -> return all historical costs for that unit
+        // only
         if (date == null || date.isEmpty()) {
             return shippingFeesService.getAllCostsByUnit(country1Iso3, country2Iso3, unit);
         }
-        
-        // Case 3: With date, with unit -> return single most applicable cost for that unit
+
+        // Case 3: With date, with unit -> return single most applicable cost for that
+        // unit
         LocalDate inputDate = LocalDate.parse(date);
         if (unit != null && !unit.isEmpty()) {
-            return shippingFeesService.getCostByUnit(country1Iso3, country2Iso3, unit, inputDate);
+            var cost = shippingFeesService.getCostByUnit(country1Iso3, country2Iso3, unit, inputDate);
+            if (cost == null)
+                return List.of();
+            return List.of(cost);
         }
-    System.out.println("FAILLELLELELDLLLLLDLLDLDLDL");
         // Case 4: With date, no unit -> return single most applicable entry (all units)
-        return shippingFeesService.getLatestCost(country1Iso3, country2Iso3, inputDate);
+        var entry = shippingFeesService.getLatestCost(country1Iso3, country2Iso3, inputDate);
+        if (entry == null)
+            return List.of();
+        return List.of(entry);
     }
 
     @PostMapping
