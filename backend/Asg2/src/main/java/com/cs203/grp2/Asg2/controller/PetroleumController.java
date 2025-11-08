@@ -4,6 +4,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.cs203.grp2.Asg2.models.Petroleum;
 import com.cs203.grp2.Asg2.service.PetroleumService;
+import com.cs203.grp2.Asg2.service.CountryService;
+import com.cs203.grp2.Asg2.models.PetroleumPrice;
+
 
 import com.cs203.grp2.Asg2.config.FirebaseConfig;
 import com.cs203.grp2.Asg2.exceptions.PetroleumNotFoundException;

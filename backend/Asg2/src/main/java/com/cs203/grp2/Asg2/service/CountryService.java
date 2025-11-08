@@ -149,7 +149,7 @@ public class CountryService {
 
     Map<String, Object> vatData = new HashMap<>();
     vatData.put("date", newRate.getDate().toString());
-    vatData.put("rate", newRate.getRate());
+    vatData.put("rate", newRate.getVATRate());
 
     CompletableFuture<Void> future = new CompletableFuture<>();
 

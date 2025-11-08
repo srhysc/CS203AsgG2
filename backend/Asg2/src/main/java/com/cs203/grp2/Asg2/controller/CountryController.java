@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
 import com.cs203.grp2.Asg2.models.*;
@@ -12,6 +14,7 @@ import com.cs203.grp2.Asg2.DTO.*;
 import com.cs203.grp2.Asg2.controller.*;
 import com.cs203.grp2.Asg2.config.*;
 import com.cs203.grp2.Asg2.service.*;
+
 
 import java.util.List;
 import java.time.LocalDate;
@@ -116,7 +119,7 @@ public class CountryController {
         @RequestBody VATRate newRate
         ) {
         try {
-            countryService.addVatRate(countryName, newRate);
+            svc.addVatRate(countryName, newRate);
             return ResponseEntity.ok("VAT rate added for " + countryName);
         } catch (CountryNotFoundException e) {
             throw e; // handled by GlobalControllerExceptionHandler
