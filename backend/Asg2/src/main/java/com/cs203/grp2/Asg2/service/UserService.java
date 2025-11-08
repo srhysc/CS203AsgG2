@@ -15,8 +15,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import com.cs203.grp2.Asg2.models.User.Role;
-
+import com.cs203.grp2.Asg2.models.UserSavedRoute;
 import com.cs203.grp2.Asg2.models.User;
+import com.cs203.grp2.Asg2.DTO.LandedCostResponse;
+
 
 @Service
 public class UserService {
@@ -24,39 +26,17 @@ public class UserService {
     @Autowired
     private FirebaseDatabase firebaseDatabase; 
 
-    // Helper method to read a DataSnapshot asynchronously
-    private <T> T readOnce(DatabaseReference ref, Class<T> clazz)
+    public CompletableFuture<User> getUserById(String userId)
             throws ExecutionException, InterruptedException {
-        CompletableFuture<T> future = new CompletableFuture<>();
-
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    future.complete(snapshot.getValue(clazz));
-                } else {
-                    future.complete(null);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                future.completeExceptionally(error.toException());
-            }
-        });
-
-        return future.get(); // blocks until Firebase responds
-    }
-
-    public User getUserById(String userId)
-            throws ExecutionException, InterruptedException {
+System.out.println("Fetching user: " + userId);
         DatabaseReference ref = firebaseDatabase.getReference("users").child(userId);
         return readOnce(ref, User.class);
     }
 
     public User getOrCreateUser(String userId, String email, String username)
             throws ExecutionException, InterruptedException {
-        User user = getUserById(userId);
+        User user = getUserById(userId).join(); // blocks until ready
+
 
         if (user != null) {
             return user;
@@ -78,7 +58,7 @@ public class UserService {
 
     public Role getUserRoles(String userId)
             throws ExecutionException, InterruptedException {
-        User user = getUserById(userId);
+        User user =  getUserById(userId).join();;
         if (user != null && user.getRole() != null) {
             return user.getRole();
         }
@@ -87,35 +67,98 @@ public class UserService {
 
     public void updateUserRole(String userId, User.Role newRole)
             throws ExecutionException, InterruptedException {
-        User user = getUserById(userId);
+        User user =  getUserById(userId).join();;
         if (user != null) {
             user.setRole(newRole);
             saveUser(userId, user);
         }
     }
 
+    public void addBookmark(LandedCostResponse response, String userId, String bookmarkName) throws ExecutionException, InterruptedException{
+        //get user object from firebase, including bookmarks
+        User u =  getUserById(userId).join();;
+        DatabaseReference ref = firebaseDatabase.getReference("users").child(userId);
+
+        //if user has no bookmarks, create an empty list
+        if (u.getBookmarks() == null) {
+            u.setBookmarks(new ArrayList<>());
+        }
+System.out.println("ADDING BOOKMARK: " + bookmarkName + "IMPORTER: " + response.getImportingCountry() + "EXPORTER: " + response.getExportingCountry() + response.getPricePerUnit() + response.getTotalLandedCost()); 
+
+        u.getBookmarks().add(new UserSavedRoute(response, bookmarkName));
+        // Write updated user back to Firebase
+        ref.setValueAsync(u);
+    }
+
+    public List<UserSavedRoute> getBookmarks(String userId) throws ExecutionException, InterruptedException{
+        DatabaseReference userRef = firebaseDatabase.getReference("users").child(userId);
+        DataSnapshot snapshot = getSnapshot(userRef);
+
+System.out.println("USER BOOKMARK SNAPSHOT: " + snapshot.getValue(User.class));
+
+        User user = snapshot.getValue(User.class);
+        return user != null && user.getBookmarks() != null
+                ? user.getBookmarks()
+                : List.of();
+    }
+
     public List<User> getAllUsers()
             throws ExecutionException, InterruptedException {
+        List<User> users = new ArrayList<User>();
         DatabaseReference ref = firebaseDatabase.getReference("users");
-        CompletableFuture<List<User>> future = new CompletableFuture<>();
+        DataSnapshot snapshot = getSnapshot(ref);
 
+        for (DataSnapshot child : snapshot.getChildren()) {
+            User user = child.getValue(User.class);
+            if (user != null) users.add(user);
+        }
+
+        return users;
+    }
+
+    //=========FIREBASE FUNCTION============
+    // Helper to synchronously get a snapshot
+    private DataSnapshot getSnapshot(DatabaseReference ref)
+            throws ExecutionException, InterruptedException {
+
+        //promise to have a Datasnapshot in the future
+        CompletableFuture<DataSnapshot> future = new CompletableFuture<>();
+
+        //contact database for that path, run ONCE.
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
+            //call this when data received 
             public void onDataChange(DataSnapshot snapshot) {
-                List<User> users = new ArrayList<>();
-                for (DataSnapshot child : snapshot.getChildren()) {
-                    User user = child.getValue(User.class);
-                    if (user != null) users.add(user);
-                }
-                future.complete(users);
+                //return a snapshot
+                future.complete(snapshot);
             }
 
             @Override
             public void onCancelled(DatabaseError error) {
-                future.completeExceptionally(error.toException());
+                future.completeExceptionally(new RuntimeException(error.getMessage()));
             }
         });
 
         return future.get();
     }
+
+    // Helper method to read a single object
+    private <T> CompletableFuture<T> readOnce(DatabaseReference ref, Class<T> clazz) {
+    CompletableFuture<T> future = new CompletableFuture<>();
+
+    ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot snapshot) {
+            future.complete(snapshot.exists() ? snapshot.getValue(clazz) : null);
+        }
+
+        @Override
+        public void onCancelled(DatabaseError error) {
+            future.completeExceptionally(error.toException());
+        }
+    });
+
+    return future;
+    }
 }
+

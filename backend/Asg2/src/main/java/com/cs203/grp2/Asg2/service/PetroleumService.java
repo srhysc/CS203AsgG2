@@ -19,6 +19,10 @@ import com.cs203.grp2.Asg2.DTO.*;
 import com.cs203.grp2.Asg2.controller.*;
 import com.cs203.grp2.Asg2.config.*;
 import com.cs203.grp2.Asg2.service.*;
+
+import java.time.LocalDateTime;
+
+
 @Service
 public class PetroleumService {
 
@@ -43,7 +47,7 @@ public class PetroleumService {
 
                 try {
                     for (DataSnapshot child : snapshot.getChildren()) {
-                        System.out.println("🔍 [DEBUG] Child: " + child.getKey());
+                        System.out.println("🔍 [DEBUG] PETROLEUM Child: " + child.getKey());
                         String name = child.getKey();
 
                         // Retrieve HSCODE as Strings
@@ -59,7 +63,6 @@ public class PetroleumService {
                         String dateStr = priceNode.child("date").getValue(String.class);
                         Double avgPrice = priceNode.child("avg_price_per_unit_usd").getValue(Double.class);
                         String unit = priceNode.child("unit").getValue(String.class);
-System.out.println("DATETIME CHILD OF " + hsCode + " TIMESTAMP: " + dateStr + " IS: " + avgPrice);
 
                         if (dateStr != null && avgPrice != null) {
                             prices.add(new PetroleumPrice(LocalDate.parse(dateStr), avgPrice, unit));
