@@ -64,7 +64,7 @@ export default function EditProductPricesPage() {
           columns={productPriceColumns}
           data={productPrices}
           setData={setProductPrice}
-          filterPlaceholder="Search products..."
+          filterPlaceholder="Search..."
           renderRowEditForm={(row, onSave, onCancel) => (
             <EditProductPriceForm
               defaultValues={row}
