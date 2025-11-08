@@ -1,41 +1,45 @@
 import {motion} from "motion/react"
-import { Card } from "../../ui/card";
-import { FileText,FileSignature,Ship,Plus } from "lucide-react";
-
+import { FileText, FileSignature, Ship, DollarSign, UserPlus } from "lucide-react";
 
 const adminActions = [
   {
-    title: "Edit Tariffs",
+    title: "Edit Tariff Rates",
     icon: FileText,
-    description: "Manage and update tariff rates",
+    description: "Manage import/export tariffs",
     url: "/administrator/tariffs",
   },
   {
-    title: "Edit Agreements",
+    title: "Edit VAT Rates",
     icon: FileSignature,
-    description: "Modify trade agreements",
-    url: "/administrator/agreements",
+    description: "Update tax percentages",
+    url: "/administrator/VAT-rates",
   },
   {
-    title: "Edit Shipping Fees",
+    title: "Edit Shipping Rates",
     icon: Ship,
-    description: "Update shipping cost structures",
+    description: "Configure shipping costs",
     url: "/administrator/shipping-fees",
   },
   {
-    title: "Create New Shipping Cost",
-    icon: Plus,
-    description: "Add new shipping cost entry",
-    url: "/administrator/create-shipping",
+    title: "Edit Product Prices",
+    icon: DollarSign,
+    description: "Update product pricing",
+    url: "/administrator/product-prices",
+  },
+  {
+    title: "Manage User Roles",
+    icon: UserPlus,
+    description: "Grant admin privileges",
+    url: "/administrator/manage-admins",
   },
 ];
 
-
-
-export default function Adminhome(){
-    return(
-    <div className="px-4 py-10 md:py-20">
-        <h1 className="relative z-10 mx-auto max-w-4xl text-center text-2xl font-bold text-slate-700 md:text-4xl lg:text-7xl dark:text-slate-300">
+export default function Adminhome() {
+  return (
+    <div className="min-h-screen flex flex-col px-4 py-4 md:py-8">
+      {/* Hero Section */}
+      <div className="text-center mb-6 px-4">
+        <h1 className="relative z-10 mx-auto max-w-4xl text-center text-2xl md:text-4xl lg:text-7xl font-extrabold bg-clip-text bg-gradient-to-r from-[#dcff1a] to-emerald-400">
           {"Welcome, administrator."
             .split(" ")
             .map((word, index) => (
@@ -54,60 +58,80 @@ export default function Adminhome(){
               </motion.span>
             ))}
         </h1>
-        <motion.p
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-          }}
-          transition={{
-            duration: 0.9,
-            delay: 0.8,
-          }}
-          className="relative z-10 mx-auto max-w-xl py-4 text-center text-lg font-normal text-neutral-600 dark:text-neutral-400"
-        >
-        View all your abilities!
-        </motion.p>
 
-        <div>
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.0, delay: 0.5 }}
-                className="mx-auto mt-12 max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.9, delay: 0.8 }}
+          className="relative z-10 mx-auto max-w-xl py-4 text-center text-lg text-gray-300"
+        >
+          Manage platform settings, rates, and user permissions
+        </motion.p>
+      </div>
+
+
+      {/* Admin Action Cards */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.0, delay: 0.5 }}
+        className="mx-auto max-w-7xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16"
+      >
+        {adminActions.map((action, index) => (
+          <motion.div
+            key={action.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.5,
+              delay: 1.0 + (index * 0.1),
+              ease: "easeOut"
+            }}
+          >
+            <motion.a
+              href={action.url}
+              className="block h-full bg-white/10 backdrop-blur-md rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all border border-white/10 cursor-pointer p-6"
+              whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
+              whileTap={{ scale: 0.98 }}
             >
-        {/* motion to float in */}
-            {adminActions.map((action, index) => (
-            <motion.div
-                key={action.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ 
-                duration: 0.5, 
-                delay: 1.0 + (index * 0.1),
-                ease: "easeOut" 
-                }}
-            >
-            <Card className="group h-full p-6 hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 bg-white dark:bg-gray-800">
-              <a href={action.url} className="flex flex-col items-center text-center h-full">
-                <div className="mb-4 p-4 rounded-full bg-slate-100 dark:bg-slate-700 group-hover:bg-slate-200 dark:group-hover:bg-slate-600 transition-colors">
-                  <action.icon className="w-8 h-8 text-slate-700 dark:text-slate-300" />
-                </div>
-                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">
+              {/* Icon */}
+              <div className="mb-4 w-16 h-16 rounded-xl bg-gradient-to-br from-[#dcff1a] to-emerald-400 flex items-center justify-center shadow-lg">
+                <action.icon className="w-8 h-8 text-slate-900" />
+              </div>
+
+              {/* Content */}
+              <div>
+                <h3 className="text-xl font-semibold mb-2 text-white">
                   {action.title}
                 </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-gray-300 text-sm leading-relaxed mb-4">
                   {action.description}
                 </p>
-              </a>
-            </Card>
+                <motion.div
+                  className="inline-flex items-center text-[#dcff1a] font-medium text-sm"
+                  whileHover={{ x: 5 }}
+                >
+                  Manage
+                  <svg
+                    className="w-4 h-4 ml-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </motion.div>
+              </div>
+            </motion.a>
           </motion.div>
         ))}
       </motion.div>
-
-        </div>
     </div>
-  
-    )
+  );
 }
+

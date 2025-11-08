@@ -9,15 +9,13 @@ export type Tariff = {
   importingCountry: string
   tariffRate: number
   lastUpdated?: string
-  updatedBy?: string
 }
 
 export const tariffColumns: ColumnDef<Tariff>[] = [
   {
     id: "productCode",
     accessorKey: "productCode",
-    header: ({ column }) => {
-      return (
+    header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -25,15 +23,14 @@ export const tariffColumns: ColumnDef<Tariff>[] = [
           Product Code
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
-    },
+    ),
+    meta: { label: "Product Code" }
   },
 
   {
     id: "exportingCountry",
     accessorKey: "exportingCountry",
-    header: ({ column }) => {
-      return (
+    header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -41,15 +38,14 @@ export const tariffColumns: ColumnDef<Tariff>[] = [
           Exporting Country
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
-    },
+    ),
+    meta: { label: "Exporting Country" }
   },
 
   {
     id: "importingCountry",
     accessorKey: "importingCountry",
-    header: ({ column }) => {
-      return (
+    header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -57,15 +53,14 @@ export const tariffColumns: ColumnDef<Tariff>[] = [
           Importing Country
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
-    },
+    ),
+    meta: { label: "Importing Country" }
   },
 
   {
     id: "tariffRate",
     accessorKey: "tariffRate",
-    header: ({ column }) => {
-      return (
+    header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -73,8 +68,8 @@ export const tariffColumns: ColumnDef<Tariff>[] = [
           Tariff Rate
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
-    },
+    ),
+    meta: { label: "Tariff Rate" },
     cell: ({ row }) => {
       const rate = Number(row.getValue("tariffRate"))
       return isNaN(rate)
@@ -89,8 +84,7 @@ export const tariffColumns: ColumnDef<Tariff>[] = [
   {
     id: "lastUpdated",
     accessorKey: "lastUpdated",
-    header: ({ column }) => {
-      return (
+    header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -98,24 +92,8 @@ export const tariffColumns: ColumnDef<Tariff>[] = [
           Last Updated
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
-    },
-  },
-
-  {
-    id: "updatedBy",
-    accessorKey: "updatedBy",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Updated By
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    ),
+    meta: { label: "Last Updated" }
   },
 
   {
@@ -124,5 +102,6 @@ export const tariffColumns: ColumnDef<Tariff>[] = [
     // Cell will be handled by DataTable component
     cell: () => null,
     enableHiding: false,
+    meta: { label: "Actions" }
   },
 ]
