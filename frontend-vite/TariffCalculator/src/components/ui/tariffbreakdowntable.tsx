@@ -471,6 +471,7 @@ export default function TariffBreakdownTable({ tariffObject }: { tariffObject: T
     vatRate: tariffObject.vatRate,
     vatFees: tariffObject.vatFees,
     totalLandedCost: tariffObject.totalLandedCost,
+    shippingCost: tariffObject.shippingCost,
     route: `${tariffObject.exportingCountry} → ${tariffObject.importingCountry}`,
     isDirect: true,
   });
@@ -569,6 +570,7 @@ export default function TariffBreakdownTable({ tariffObject }: { tariffObject: T
                     <th className="p-3 text-right font-semibold">Tariff</th>
                     <th className="p-3 text-right font-semibold">VAT</th>
                     <th className="p-3 text-right font-semibold">Total</th>
+                    <th className="p-3 text-right font-semibold">Shipping Cost</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -597,6 +599,10 @@ export default function TariffBreakdownTable({ tariffObject }: { tariffObject: T
                       <td className="p-3 text-right font-bold text-[#dcff1a]">
                         {formatCurrency(route.totalLandedCost)}
                       </td>
+                      <td className="p-3 text-right font-bold text-[#dcff1a]">
+                        {(route.shippingCost)}
+                      </td>
+              
                     </tr>
                   ))}
                 </tbody>
