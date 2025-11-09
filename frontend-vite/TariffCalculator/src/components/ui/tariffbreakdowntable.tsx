@@ -492,8 +492,6 @@ export default function TariffBreakdownTable({ tariffObject }: { tariffObject: T
       maximumFractionDigits: 2,
     }).format(value);
 
-  const formatPercentage = (value: number) => `${(value * 100).toFixed(2)}%`;
-
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Single Toggle Button */}
@@ -533,9 +531,9 @@ export default function TariffBreakdownTable({ tariffObject }: { tariffObject: T
                   ["Petroleum Code", tariffObject.hsCode],
                   ["Price per Unit", formatCurrency(tariffObject.pricePerUnit)],
                   ["Base Price", formatCurrency(tariffObject.basePrice)],
-                  ["Tariff Rate", formatPercentage(tariffObject.tariffRate)],
+                  ["Tariff Rate", tariffObject.tariffRate],
                   ["Tariff Fees", formatCurrency(tariffObject.tariffFees)],
-                  ["VAT Rate", formatPercentage(tariffObject.vatRate)],
+                  ["VAT Rate", tariffObject.vatRate],
                   ["VAT Fees", formatCurrency(tariffObject.vatFees)],
                 ].map(([label, value], index) => (
                   <tr key={index} className="border-b border-white/10">

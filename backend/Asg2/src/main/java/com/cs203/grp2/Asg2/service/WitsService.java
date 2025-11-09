@@ -44,7 +44,7 @@ public class WitsService {
         Optional<WitsTariff> mfn = findMfnFromDb(req);
         if (mfn.isPresent()){
             System.out.println("🔎 mfc present = " + mfn.get().ratePercent());
-            mfn.get().ratePercent();
+            //mfn.get().ratePercent();
             return mfn.get();
         } 
          System.out.println("🔎 doing wits....");

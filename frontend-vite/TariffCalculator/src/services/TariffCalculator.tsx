@@ -271,8 +271,6 @@ const TariffCalculator: React.FC = () => {
                 formData.units,
                 formattedDate 
             );
-            console.log(`the tariffs: ${tariffs}`);
-
             //update tariffs field
             setTariffs(tariffs);      
         } catch (err: any) {
@@ -311,12 +309,6 @@ const TariffCalculator: React.FC = () => {
                         clearSignal={clearFormSignal} 
                         onClear={handleClearAll} 
                     />
-                </CardContent>
-
-                <CardContent>
-                    <div>
-                        <BookmarkList />
-                    </div>
                 </CardContent>
             </Card>
 

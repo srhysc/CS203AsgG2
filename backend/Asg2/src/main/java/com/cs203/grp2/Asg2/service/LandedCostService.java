@@ -85,6 +85,14 @@ public class LandedCostService {
             r -> r                            // value -  full RouteBreakdown object
         ));
 
+        // tariff rate (in percentage) = (tariff fees/base cost) * 100, multiply and divide by another 100 for math.round
+        double tariffRatePercent = Math.round((directRoute.getTariffFees() / directRoute.getBaseCost()) * 100 * 100.0) / 100.0;
+        //round landedcost and base cost
+        double totalLandedCostRounded = Math.round(directRoute.getTotalLandedCost() * 100.0) / 100.0;
+        double baseCostRounded = Math.round(directRoute.getBaseCost() * 100.0) / 100.0;
+        double vatFeeRounded = Math.round(directRoute.getVatFees() * 100.0) / 100.0;
+
+
         // Build LandedCostResponse from the direct route, pass in alternative routes map
         return new LandedCostResponse(
                 importer.getName(),
@@ -92,12 +100,12 @@ public class LandedCostService {
                 petroleum.getName(),
                 petroleum.getHsCode(),
                 routeResponse.getPetroleumPrice(),
-                directRoute.getBaseCost(),
-                directRoute.getTariffFees() / directRoute.getBaseCost(), // tariff rate
+                baseCostRounded,
+                tariffRatePercent, 
                 directRoute.getTariffFees(),
                 directRoute.getVatRate(),
-                directRoute.getVatFees(),
-                directRoute.getTotalLandedCost(),
+                vatFeeRounded,
+                totalLandedCostRounded,
                 "USD",
                 alternativeRoutes
         );

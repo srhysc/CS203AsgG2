@@ -172,7 +172,7 @@ public class RouteOptimizeService {
         }
 
         // calculate tariff fees if any
-        double tariffFees = baseCost * tariffRate;
+        double tariffFees = baseCost * (tariffRate / 100.0);
 
         // retrieve VAT rate of importing country that you have to pay
         double vatRate = (importer.getVatRates() != null) ? importer.getVatRates(date) : 0.0;
@@ -183,7 +183,7 @@ public class RouteOptimizeService {
         double total = baseCost + tariffFees + vatFees;
 
         return new RouteBreakdown(exporter.getName(), null, importer.getName(),
-                baseCost, tariffFees, vatFees, total, vatRate * 100, petroleum.getName());
+                baseCost, tariffFees, vatFees, total, vatRate, petroleum.getName());
     }
 
     // FUNCTION LOOPING THROUGH COUNTRIES AND CALCULATING DIFFERENT PERMUTATIONS
@@ -232,7 +232,7 @@ public class RouteOptimizeService {
                     petroleum.getHsCode(), date);
             double rate2 = tariffService.resolveTariff(dto2).ratePercent() ;
 
-            totalTariff = baseCost * rate1 + baseCost * rate2; // cost times rate for both countries to get teriff extra
+            totalTariff = baseCost * (rate1 / 100.0) + baseCost * (rate2 / 100.0); // cost times rate for both countries to get teriff extra
                                                                // cost
 
         } catch (Exception e) {
@@ -253,7 +253,7 @@ public class RouteOptimizeService {
                 totalTariff,
                 vatFees,
                 total,
-                vatRate / 100,
+                vatRate,
                 petroleum.getName());
     }
 
