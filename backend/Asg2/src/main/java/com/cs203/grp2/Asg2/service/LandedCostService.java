@@ -107,6 +107,7 @@ public class LandedCostService {
                 vatFeeRounded,
                 totalLandedCostRounded,
                 "USD",
+                directRoute.getShippingCost(),
                 alternativeRoutes
         );
     }
