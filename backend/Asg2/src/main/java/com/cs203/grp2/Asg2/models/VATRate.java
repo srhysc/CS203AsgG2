@@ -17,12 +17,17 @@ public class VATRate {
 
     public LocalDate getDate() { return date; }
 
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
 
     //added json properly to connect to the front end
     @JsonProperty("rate")
     public double getVATRate() { return rate; }
 
+    @JsonProperty("rate")
+    public void setRate(double rate) {
+        this.rate = rate;
+    }
 
-    
-    
 }

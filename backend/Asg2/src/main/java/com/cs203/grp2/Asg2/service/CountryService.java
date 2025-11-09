@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.cs203.grp2.Asg2.models.Petroleum;
 import com.cs203.grp2.Asg2.models.Country;
 import com.cs203.grp2.Asg2.models.VATRate;
+import com.cs203.grp2.Asg2.DTO.CountryDTO;
 import com.cs203.grp2.Asg2.exceptions.*;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -129,6 +130,26 @@ public class CountryService {
         }
         throw new CountryNotFoundException("No country with iso3=" + iso3);
     }
+
+    public List<CountryDTO> getLatestVatRatesForAllCountries() {
+    List<CountryDTO> result = new ArrayList<>();
+
+    for (Country country : countries) {
+        if (country.getVatRates() != null && !country.getVatRates().isEmpty()) {
+            Optional<VATRate> latest = country.getVatRates().stream()
+                .max(Comparator.comparing(VATRate::getDate));
+
+            latest.ifPresent(rate -> result.add(new CountryDTO(
+                country.getName(),
+                rate.getVATRate(),
+                rate.getDate()
+            )));
+        }
+    }
+
+    return result;
+    }
+
 
     //ADD VAT RATE TO FIREBASE
     public void addVatRate(String countryName, VATRate newRate) throws Exception {

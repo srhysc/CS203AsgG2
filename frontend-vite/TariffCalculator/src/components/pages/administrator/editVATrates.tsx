@@ -23,40 +23,35 @@ export default function EditVATRatesPage() {
       setLoading(true)
       try {
         const backend = "http://localhost:8080"
-        const date = new Date().toISOString().split("T")[0]
         const token = await getToken()
 
-        const countriesRes = await fetch(`${backend}/countries`, {
+        const countriesRes = await fetch(`${backend}/countries/vat-rates-latest`, {
           headers: { Authorization: `Bearer ${token}` },
         })
-        if (!countriesRes.ok) throw new Error("Failed to fetch countries")
-        const countries = await countriesRes.json()
+        if (!countriesRes.ok) throw new Error("Failed to fetch VAT rates")
+        const data = await countriesRes.json()
 
-        const results = await Promise.all(
-          countries.map(async (country: any) => {
-            try {
-              const res = await fetch(
-                `${backend}/countries/${country.name}/vat-rate?date=${date}`,
-                {
-                  headers: { Authorization: `Bearer ${token}` },
-                }
-              )
-              if (!res.ok) throw new Error(`No VAT data for ${country.name}`)
-              const data = await res.json()
-              return {
-                id: country.name,
-                country: country.name,
-                vatRate: data.rate,
-                lastUpdated: data.date,
-              }
-            } catch (err) {
-              console.warn(`Skipping ${country.name}:`, err)
-              return null
-            }
-          })
-        )
+        // const formatted = data.map((item: any) => ({
+        //   id: item.country,
+        //   country: item.country,
+        //   vatRate: item.vatRate,
+        //   lastUpdated: item.lastUpdated,
+        // }))
+        const formatted = data.map((item: any) => {
+      // Check both possible property names and use appropriate one
+      const rateValue = typeof item.rate !== 'undefined' ? item.rate : 
+                       typeof item.vatRate !== 'undefined' ? item.vatRate : 0
 
-        setTableData(results.filter(r => r !== null))
+      return {
+        id: item.country,
+        country: item.country,
+        vatRate: rateValue,
+        lastUpdated: item.lastUpdated,
+      }
+    })
+
+        setTableData(formatted)
+
       } catch (error) {
         console.error("Error fetching VAT rates:", error)
         toast.error("Failed to load VAT rates.")
@@ -76,6 +71,7 @@ export default function EditVATRatesPage() {
     }
 
     try {
+      console.log("Saving VAT rate:", updatedVATRate)
       const backend = "http://localhost:8080"
       const token = await getToken()
 
@@ -88,7 +84,7 @@ export default function EditVATRatesPage() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            vatRate: updatedVATRate.vatRate,
+            rate: updatedVATRate.vatRate,
             date: updatedVATRate.lastUpdated,
           }),
         }
