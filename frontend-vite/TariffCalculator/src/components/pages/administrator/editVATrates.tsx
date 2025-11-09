@@ -31,24 +31,16 @@ export default function EditVATRatesPage() {
         if (!countriesRes.ok) throw new Error("Failed to fetch VAT rates")
         const data = await countriesRes.json()
 
-        // const formatted = data.map((item: any) => ({
-        //   id: item.country,
-        //   country: item.country,
-        //   vatRate: item.vatRate,
-        //   lastUpdated: item.lastUpdated,
-        // }))
-        const formatted = data.map((item: any) => {
-      // Check both possible property names and use appropriate one
-      const rateValue = typeof item.rate !== 'undefined' ? item.rate : 
-                       typeof item.vatRate !== 'undefined' ? item.vatRate : 0
 
-      return {
-        id: item.country,
-        country: item.country,
-        vatRate: rateValue,
-        lastUpdated: item.lastUpdated,
-      }
-    })
+      const formatted = data.map((item: any) => {
+        
+        return {
+          id: item.country,
+          country: item.country,
+          vatRate: item.rate,  
+          lastUpdated: item.lastUpdated,
+        }
+      })
 
         setTableData(formatted)
 
@@ -63,50 +55,62 @@ export default function EditVATRatesPage() {
     fetchVATRates()
   }, [getToken])
 
+
   const handleSaveVATRate = async (updatedVATRate: VATRate) => {
-    const original = tableData.find(a => a.id === updatedVATRate.id)
-    if (original && isEqual(original, updatedVATRate)) {
-      toast.info("No changes detected.")
-      return
-    }
-
-    try {
-      console.log("Saving VAT rate:", updatedVATRate)
-      const backend = "http://localhost:8080"
-      const token = await getToken()
-
-      const response = await fetch(
-        `${backend}/countries/${updatedVATRate.country}/vat-ratenew`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            rate: updatedVATRate.vatRate,
-            date: updatedVATRate.lastUpdated,
-          }),
-        }
-      )
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(errorText || "Failed to save VAT rate")
-      }
-
-      setTableData(prev =>
-        prev.map(a => (a.id === updatedVATRate.id ? updatedVATRate : a))
-      )
-      toast.success("VAT rate updated successfully!")
-    } catch (error) {
-      console.error(error)
-      toast.error(
-        error instanceof Error ? error.message : "Failed to update VAT rate."
-      )
-    }
+  const original = tableData.find(a => a.id === updatedVATRate.id)
+  if (original && isEqual(original, updatedVATRate)) {
+    toast.info("No changes detected.")
+    return
   }
 
+  try {
+    console.log("Saving VAT rate:", updatedVATRate)
+    const backend = "http://localhost:8080"
+    const token = await getToken()
+
+    const response = await fetch(
+      `${backend}/countries/${updatedVATRate.country}/vat-ratenew`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          rate: updatedVATRate.vatRate,
+          date: updatedVATRate.lastUpdated,
+        }),
+      }
+    )
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(errorText || "Failed to save VAT rate")
+    }
+
+    // Refetch the data after successful save
+    const countriesRes = await fetch(`${backend}/countries/vat-rates-latest`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!countriesRes.ok) throw new Error("Failed to fetch updated VAT rates")
+    const data = await countriesRes.json()
+
+    const formatted = data.map((item: any) => ({
+      id: item.country,
+      country: item.country,
+      vatRate: item.rate,
+      lastUpdated: item.lastUpdated,
+    }))
+
+    setTableData(formatted)
+    toast.success("VAT rate updated successfully!")
+  } catch (error) {
+    console.error(error)
+    toast.error(
+      error instanceof Error ? error.message : "Failed to update VAT rate."
+    )
+  }
+}
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col text-gray-900 dark:text-gray-100 transition-colors">
       <Toaster />

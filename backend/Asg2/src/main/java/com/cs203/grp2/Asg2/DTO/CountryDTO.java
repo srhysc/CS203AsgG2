@@ -1,16 +1,18 @@
 package com.cs203.grp2.Asg2.DTO;
 
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CountryDTO {
     private String country;
-    private double vatRate;
+    private double rate;  
     private LocalDate lastUpdated;
-    public CountryDTO() {} // Default constructor for deserialization
+    
+    public CountryDTO() {}
 
-    public CountryDTO(String country, double vatRate, LocalDate lastUpdated) {
+    public CountryDTO(String country, double rate, LocalDate lastUpdated) {
         this.country = country;
-        this.vatRate = vatRate;
+        this.rate = rate;
         this.lastUpdated = lastUpdated;
     }
 
@@ -18,13 +20,12 @@ public class CountryDTO {
         return country;
     }
 
-    public double getVatRate() {
-        return vatRate;
+    @JsonProperty("rate")  
+    public double getRate() {
+        return rate;
     }
 
     public LocalDate getLastUpdated() {
         return lastUpdated;
     }
 }
-
-

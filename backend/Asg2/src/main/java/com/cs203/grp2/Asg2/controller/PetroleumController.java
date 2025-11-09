@@ -2,6 +2,7 @@ package com.cs203.grp2.Asg2.controller;
 
 import org.springframework.web.bind.annotation.*;
 
+import com.cs203.grp2.Asg2.DTO.*;
 import com.cs203.grp2.Asg2.models.Petroleum;
 import com.cs203.grp2.Asg2.service.PetroleumService;
 import com.cs203.grp2.Asg2.service.CountryService;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 
@@ -56,15 +58,32 @@ public class PetroleumController {
         return petroleum;
     }
 
-    
+    @GetMapping("/latest")
+    public List<PetroleumLatestPriceDTO> getLatestPetroleumPrices() {
+        try {
+            return service.getLatestPetroleumPrices();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve latest petroleum prices", e);
+        }
+    }
+
+
     @PostMapping("/{hsCode}/prices")
-    public void addPetroleumPrice(
+    public ResponseEntity<String> addPetroleumPrice(
         @PathVariable @Pattern(regexp = "\\d{4,8}") String hsCode,
         @RequestBody PetroleumPrice newPrice
-    )
-    //handled by global controller 
-    throws Exception {
-        service.addPetroleumPrice(hsCode, newPrice);
+    ) {
+        try {           
+            service.addPetroleumPrice(hsCode, newPrice);
+            return ResponseEntity.ok("Price added successfully for HS code: " + hsCode);
+            
+        } catch (PetroleumNotFoundException e) {
+            System.err.println("Petroleum not found: " + e.getMessage());
+            throw e; // handled by GlobalControllerExceptionHandler
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to add price: " + e.getMessage(), e);
+        }
     }
 
 }

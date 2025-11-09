@@ -132,23 +132,33 @@ public class CountryService {
     }
 
     public List<CountryDTO> getLatestVatRatesForAllCountries() {
+    try {
+        init(); // Reload all countries from Firebase
+    } catch (Exception e) {
+        System.err.println("Failed to reload countries: " + e.getMessage());
+    }
+    
     List<CountryDTO> result = new ArrayList<>();
 
     for (Country country : countries) {
         if (country.getVatRates() != null && !country.getVatRates().isEmpty()) {
+           
             Optional<VATRate> latest = country.getVatRates().stream()
                 .max(Comparator.comparing(VATRate::getDate));
 
-            latest.ifPresent(rate -> result.add(new CountryDTO(
-                country.getName(),
-                rate.getVATRate(),
-                rate.getDate()
-            )));
+            if (latest.isPresent()) {
+                VATRate rate = latest.get();
+                result.add(new CountryDTO(
+                    country.getName(),
+                    rate.getVATRate(),
+                    rate.getDate()
+                ));
+            }
         }
     }
 
     return result;
-    }
+}
 
 
     //ADD VAT RATE TO FIREBASE
@@ -187,10 +197,8 @@ public class CountryService {
     // Wait until Firebase write completes
     future.get();
 
-    // Optional: also update in-memory object for fast access
-    List<VATRate> vatRates = new ArrayList<>(country.getVatRates());
-    vatRates.add(newRate);
-    country.setVatRates(vatRates);
+    System.out.println("🔄 Reloading countries from Firebase after VAT rate update...");
+    init();  // This will reload all countries with the new VAT rate
     }
 
 
