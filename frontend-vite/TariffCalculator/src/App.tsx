@@ -98,7 +98,7 @@ function AnimatedRoutes() {
         <Route path="/refineries" element={<RefineryInfoPage />} />
         <Route path="/shipping" element={<ShippingCostPage />} />
         <Route path="/convertable" element={<Convertable />} />
-        <Route path="/route" element={<div>Refinery Route Page (coming soon)</div>} />
+
         <Route path="/bookmarks" element={<BookmarksPage />} />
         <Route path="/administrator" element={<Adminhome />} />
         <Route path="/administrator/tariffs" element={<EditTariffs />} />
