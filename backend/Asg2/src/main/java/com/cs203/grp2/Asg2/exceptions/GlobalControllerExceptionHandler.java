@@ -40,4 +40,11 @@ public class GlobalControllerExceptionHandler {
     public @ResponseBody String handleGeneral(Exception ex) {
         return "An unexpected error occurred: " + ex.getMessage();
     }
+
+    //for duplicate bookmark
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DuplicateBookmarkException.class)
+    public @ResponseBody String handleDuplicateBookmark(DuplicateBookmarkException ex) {
+        return ex.getMessage();
+    }
 }

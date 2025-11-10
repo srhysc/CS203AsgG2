@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useBookmarkService } from '@/services/types/bookmarkapi';
 import type { UserSavedRoute } from '@/services/types/bookmarkapi';
-import { Bookmark, Trash2, TrendingUp, Loader2 } from 'lucide-react';
+import { Bookmark, Trash2, TrendingUp, Loader2, Package, DollarSign, Ship, Receipt } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const BookmarksPage: React.FC = () => {
@@ -71,7 +71,7 @@ const BookmarksPage: React.FC = () => {
                       </div>
                       
                       {bookmark.savedResponse ? (
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                           <div className="flex items-center gap-2 text-gray-300">
                             <TrendingUp className="w-5 h-5 text-emerald-400" />
                             <span className="text-lg">
@@ -79,6 +79,7 @@ const BookmarksPage: React.FC = () => {
                             </span>
                           </div>
                           
+                          {/* Product Info */}
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div className="p-3 bg-slate-700/50 rounded-lg">
                               <span className="text-gray-500 block mb-1">Product</span>
@@ -89,13 +90,64 @@ const BookmarksPage: React.FC = () => {
                               <span className="text-gray-200 font-medium">{bookmark.savedResponse.hsCode}</span>
                             </div>
                             <div className="p-3 bg-slate-700/50 rounded-lg">
-                              <span className="text-gray-500 block mb-1">Base Price</span>
+                              <span className="text-gray-500 block mb-1">Price per Unit</span>
                               <span className="text-gray-200 font-medium">
-                                {bookmark.savedResponse.basePrice} {bookmark.savedResponse.currency}
+                                {bookmark.savedResponse.pricePerUnit} {bookmark.savedResponse.currency}
                               </span>
                             </div>
                           </div>
+
+                          {/* Cost Breakdown */}
+                          <div className="bg-slate-700/30 rounded-lg p-4 space-y-3">
+                            <h5 className="font-semibold text-gray-300 flex items-center gap-2">
+                              <Receipt className="w-4 h-4 text-[#dcff1a]" />
+                              Cost Breakdown
+                            </h5>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                              <div className="flex items-center justify-between p-2 bg-slate-800/50 rounded">
+                                <span className="text-gray-400 flex items-center gap-2">
+                                  <Package className="w-4 h-4" />
+                                  Base Price
+                                </span>
+                                <span className="text-gray-200 font-medium">
+                                  {bookmark.savedResponse.basePrice} {bookmark.savedResponse.currency}
+                                </span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between p-2 bg-slate-800/50 rounded">
+                                <span className="text-gray-400 flex items-center gap-2">
+                                  <Ship className="w-4 h-4" />
+                                  Shipping Cost
+                                </span>
+                                <span className="text-gray-200 font-medium">
+                                  {bookmark.savedResponse.shippingCost} {bookmark.savedResponse.currency}
+                                </span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between p-2 bg-slate-800/50 rounded">
+                                <span className="text-gray-400 flex items-center gap-2">
+                                  <DollarSign className="w-4 h-4" />
+                                  Tariff Fees ({bookmark.savedResponse.tariffRate}%)
+                                </span>
+                                <span className="text-gray-200 font-medium">
+                                  {bookmark.savedResponse.tariffFees} {bookmark.savedResponse.currency}
+                                </span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between p-2 bg-slate-800/50 rounded">
+                                <span className="text-gray-400 flex items-center gap-2">
+                                  <Receipt className="w-4 h-4" />
+                                  VAT Fees ({bookmark.savedResponse.vatRate}%)
+                                </span>
+                                <span className="text-gray-200 font-medium">
+                                  {bookmark.savedResponse.vatFees} {bookmark.savedResponse.currency}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                           
+                          {/* Total */}
                           <div className="pt-3 mt-3 border-t border-white/10">
                             <div className="flex items-baseline gap-2">
                               <span className="text-gray-400">Total Landed Cost:</span>
