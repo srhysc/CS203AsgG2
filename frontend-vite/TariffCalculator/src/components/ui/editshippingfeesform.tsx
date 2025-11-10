@@ -43,16 +43,32 @@ const {
     formState: { errors, isSubmitting },
 } = methods;
 
+// const handleFormSubmit = async (values: EditShippingFeeFormValues) => {
+//     const hasChanged = values.costPerTon !== defaultValues.costPerTon ||
+//                        values.costPerBarrel !== defaultValues.costPerBarrel ||
+//                        values.costPerMMBtu !== defaultValues.costPerMMBtu;
+//     const updatedValues = {
+//     ...values,
+//     lastUpdated: hasChanged ? new Date().toISOString().split('T')[0] : defaultValues.lastUpdated,
+//     };
+//     await onSubmit(updatedValues);
+// };
+
 const handleFormSubmit = async (values: EditShippingFeeFormValues) => {
-    const hasChanged = values.costPerTon !== defaultValues.costPerTon ||
-                       values.costPerBarrel !== defaultValues.costPerBarrel ||
-                       values.costPerMMBtu !== defaultValues.costPerMMBtu;
-    const updatedValues = {
+  const hasChanged =
+    values.costPerTon !== defaultValues.costPerTon ||
+    values.costPerBarrel !== defaultValues.costPerBarrel ||
+    values.costPerMMBtu !== defaultValues.costPerMMBtu;
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const updatedValues = {
     ...values,
-    lastUpdated: hasChanged ? new Date().toISOString().split('T')[0] : defaultValues.lastUpdated,
-    };
-    await onSubmit(updatedValues);
-};
+    lastUpdated: hasChanged ? today : defaultValues.lastUpdated,
+  };
+
+  await onSubmit(updatedValues);
+}
 
 return (
     <FormProvider {...methods}>
