@@ -114,10 +114,12 @@ public class ShippingFeesController {
         return flattened;
     }
 
-    
 
     @PostMapping
     public ShippingFeeResponseDTO addOrUpdateShippingFee(@RequestBody ShippingFeeRequestDTO requestDTO) {
+System.out.println("HITTING CONTROLLER: " );
+System.out.println("FEES: " + requestDTO.getShippingFees());
+
         return shippingFeesService.addOrUpdateShippingFee(requestDTO);
     }
 }

@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button"
 export type ShippingFee = {
   id: string
   originCountry: string
+  originCountryIso3: string
   destinationCountry: string
+  destinationCountryIso3: string
   costPerTon: number
   costPerBarrel: number
   costPerMMBtu: number

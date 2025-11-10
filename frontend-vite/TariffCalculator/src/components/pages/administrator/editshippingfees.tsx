@@ -41,7 +41,7 @@ export default function EditShippingFeesPage() {
           costPerTon: entry.ton != null ? Number(entry.ton) : 0,
           costPerBarrel: entry.barrel != null ? Number(entry.barrel) : 0,
           costPerMMBtu: entry.MMBtu != null ? Number(entry.MMBtu) : 0,
-          lastUpdated: entry.date || ""
+          lastUpdated: entry.lastUpdated || entry.date || "" 
         }))
 
         setTableData(formatted)
@@ -60,6 +60,8 @@ export default function EditShippingFeesPage() {
     try {
       const backend = "http://localhost:8080/shipping-fees"
       const token = await getToken()
+
+console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newFee.destinationCountryIso3)
       
       const response = await fetch(backend, {
         method: "POST",
@@ -116,6 +118,7 @@ export default function EditShippingFeesPage() {
         costPerTon: entry.ton != null ? Number(entry.ton) : 0,
         costPerBarrel: entry.barrel != null ? Number(entry.barrel) : 0,
         costPerMMBtu: entry.MMBtu != null ? Number(entry.MMBtu) : 0,
+        lastUpdated: entry.lastUpdated || entry.date || ""
       }))
 
       setTableData(formatted)
@@ -158,6 +161,7 @@ export default function EditShippingFeesPage() {
                 currentUserName="Admin User"
                 onCancel={onCancel}
                 onSubmit={(values) => {
+console.log("PUSHING VALUES - COST PER TON:", values.costPerTon, "MBTU: ", values.costPerMMBtu, "PERBARREL: ", values.costPerBarrel )
                   onSave(values)
                   handleSaveShippingFee(values)
                 }}
