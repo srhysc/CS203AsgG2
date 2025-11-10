@@ -19,6 +19,8 @@ import com.cs203.grp2.Asg2.models.UserSavedRoute;
 import com.cs203.grp2.Asg2.models.User;
 import com.cs203.grp2.Asg2.DTO.LandedCostResponse;
 import com.cs203.grp2.Asg2.exceptions.UserNotFoundException;
+import com.cs203.grp2.Asg2.exceptions.DuplicateBookmarkException;
+
 
 @Service
 public class UserService {
@@ -106,16 +108,23 @@ public class UserService {
             throw new UserNotFoundException("User not found for adding bookmark: " + userId);
         }
 
+         if (bookmarkName == null || bookmarkName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Bookmark name is required");
+        }
+        
+        // Check for duplicates - this is business logic
+        if (bookmarkExists(userId, bookmarkName)) {
+            throw new DuplicateBookmarkException(
+                "A bookmark with the name '" + bookmarkName + "' already exists"
+            );
+        }
+
         DatabaseReference ref = firebaseDatabase.getReference("users").child(userId);
 
         // if user has no bookmarks, create an empty list
         if (u.getBookmarks() == null) {
             u.setBookmarks(new ArrayList<>());
         }
-        System.out.println(
-                "ADDING BOOKMARK: " + bookmarkName + "IMPORTER: " + response.getImportingCountry() + "EXPORTER: "
-                        + response.getExportingCountry() + response.getPricePerUnit() + response.getTotalLandedCost());
-
         u.getBookmarks().add(new UserSavedRoute(response, bookmarkName));
         // Write updated user back to Firebase
         ref.setValueAsync(u);
@@ -210,5 +219,21 @@ public class UserService {
         });
 
         return future;
+    }
+
+    //method to check if duplicate bookmark name exists
+    private boolean bookmarkExists(String userId, String bookmarkName) 
+    throws ExecutionException, InterruptedException {
+    
+    User user = getUserById(userId).join();
+    
+    if (user == null || user.getBookmarks() == null) {
+        return false;
+    }
+    
+    // Check if any bookmark has the same name (case-insensitive comparison)
+    return user.getBookmarks().stream()
+        .anyMatch(bookmark -> bookmark.getName() != null && 
+                             bookmark.getName().equalsIgnoreCase(bookmarkName));
     }
 }

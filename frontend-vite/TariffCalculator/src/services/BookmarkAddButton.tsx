@@ -60,9 +60,9 @@
 // export default BookmarkAddButton;
 
 import React, { useState } from 'react';
-import { useBookmarkService } from '@/services/bookmarkapi';
+import { useBookmarkService } from '@/services/types/bookmarkapi';
 import type { Tariff } from '@/services/types/countrytariff';
-import { Bookmark, Check, Loader2 } from 'lucide-react';
+import { Bookmark, Check, Loader2, AlertCircle } from 'lucide-react';
 
 interface BookmarkButtonProps {
   savedResponse: Tariff;
@@ -91,7 +91,16 @@ const BookmarkAddButton: React.FC<BookmarkButtonProps> = ({ savedResponse, onSuc
       onSuccess?.();
     } catch (err: any) {
       console.error(err);
-      setError('Failed to save bookmark');
+      if (err.response?.status === 409) {
+        // Duplicate bookmark error
+        setError(err.response?.data || 'A bookmark with this name already exists, please use another name!');
+      } else if (err.response?.status === 400) {
+        // Bad request (e.g., empty bookmark name)
+        setError(err.response?.data || 'Invalid bookmark name');
+      } else {
+        // Generic error
+        setError(err.response?.data || 'Failed to save bookmark. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -146,9 +155,10 @@ const BookmarkAddButton: React.FC<BookmarkButtonProps> = ({ savedResponse, onSuc
       </div>
       
       {error && (
-        <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
-          ⚠️ {error}
-        </p>
+        <div className="mt-3 p-3 bg-red-900/30 border border-red-500/50 rounded-lg flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+          <p className="text-red-300 text-sm">{error}</p>
+        </div>
       )}
     </div>
   );
