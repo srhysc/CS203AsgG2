@@ -153,7 +153,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calculator, Loader2 } from "lucide-react";
+import { Calculator, Loader2, Check, CheckCircle} from "lucide-react";
 import type { Tariff } from './types/countrytariff';
 import { tariffService } from './countrytariffapi';
 import { TariffForm } from '@/components/ui/tarifflookupform';
@@ -164,8 +164,7 @@ import { countryService } from './countryapi';
 import { petrolService } from './petroleumapi';
 import type { Petroleum } from './types/petroleum';
 import type { Country } from '@/services/types/country';
-import BookmarkList from './BookmarkList'
-import BookmarkAddButton from './BookmarkAddButton'
+import BookmarkAddButton from './BookmarkAddButton';
 
 
 
@@ -179,6 +178,7 @@ const TariffCalculator: React.FC = () => {
     //state hooks to populate form dropdown
     const [countries, setCountries] = useState<Country[] | null >(null);
     const [petroleum, setPetroleum] = useState<Petroleum[] | null >(null);
+    const [showSuccessToast, setShowSuccessToast] = useState(false);
 
     const { getAllCountries } = countryService();
     const { getByRequirements } = tariffService();
@@ -237,6 +237,11 @@ const TariffCalculator: React.FC = () => {
         
     };
 
+    const handleBookmarkSuccess = () => {
+        setShowSuccessToast(true);
+        setTimeout(() => setShowSuccessToast(false), 3000);
+    };
+
 
     //retrieving Form Submission data from TariffForm, breaking down into strings for API call
     //call async so can call API without blocking code, Promise<void> promises to finish task
@@ -283,6 +288,20 @@ const TariffCalculator: React.FC = () => {
 
     return (
         <div className="flex-1 space-y-8 p-8">
+            {/* Success Toast Notification */}
+            {showSuccessToast && (
+                <div className="fixed top-20 right-6 z-50 animate-slide-in">
+                    <div className="bg-gradient-to-r from-emerald-500 to-[#dcff1a] text-black px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3 min-w-[300px]">
+                        <div className="flex-shrink-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                            <Check className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="font-semibold text-lg">Bookmark Added!</p>
+                            <p className="text-sm text-black/80">Successfully saved to your bookmarks</p>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Header */}
             <div className="text-center space-y-4">
                 <h1 className="text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#dcff1a] to-emerald-400">
@@ -322,7 +341,7 @@ const TariffCalculator: React.FC = () => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <BookmarkAddButton savedResponse={tariffs} onSuccess={() => alert('Bookmark added!')} />
+                        <BookmarkAddButton savedResponse={tariffs} onSuccess={handleBookmarkSuccess} />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="p-6 bg-slate-800/50 rounded-lg">
