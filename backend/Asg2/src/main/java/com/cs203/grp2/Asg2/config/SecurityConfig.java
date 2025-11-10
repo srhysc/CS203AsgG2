@@ -53,7 +53,8 @@ public class SecurityConfig {
         "/shipping-fees/**", // ShippingFeesController
         "/tariffs/**", // TariffController
         "/trade-agreements/**", // TradeAgreementController
-        "/refineries/**"
+        "/refineries/**",
+        "/convertables/**"
     };
 
     http

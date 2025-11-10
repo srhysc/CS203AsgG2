@@ -16,7 +16,8 @@ public class GlobalControllerExceptionHandler {
         ShippingFeesNotFoundException.class,
         TariffNotFoundException.class,
         UserNotFoundException.class,
-        TradeAgreementNotFoundException.class // <-- add this
+        TradeAgreementNotFoundException.class,
+        ConvertableNotFoundException.class
     })
     public @ResponseBody String handleNotFound(RuntimeException ex) {
         return ex.getMessage();

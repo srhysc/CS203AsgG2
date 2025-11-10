@@ -20,10 +20,13 @@ const navItems: NavItem[] = [
   { id: "country", title: "Countries", url: "/country", icon: Globe },
   { id: "petroleum", title: "Petroleum", url: "/petroleum", icon: Droplet },
   { id: "refineries", title: "Refineries", url: "/refineries", icon: Factory },
-  { id: "shipping", title: "Shipping", url: "/shipping", icon: Ship },
+
+  { id: "shipping", title: "Shipping Cost", url: "/shipping", icon: Ship },
+  { id: "convertable", title: "Petrol Conversions", url: "/convertable", icon: Map },
   { id: "route", title: "Routes", url: "/route", icon: Map },
   { id: "bookmarks", title: "Bookmarks", url: "/bookmarks", icon: Bookmark },
   { id: "admin", title: "Admin", url: "/administrator", icon: Shield, requiresAdmin: true },
+
 ];
 
 export function TopNavBar() {
