@@ -82,11 +82,11 @@ class UserServiceTest {
             return null;
         }).when(childReference).addListenerForSingleValueEvent(any(ValueEventListener.class));
 
-        // Act
-        User.Role result = userService.getUserRoles(userId);
-
-        // Assert
-        assertNull(result);
+        // Act & Assert
+        // The service now throws UserNotFoundException instead of returning null
+        assertThrows(com.cs203.grp2.Asg2.exceptions.UserNotFoundException.class, () -> {
+            userService.getUserRoles(userId);
+        });
     }
 
     @Test
@@ -107,11 +107,11 @@ class UserServiceTest {
             return null;
         }).when(childReference).addListenerForSingleValueEvent(any(ValueEventListener.class));
 
-        // Act
-        User.Role result = userService.getUserRoles(userId);
-
-        // Assert
-        assertNull(result);
+        // Act & Assert
+        // The service now throws UserNotFoundException when user has no role
+        assertThrows(com.cs203.grp2.Asg2.exceptions.UserNotFoundException.class, () -> {
+            userService.getUserRoles(userId);
+        });
     }
 
     @Test
@@ -158,10 +158,11 @@ class UserServiceTest {
             return null;
         }).when(childReference).addListenerForSingleValueEvent(any(ValueEventListener.class));
 
-        // Act
-        userService.updateUserRole(userId, User.Role.ADMIN);
-
-        // Assert
+        // Act & Assert
+        // The service now throws UserNotFoundException when user not found for update
+        assertThrows(com.cs203.grp2.Asg2.exceptions.UserNotFoundException.class, () -> {
+            userService.updateUserRole(userId, User.Role.ADMIN);
+        });
         verify(childReference, never()).setValueAsync(any(User.class));
     }
 
@@ -223,12 +224,11 @@ class UserServiceTest {
             return null;
         }).when(databaseReference).addListenerForSingleValueEvent(any(ValueEventListener.class));
 
-        // Act
-        List<User> result = userService.getAllUsers();
-
-        // Assert
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+        // Act & Assert
+        // The service now throws UserNotFoundException when no users found
+        assertThrows(com.cs203.grp2.Asg2.exceptions.UserNotFoundException.class, () -> {
+            userService.getAllUsers();
+        });
     }
 
     @Test

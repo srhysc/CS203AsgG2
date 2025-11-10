@@ -108,14 +108,12 @@ public class RefineryServiceIntegrationTest extends BaseFirebaseIntegrationTest 
     @Test
     void testGetRefineriesByCountry_NonExistentCountryReturnsEmpty() {
         // When: Search for country that doesn't exist
-        List<RefineryResponseDTO> result = 
+        // The service now throws RefineryNotFoundException instead of returning empty list
+        assertThrows(com.cs203.grp2.Asg2.exceptions.RefineryNotFoundException.class, () -> {
             refineryService.getRefineriesByCountry("NONEXISTENT");
+        });
         
-        // Then: Should return empty list, not null
-        assertNotNull(result, "Result should not be null");
-        assertTrue(result.isEmpty(), "Should return empty list for non-existent country");
-        
-        System.out.println("✅ Non-existent country returns empty list correctly");
+        System.out.println("✅ Non-existent country throws exception correctly");
     }
 
     @Test

@@ -49,12 +49,11 @@ class PetroleumControllerTest {
         // Arrange
         when(petroleumService.getAllPetroleum()).thenThrow(new RuntimeException("Database error"));
 
-        // Act
-        List<Petroleum> result = petroleumController.getAllPetroleum();
-
-        // Assert
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+        // Act & Assert
+        // The controller now throws PetroleumNotFoundException instead of returning empty list
+        assertThrows(com.cs203.grp2.Asg2.exceptions.PetroleumNotFoundException.class, () -> {
+            petroleumController.getAllPetroleum();
+        });
         verify(petroleumService).getAllPetroleum();
     }
 
@@ -80,7 +79,9 @@ class PetroleumControllerTest {
         when(petroleumService.getPetroleumByHsCode("9999")).thenReturn(null);
 
         // Act & Assert
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+        // The controller now throws PetroleumNotFoundException instead of ResponseStatusException
+        com.cs203.grp2.Asg2.exceptions.PetroleumNotFoundException exception = assertThrows(
+            com.cs203.grp2.Asg2.exceptions.PetroleumNotFoundException.class, () -> {
             petroleumController.getPetroleumByHsCode("9999");
         });
 

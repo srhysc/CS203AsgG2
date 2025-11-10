@@ -11,7 +11,7 @@ class RouteBreakdownTest {
         // Arrange & Act
         RouteBreakdown breakdown = new RouteBreakdown(
             "USA", "MEX", "CAN",
-            1000.0, 150.0, 75.0, 1225.0, 0.05, "Crude Oil"
+            1000.0, 150.0, 75.0, 1225.0, 0.05, "Crude Oil", 0.0
         );
 
         // Assert
@@ -30,7 +30,7 @@ class RouteBreakdownTest {
         // Arrange & Act - Direct route without transit
         RouteBreakdown breakdown = new RouteBreakdown(
             "USA", null, "CAN",
-            1000.0, 100.0, 50.0, 1150.0, 0.05, "Crude Oil"
+            1000.0, 100.0, 50.0, 1150.0, 0.05, "Crude Oil", 0.0
         );
 
         // Assert
@@ -45,7 +45,7 @@ class RouteBreakdownTest {
         // Arrange & Act - Route with no fees
         RouteBreakdown breakdown = new RouteBreakdown(
             "USA", "MEX", "CAN",
-            1000.0, 0.0, 0.0, 1000.0, 0.0, "Crude Oil"
+            1000.0, 0.0, 0.0, 1000.0, 0.0, "Crude Oil", 0.0
         );
 
         // Assert
@@ -60,7 +60,7 @@ class RouteBreakdownTest {
         // Arrange & Act - Route with high tariffs
         RouteBreakdown breakdown = new RouteBreakdown(
             "CHN", "SGP", "AUS",
-            5000.0, 2500.0, 1000.0, 8500.0, 0.10, "Crude Oil"
+            5000.0, 2500.0, 1000.0, 8500.0, 0.10, "Crude Oil", 0.0
         );
 
         // Assert
@@ -75,7 +75,7 @@ class RouteBreakdownTest {
         // Arrange
         RouteBreakdown breakdown = new RouteBreakdown(
             "DEU", "FRA", "GBR",
-            2000.0, 300.0, 120.0, 2420.0, 0.06, "Crude Oil"
+            2000.0, 300.0, 120.0, 2420.0, 0.06, "Crude Oil", 0.0
         );
 
         // Act & Assert
@@ -102,7 +102,7 @@ class RouteBreakdownTest {
         // Act
         RouteBreakdown breakdown = new RouteBreakdown(
             "USA", "MEX", "CAN",
-            baseCost, tariffFees, vatFees, expectedTotal, 0.05, "Crude Oil"
+            baseCost, tariffFees, vatFees, expectedTotal, 0.05, "Crude Oil", 0.0
         );
 
         // Assert
@@ -118,12 +118,12 @@ class RouteBreakdownTest {
         // Arrange
         RouteBreakdown directRoute = new RouteBreakdown(
             "USA", null, "CAN",
-            1000.0, 100.0, 50.0, 1150.0, 0.05, "Crude Oil"
+            1000.0, 100.0, 50.0, 1150.0, 0.05, "Crude Oil", 0.0
         );
 
         RouteBreakdown transitRoute = new RouteBreakdown(
             "USA", "MEX", "CAN",
-            1000.0, 150.0, 75.0, 1225.0, 0.05, "Crude Oil"
+            1000.0, 150.0, 75.0, 1225.0, 0.05, "Crude Oil", 0.0
         );
 
         // Assert
@@ -137,7 +137,7 @@ class RouteBreakdownTest {
         // Arrange & Act - VAT rate stored as decimal (0.05 = 5%)
         RouteBreakdown breakdown = new RouteBreakdown(
             "USA", "MEX", "CAN",
-            1000.0, 150.0, 75.0, 1225.0, 0.05, "Crude Oil"
+            1000.0, 150.0, 75.0, 1225.0, 0.05, "Crude Oil", 0.0
         );
 
         // Assert
@@ -151,7 +151,7 @@ class RouteBreakdownTest {
         // Arrange & Act - Edge case with empty strings
         RouteBreakdown breakdown = new RouteBreakdown(
             "", "", "",
-            1000.0, 100.0, 50.0, 1150.0, 0.05, "Crude Oil"
+            1000.0, 100.0, 50.0, 1150.0, 0.05, "Crude Oil", 0.0
         );
 
         // Assert
@@ -165,7 +165,7 @@ class RouteBreakdownTest {
         // Arrange & Act - Constructor doesn't validate negative values
         RouteBreakdown breakdown = new RouteBreakdown(
             "USA", "MEX", "CAN",
-            -1000.0, -150.0, -75.0, -1225.0, -0.05, "Crude Oil"
+            -1000.0, -150.0, -75.0, -1225.0, -0.05, "Crude Oil", 0.0
         );
 
         // Assert - Values are stored as-is (no validation in constructor)

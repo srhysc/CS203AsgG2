@@ -23,7 +23,7 @@ class BookmarkRequestTest {
         BookmarkRequest request = new BookmarkRequest();
         LandedCostResponse response = new LandedCostResponse(
             "USA", "China", "Crude Oil", "270900",
-            50.0, 5000.0, 10.0, 500.0, 5.0, 250.0, 5750.0, "USD", null
+            50.0, 5000.0, 10.0, 500.0, 5.0, 250.0, 5750.0, "USD", 0.0, null
         );
 
         // Act

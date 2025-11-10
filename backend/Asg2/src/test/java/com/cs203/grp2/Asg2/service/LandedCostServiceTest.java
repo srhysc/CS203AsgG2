@@ -1,6 +1,8 @@
 package com.cs203.grp2.Asg2.service;
 
 import com.cs203.grp2.Asg2.DTO.*;
+import com.cs203.grp2.Asg2.exceptions.GeneralBadRequestException;
+import com.cs203.grp2.Asg2.exceptions.PetroleumNotFoundException;
 import com.cs203.grp2.Asg2.models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,17 +74,17 @@ class LandedCostServiceTest {
         // Arrange
         RouteBreakdown directRoute = new RouteBreakdown(
             "Malaysia", null, "Singapore",
-            100.0, 10.0, 9.0, 124.0, 9.0, "Crude Oil"
+            100.0, 10.0, 9.0, 124.0, 9.0, "Crude Oil", 0.0
         );
 
         RouteBreakdown transitRoute1 = new RouteBreakdown(
             "Malaysia", "China", "Singapore",
-            100.0, 12.0, 13.0, 131.0, 9.0, "Crude Oil"
+            100.0, 12.0, 13.0, 131.0, 9.0, "Crude Oil", 0.0
         );
 
         RouteBreakdown transitRoute2 = new RouteBreakdown(
             "Malaysia", "Thailand", "Singapore",
-            100.0, 11.0, 7.0, 123.5, 9.0, "Crude Oil"
+            100.0, 11.0, 7.0, 123.5, 9.0, "Crude Oil", 0.0
         );
 
         List<RouteBreakdown> topRoutes = Arrays.asList(directRoute, transitRoute1, transitRoute2);
@@ -129,7 +131,7 @@ class LandedCostServiceTest {
 
         RouteBreakdown directRoute = new RouteBreakdown(
             "Malaysia", null, "Singapore",
-            100.0, 10.0, 9.0, 124.0, 9.0, "Crude Oil"
+            100.0, 10.0, 9.0, 124.0, 9.0, "Crude Oil", 0.0
         );
 
         List<RouteBreakdown> topRoutes = Arrays.asList(directRoute);
@@ -163,8 +165,8 @@ class LandedCostServiceTest {
         when(countryService.getCountryByCode("702")).thenReturn(singapore);
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
+        GeneralBadRequestException exception = assertThrows(
+            GeneralBadRequestException.class,
             () -> landedCostService.calculateLandedCost(validRequest)
         );
 
@@ -181,12 +183,12 @@ class LandedCostServiceTest {
         when(petroleumService.getPetroleumByHsCode("270900")).thenReturn(null);
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
+        PetroleumNotFoundException exception = assertThrows(
+            PetroleumNotFoundException.class,
             () -> landedCostService.calculateLandedCost(validRequest)
         );
 
-        assertEquals("Invalid HS code for petroleum", exception.getMessage());
+        assertEquals("Invalid HS code for petroleum: 270900", exception.getMessage());
         verify(petroleumService).getPetroleumByHsCode("270900");
         verify(routeOptimizationService, never()).optimizeRoutes(any());
     }
@@ -198,8 +200,8 @@ class LandedCostServiceTest {
         validRequest.setImporterName(null);
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
+        GeneralBadRequestException exception = assertThrows(
+            GeneralBadRequestException.class,
             () -> landedCostService.calculateLandedCost(validRequest)
         );
 
@@ -215,8 +217,8 @@ class LandedCostServiceTest {
         when(countryService.getCountryByCode("702")).thenReturn(singapore);
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
+        GeneralBadRequestException exception = assertThrows(
+            GeneralBadRequestException.class,
             () -> landedCostService.calculateLandedCost(validRequest)
         );
 
@@ -229,7 +231,7 @@ class LandedCostServiceTest {
         // Arrange
         RouteBreakdown directRoute = new RouteBreakdown(
             "Malaysia", null, "Singapore",
-            200.0, 30.0, 9.0, 249.0, 9.0, "Crude Oil"
+            200.0, 30.0, 9.0, 249.0, 9.0, "Crude Oil", 0.0
         );
 
         List<RouteBreakdown> topRoutes = Arrays.asList(directRoute);
@@ -247,7 +249,8 @@ class LandedCostServiceTest {
 
         // Assert
         // Tariff rate should be tariffFees / baseCost = 30 / 200 = 0.15 (15%)
-        assertEquals(0.15, response.getTariffRate(), 0.001);
+        // Note: The service now returns percentage as 15.0 instead of 0.15
+        assertEquals(15.0, response.getTariffRate(), 0.001);
         assertEquals(30.0, response.getTariffFees());
         assertEquals(200.0, response.getBasePrice());
     }
@@ -257,7 +260,7 @@ class LandedCostServiceTest {
         // Arrange
         RouteBreakdown directRoute = new RouteBreakdown(
             "Malaysia", null, "Singapore",
-            100.0, 10.0, 9.0, 124.0, 9.0, "Crude Oil"
+            100.0, 10.0, 9.0, 124.0, 9.0, "Crude Oil", 0.0
         );
 
         List<RouteBreakdown> topRoutes = Arrays.asList(directRoute); // Only direct route
@@ -284,7 +287,7 @@ class LandedCostServiceTest {
         // Arrange
         RouteBreakdown directRoute = new RouteBreakdown(
             "Malaysia", null, "Singapore",
-            100.0, 10.0, 9.0, 124.0, 9.0, "Crude Oil"
+            100.0, 10.0, 9.0, 124.0, 9.0, "Crude Oil", 0.0
         );
 
         List<RouteBreakdown> topRoutes = Arrays.asList(directRoute);
@@ -314,22 +317,22 @@ class LandedCostServiceTest {
         // Arrange
         RouteBreakdown directRoute = new RouteBreakdown(
             "Malaysia", null, "Singapore",
-            100.0, 10.0, 9.0, 124.0, 9.0, "Crude Oil"
+            100.0, 10.0, 9.0, 124.0, 9.0, "Crude Oil", 0.0
         );
 
         RouteBreakdown transitRoute1 = new RouteBreakdown(
             "Malaysia", "China", "Singapore",
-            100.0, 12.0, 13.0, 131.0, 9.0, "Crude Oil"
+            100.0, 12.0, 13.0, 131.0, 9.0, "Crude Oil", 0.0
         );
 
         RouteBreakdown transitRoute2 = new RouteBreakdown(
             "Malaysia", "Thailand", "Singapore",
-            100.0, 11.0, 7.0, 123.5, 9.0, "Crude Oil"
+            100.0, 11.0, 7.0, 123.5, 9.0, "Crude Oil", 0.0
         );
 
         RouteBreakdown transitRoute3 = new RouteBreakdown(
             "Malaysia", "Vietnam", "Singapore",
-            100.0, 13.0, 10.0, 129.5, 9.0, "Crude Oil"
+            100.0, 13.0, 10.0, 129.5, 9.0, "Crude Oil", 0.0
         );
 
         List<RouteBreakdown> topRoutes = Arrays.asList(directRoute, transitRoute1, transitRoute2, transitRoute3);
@@ -363,3 +366,4 @@ class LandedCostServiceTest {
         assertEquals(129.5, vietnamRoute.getTotalLandedCost());
     }
 }
+

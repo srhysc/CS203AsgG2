@@ -38,7 +38,7 @@ class LandedCostControllerTest {
         testRequest.setCalculationDate(LocalDate.of(2025, 10, 14));
 
         testResponse = new LandedCostResponse("USA", "China", "Petroleum", "271012",
-            50.0, 50000.0, 10.0, 5000.0, 7.0, 3500.0, 58500.0, "USD", null);
+            50.0, 50000.0, 10.0, 5000.0, 7.0, 3500.0, 58500.0, "USD", 0.0, null);
     }
 
     @Test
@@ -142,11 +142,11 @@ class LandedCostControllerTest {
         when(landedCostService.calculateLandedCost(any(LandedCostRequest.class)))
             .thenReturn(null);
 
-        // Act
-        LandedCostResponse result = landedCostController.calculateLandedCost(testRequest);
-
-        // Assert
-        assertNull(result);
+        // Act & Assert
+        // The controller now throws LandedCostNotFoundException instead of returning null
+        assertThrows(com.cs203.grp2.Asg2.exceptions.LandedCostNotFoundException.class, () -> {
+            landedCostController.calculateLandedCost(testRequest);
+        });
         verify(landedCostService).calculateLandedCost(any(LandedCostRequest.class));
     }
 }

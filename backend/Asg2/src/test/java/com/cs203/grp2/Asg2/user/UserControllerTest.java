@@ -1,5 +1,6 @@
 package com.cs203.grp2.Asg2.user;
 
+import com.cs203.grp2.Asg2.controller.UserController;
 import com.cs203.grp2.Asg2.models.User;
 import com.cs203.grp2.Asg2.models.User.Role;
 import com.cs203.grp2.Asg2.service.UserService;
@@ -187,7 +188,7 @@ class UserControllerTest {
         // Arrange
         com.cs203.grp2.Asg2.DTO.LandedCostResponse response = new com.cs203.grp2.Asg2.DTO.LandedCostResponse(
             "USA", "China", "Crude Oil", "270900",
-            50.0, 5000.0, 10.0, 500.0, 5.0, 250.0, 5750.0, "USD", null
+            50.0, 5000.0, 10.0, 500.0, 5.0, 250.0, 5750.0, "USD", 0.0, null
         );
         
         com.cs203.grp2.Asg2.DTO.BookmarkRequest request = new com.cs203.grp2.Asg2.DTO.BookmarkRequest();
@@ -229,7 +230,7 @@ class UserControllerTest {
         // Arrange
         com.cs203.grp2.Asg2.DTO.LandedCostResponse response = new com.cs203.grp2.Asg2.DTO.LandedCostResponse(
             null, "China", "Crude Oil", "270900",
-            50.0, 5000.0, 10.0, 500.0, 5.0, 250.0, 5750.0, "USD", null
+            50.0, 5000.0, 10.0, 500.0, 5.0, 250.0, 5750.0, "USD", 0.0, null
         );
         
         com.cs203.grp2.Asg2.DTO.BookmarkRequest request = new com.cs203.grp2.Asg2.DTO.BookmarkRequest();

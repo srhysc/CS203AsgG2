@@ -66,11 +66,11 @@ class CountryControllerTest {
         // Arrange
         when(countryService.getAll()).thenThrow(new RuntimeException("Database error"));
 
-        // Act
-        List<Country> result = countryController.getAllCountries();
-
-        // Assert
-        assertNull(result);
+        // Act & Assert
+        // The controller now throws CountryNotFoundException instead of returning null
+        assertThrows(com.cs203.grp2.Asg2.exceptions.CountryNotFoundException.class, () -> {
+            countryController.getAllCountries();
+        });
         verify(countryService).getAll();
     }
 
@@ -231,11 +231,13 @@ class CountryControllerTest {
         when(countryService.getCountryByName("Singapore")).thenReturn(country);
 
         // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        // The controller now throws CountryNotFoundException instead of RuntimeException
+        com.cs203.grp2.Asg2.exceptions.CountryNotFoundException exception = assertThrows(
+            com.cs203.grp2.Asg2.exceptions.CountryNotFoundException.class, () -> {
             countryController.getVatRateForCountryAndDate("Singapore", "2020-01-01");
         });
         
-        assertTrue(exception.getMessage().contains("No VAT rate found for this date"));
+        assertTrue(exception.getMessage().contains("No VAT rate found"));
         verify(countryService).getCountryByName("Singapore");
     }
 

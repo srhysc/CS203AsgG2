@@ -63,13 +63,11 @@ public class CountryServiceTest {
         testCountry1.setCode("702");
         testCountry1.setName("Singapore");
         testCountry1.setISO3("SGP");
-        testCountry1.normalize();
         
         testCountry2 = new Country();
         testCountry2.setCode("458");
         testCountry2.setName("Malaysia");
         testCountry2.setISO3("MYS");
-        testCountry2.normalize();
 
         // Setup Firebase mocks
         when(firebaseDatabase.getReference("/Country_NEW")).thenReturn(databaseReference);

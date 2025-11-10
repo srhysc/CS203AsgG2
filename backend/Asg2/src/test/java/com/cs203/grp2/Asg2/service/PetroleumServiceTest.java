@@ -252,11 +252,11 @@ class PetroleumServiceTest {
 
         petroleumService.getAllPetroleum();
 
-        // Act
-        Petroleum result = petroleumService.getPetroleumByHsCode("999999");
-
-        // Assert
-        assertNull(result);
+        // Act & Assert
+        // The service now throws PetroleumNotFoundException instead of returning null
+        assertThrows(com.cs203.grp2.Asg2.exceptions.PetroleumNotFoundException.class, () -> {
+            petroleumService.getPetroleumByHsCode("999999");
+        });
     }
 
     @Test

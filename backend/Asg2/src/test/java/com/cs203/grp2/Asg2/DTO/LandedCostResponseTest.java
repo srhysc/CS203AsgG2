@@ -13,7 +13,7 @@ class LandedCostResponseTest {
         // Arrange
         Map<String, RouteBreakdown> altRoutes = new HashMap<>();
         altRoutes.put("Route1", new RouteBreakdown("China", "Singapore", "USA", 
-                                                    100.0, 10.0, 5.0, 115.0, 0.05, "Crude Oil"));
+                                                    100.0, 10.0, 5.0, 115.0, 0.05, "Crude Oil", 0.0));
 
         // Act
         LandedCostResponse response = new LandedCostResponse(
@@ -22,7 +22,7 @@ class LandedCostResponseTest {
             50.0, 5000.0,
             10.0, 500.0,
             5.0, 275.0,
-            5775.0, "USD",
+            5775.0, "USD", 0.0,
             altRoutes
         );
 
@@ -52,7 +52,7 @@ class LandedCostResponseTest {
             60.0, 6000.0,
             8.5, 510.0,
             20.0, 1302.0,
-            7812.0, "EUR",
+            7812.0, "EUR", 0.0,
             null
         );
 
@@ -73,7 +73,7 @@ class LandedCostResponseTest {
             70.0, 7000.0,
             5.0, 350.0,
             10.0, 735.0,
-            8085.0, "JPY",
+            8085.0, "JPY", 0.0,
             emptyRoutes
         );
 
@@ -91,7 +91,7 @@ class LandedCostResponseTest {
             0.0, 0.0,
             0.0, 0.0,
             0.0, 0.0,
-            0.0, "SGD",
+            0.0, "SGD", 0.0,
             new HashMap<>()
         );
 
@@ -110,9 +110,9 @@ class LandedCostResponseTest {
         // Arrange
         Map<String, RouteBreakdown> routes = new HashMap<>();
         routes.put("Direct", new RouteBreakdown("USA", null, "Canada", 
-                                                100.0, 5.0, 2.5, 107.5, 0.025, "Diesel"));
+                                                100.0, 5.0, 2.5, 107.5, 0.025, "Diesel", 0.0));
         routes.put("Via-Mexico", new RouteBreakdown("USA", "Mexico", "Canada", 
-                                                     110.0, 7.0, 3.0, 120.0, 0.03, "Diesel"));
+                                                     110.0, 7.0, 3.0, 120.0, 0.03, "Diesel", 0.0));
 
         LandedCostResponse response = new LandedCostResponse(
             "Canada", "USA",
@@ -120,7 +120,7 @@ class LandedCostResponseTest {
             55.0, 5500.0,
             2.5, 137.5,
             5.0, 281.875,
-            5919.375, "CAD",
+            5919.375, "CAD", 0.0,
             routes
         );
 
@@ -149,7 +149,7 @@ class LandedCostResponseTest {
             45.0, 4500.0,
             7.0, 315.0,
             20.0, 963.0,
-            5778.0, "EUR",
+            5778.0, "EUR", 0.0,
             new HashMap<>()
         );
 
@@ -165,11 +165,11 @@ class LandedCostResponseTest {
         // Arrange
         Map<String, RouteBreakdown> routes = new HashMap<>();
         routes.put("Route-A", new RouteBreakdown("CHN", "SGP", "AUS", 
-                                                  200.0, 15.0, 12.5, 227.5, 0.0625, "LNG"));
+                                                  200.0, 15.0, 12.5, 227.5, 0.0625, "LNG", 0.0));
         routes.put("Route-B", new RouteBreakdown("CHN", "KOR", "AUS", 
-                                                  210.0, 18.0, 13.0, 241.0, 0.065, "LNG"));
+                                                  210.0, 18.0, 13.0, 241.0, 0.065, "LNG", 0.0));
         routes.put("Route-C", new RouteBreakdown("CHN", "JPN", "AUS", 
-                                                  220.0, 20.0, 14.0, 254.0, 0.07, "LNG"));
+                                                  220.0, 20.0, 14.0, 254.0, 0.07, "LNG", 0.0));
 
         // Act
         LandedCostResponse response = new LandedCostResponse(
@@ -178,7 +178,7 @@ class LandedCostResponseTest {
             80.0, 8000.0,
             12.0, 960.0,
             10.0, 896.0,
-            9856.0, "AUD",
+            9856.0, "AUD", 0.0,
             routes
         );
 
@@ -204,7 +204,7 @@ class LandedCostResponseTest {
             10.0, basePrice,
             10.0, tariffFees,
             5.0, vatFees,
-            expectedTotal, "EUR",
+            expectedTotal, "EUR", 0.0,
             new HashMap<>()
         );
 
@@ -222,7 +222,7 @@ class LandedCostResponseTest {
             100.0, 10000.0,
             15.0, 1500.0,
             7.5, 862.5,
-            12362.5, "USD",
+            12362.5, "USD", 0.0,
             new HashMap<>()
         );
 

@@ -23,7 +23,7 @@ class UserSavedRouteTest {
         // Arrange
         LandedCostResponse response = new LandedCostResponse(
             "USA", "China", "Crude Oil", "270900",
-            50.0, 5000.0, 10.0, 500.0, 5.0, 250.0, 5750.0, "USD", null
+            50.0, 5000.0, 10.0, 500.0, 5.0, 250.0, 5750.0, "USD", 0.0, null
         );
 
         // Act
@@ -41,7 +41,7 @@ class UserSavedRouteTest {
         UserSavedRoute route = new UserSavedRoute();
         LandedCostResponse response = new LandedCostResponse(
             "Singapore", "Malaysia", "Gasoline", "271012",
-            60.0, 6000.0, 8.5, 510.0, 7.0, 455.7, 6965.7, "SGD", null
+            60.0, 6000.0, 8.5, 510.0, 7.0, 455.7, 6965.7, "SGD", 0.0, null
         );
 
         // Act
@@ -106,7 +106,7 @@ class UserSavedRouteTest {
         // Arrange
         LandedCostResponse response = new LandedCostResponse(
             "USA", "China", "Crude Oil", "270900",
-            50.0, 5000.0, 10.0, 500.0, 5.0, 250.0, 5750.0, "USD", null
+            50.0, 5000.0, 10.0, 500.0, 5.0, 250.0, 5750.0, "USD", 0.0, null
         );
 
         // Act
