@@ -164,10 +164,12 @@ function AnimatedRoutes() {
             <ManageAdminsPage/>
           </AdminRoute>
           } />
+
       </Routes>
     </AnimatePresence>
   );
 }
+
 
 function App() {
   return (

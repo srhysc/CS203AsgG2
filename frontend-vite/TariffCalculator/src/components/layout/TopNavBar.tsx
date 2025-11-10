@@ -23,7 +23,7 @@ const navItems: NavItem[] = [
 
   { id: "shipping", title: "Shipping Cost", url: "/shipping", icon: Ship },
   { id: "convertable", title: "Petrol Conversions", url: "/convertable", icon: Map },
-  { id: "route", title: "Routes", url: "/route", icon: Map },
+  // { id: "route", title: "Routes", url: "/route", icon: Map },
   { id: "bookmarks", title: "Bookmarks", url: "/bookmarks", icon: Bookmark },
   { id: "admin", title: "Admin", url: "/administrator", icon: Shield, requiresAdmin: true },
 
