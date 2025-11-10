@@ -48,13 +48,13 @@ public class LandedCostService {
         Country exporter = resolveCountry(request.getExporterCode(), request.getExporterName(), "Exporter");
 
         if (importer.getCode().equals(exporter.getCode())) {
-            throw new IllegalArgumentException("Importer and exporter cannot be the same country");
+             throw new GeneralBadRequestException("Importer and exporter cannot be the same country");
         }
 
         // get Petroleum
         Petroleum petroleum = petroleumService.getPetroleumByHsCode(request.getHsCode());
         if (petroleum == null) {
-            throw new IllegalArgumentException("Invalid HS code for petroleum");
+            throw new PetroleumNotFoundException("Invalid HS code for petroleum: " + request.getHsCode());
         }
 
         // Build RouteOptimizationRequest
@@ -67,6 +67,11 @@ public class LandedCostService {
 
         // Calculate top routes
         RouteOptimizationResponse routeResponse = routeOptimizationService.optimizeRoutes(optRequest);
+
+        if (routeResponse == null || routeResponse.getTopRoutes() == null || routeResponse.getTopRoutes().isEmpty()) {
+            throw new LandedCostNotFoundException("No route found for landed cost calculation.");
+        }
+
         List<RouteBreakdown> candidateRoutes = routeResponse.getTopRoutes();
 
         // Take the cheapest route (first in list)
@@ -80,6 +85,14 @@ public class LandedCostService {
             r -> r                            // value -  full RouteBreakdown object
         ));
 
+        // tariff rate (in percentage) = (tariff fees/base cost) * 100, multiply and divide by another 100 for math.round
+        double tariffRatePercent = Math.round((directRoute.getTariffFees() / directRoute.getBaseCost()) * 100 * 100.0) / 100.0;
+        //round landedcost and base cost
+        double totalLandedCostRounded = Math.round(directRoute.getTotalLandedCost() * 100.0) / 100.0;
+        double baseCostRounded = Math.round(directRoute.getBaseCost() * 100.0) / 100.0;
+        double vatFeeRounded = Math.round(directRoute.getVatFees() * 100.0) / 100.0;
+
+
         // Build LandedCostResponse from the direct route, pass in alternative routes map
         return new LandedCostResponse(
                 importer.getName(),
@@ -87,13 +100,14 @@ public class LandedCostService {
                 petroleum.getName(),
                 petroleum.getHsCode(),
                 routeResponse.getPetroleumPrice(),
-                directRoute.getBaseCost(),
-                directRoute.getTariffFees() / directRoute.getBaseCost(), // tariff rate
+                baseCostRounded,
+                tariffRatePercent, 
                 directRoute.getTariffFees(),
                 directRoute.getVatRate(),
-                directRoute.getVatFees(),
-                directRoute.getTotalLandedCost(),
+                vatFeeRounded,
+                totalLandedCostRounded,
                 "USD",
+                directRoute.getShippingCost(),
                 alternativeRoutes
         );
     }
@@ -105,7 +119,7 @@ public class LandedCostService {
             return countryService.getCountryByCode(String.valueOf(iso3n));
         if (name != null)
             return countryService.getCountryByName(name);
-        throw new IllegalArgumentException(role + " not specified");
+        throw new GeneralBadRequestException(role + " not specified");
     }
 
 }

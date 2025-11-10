@@ -32,6 +32,9 @@ public class LandedCostResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.00")
     private double totalLandedCost;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.00")
+    private double shippingCost;
+
     private String currency;
 
     //map of alternative routes
@@ -44,7 +47,7 @@ public class LandedCostResponse {
                               double pricePerUnit, double basePrice,
                               double tariffRate, double tariffFees,
                               double vatRate, double vatFees,
-                              double totalLandedCost, String currency,
+                              double totalLandedCost, String currency, double shippingCost,
                             Map<String, RouteBreakdown> alternativeRoutes) {
         this.importingCountry = importingCountry;
         this.exportingCountry = exportingCountry;
@@ -58,6 +61,7 @@ public class LandedCostResponse {
         this.vatFees = vatFees;
         this.totalLandedCost = totalLandedCost;
         this.currency = currency;
+        this.shippingCost = shippingCost;
         this.alternativeRoutes = alternativeRoutes;
     }
 
@@ -74,6 +78,7 @@ public class LandedCostResponse {
     public double getVatFees() { return vatFees; }
     public double getTotalLandedCost() { return totalLandedCost; }
     public String getCurrency() { return currency; }
+    public double getShippingCost() { return shippingCost; }
     public Map<String, RouteBreakdown> getAlternativeRoutes() { return alternativeRoutes; }
 
     //setters so firebase can populate
@@ -88,6 +93,7 @@ public class LandedCostResponse {
     public void setVatRate(double vatRate) { this.vatRate = vatRate; }
     public void setVatFees(double vatFees) { this.vatFees = vatFees; }
     public void setTotalLandedCost(double totalLandedCost) { this.totalLandedCost = totalLandedCost; }
+    public void setShippingCost(double shippingCost) { this.shippingCost = shippingCost; }
     public void setCurrency(String currency) { this.currency = currency; }
     public void setAlternativeRoutes(Map<String, RouteBreakdown> alternativeRoutes) {
         this.alternativeRoutes = alternativeRoutes;

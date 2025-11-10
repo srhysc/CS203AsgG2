@@ -35,18 +35,28 @@ public class WitsService {
     public WitsTariff resolveTariff(TariffRequestDTO req) {
         // 1) Preferential from Firebase (if exporter+importer in same agreement & hs covered & date in force)
         Optional<WitsTariff> pref = findPreferentialFromDb(req);
-        if (pref.isPresent()) return pref.get();
+        if (pref.isPresent()) {
+            System.out.println("🔎 pref present");
+            return pref.get();
+        } 
 
         // 2) MFN from Firebase (importer HS6)
         Optional<WitsTariff> mfn = findMfnFromDb(req);
-        if (mfn.isPresent()) return mfn.get();
-
-        // 3) Fallback to WITS (or any HTTP data source you wire in)
+        if (mfn.isPresent()){
+            System.out.println("🔎 mfc present = " + mfn.get().ratePercent());
+            //mfn.get().ratePercent();
+            return mfn.get();
+        } 
+         System.out.println("🔎 doing wits....");
+       // 3) Fallback to WITS (or any HTTP data source you wire in)
         Optional<WitsTariff> wits = fetchFromWits(req);
         return wits.orElseGet(() ->
+        
             new WitsTariff(req.importerIso3(), req.exporterIso3(), req.hs6(), req.date(), 0.0, "none",
                            "No rate found in DB; WITS returned none/invalid")
         );
+
+  
     }
 
     /* =====================  DB LOOKUPS  ===================== */
@@ -87,9 +97,11 @@ public class WitsService {
     }
 
     private Optional<WitsTariff> findMfnFromDb(TariffRequestDTO req) {
+        
+        System.out.println("🎣 checking db for " + "/Tariff/mfnRates/" + req.importerIso3() + "/0" + "/MFNave");
         try {
             // Adjust to your MFN/normal-rate location if you keep one
-            Double rate = readDouble("/Tariff/mfnRates/" + req.importerIso3() + "/" + req.hs6() + "/ratePercent");
+            Double rate = readDouble("/Tariff/mfnRates/" + req.importerIso3() + "/0/" + "MFNave");
             if (rate == null) return Optional.empty();
             return Optional.of(new WitsTariff(
                     req.importerIso3(), req.exporterIso3(), req.hs6(), req.date(),
@@ -105,11 +117,11 @@ public class WitsService {
 
     private Optional<WitsTariff> fetchFromWits(TariffRequestDTO req) {
         try {
-            // Example placeholder URL — replace with the exact endpoint/params you decided on.
+          
             // You may need reporter=importer, partner=exporter or partner=World, product=HS6, year=date.getYear(), etc.
             String url = String.format(
                 "https://wits.worldbank.org/API/V1/SDMX/V21/rest/data/DF_WITS_Tariff_TRAINS/.%s.%s.%s.reported/",
-                req.hs6(), iso3nOrIso3(req.importerIso3()), iso3nOrIso3(req.exporterIso3())
+                 iso3nOrIso3(req.importerIso3()), iso3nOrIso3(req.exporterIso3()),req.hs6()
             );
 
             ResponseEntity<String> resp = http.getForEntity(url, String.class);

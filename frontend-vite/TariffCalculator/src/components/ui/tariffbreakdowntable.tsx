@@ -471,6 +471,7 @@ export default function TariffBreakdownTable({ tariffObject }: { tariffObject: T
     vatRate: tariffObject.vatRate,
     vatFees: tariffObject.vatFees,
     totalLandedCost: tariffObject.totalLandedCost,
+    shippingCost: tariffObject.shippingCost,
     route: `${tariffObject.exportingCountry} → ${tariffObject.importingCountry}`,
     isDirect: true,
   });
@@ -491,8 +492,6 @@ export default function TariffBreakdownTable({ tariffObject }: { tariffObject: T
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(value);
-
-  const formatPercentage = (value: number) => `${(value * 100).toFixed(2)}%`;
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -533,9 +532,9 @@ export default function TariffBreakdownTable({ tariffObject }: { tariffObject: T
                   ["Petroleum Code", tariffObject.hsCode],
                   ["Price per Unit", formatCurrency(tariffObject.pricePerUnit)],
                   ["Base Price", formatCurrency(tariffObject.basePrice)],
-                  ["Tariff Rate", formatPercentage(tariffObject.tariffRate)],
+                  ["Tariff Rate", tariffObject.tariffRate],
                   ["Tariff Fees", formatCurrency(tariffObject.tariffFees)],
-                  ["VAT Rate", formatPercentage(tariffObject.vatRate)],
+                  ["VAT Rate", tariffObject.vatRate],
                   ["VAT Fees", formatCurrency(tariffObject.vatFees)],
                 ].map(([label, value], index) => (
                   <tr key={index} className="border-b border-white/10">
@@ -571,6 +570,7 @@ export default function TariffBreakdownTable({ tariffObject }: { tariffObject: T
                     <th className="p-3 text-right font-semibold">Tariff</th>
                     <th className="p-3 text-right font-semibold">VAT</th>
                     <th className="p-3 text-right font-semibold">Total</th>
+                    <th className="p-3 text-right font-semibold">Shipping Cost</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -599,6 +599,10 @@ export default function TariffBreakdownTable({ tariffObject }: { tariffObject: T
                       <td className="p-3 text-right font-bold text-[#dcff1a]">
                         {formatCurrency(route.totalLandedCost)}
                       </td>
+                      <td className="p-3 text-right font-bold text-[#dcff1a]">
+                        {(route.shippingCost)}
+                      </td>
+              
                     </tr>
                   ))}
                 </tbody>

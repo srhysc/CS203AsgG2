@@ -28,7 +28,15 @@ public class LandedCostController {
     // POST endpoint for front-end JSON
     @PostMapping
     public LandedCostResponse calculateLandedCost(@RequestBody LandedCostRequest request) {
-        return service.calculateLandedCost(request);
+        // return service.calculateLandedCost(request);
+        if (request == null || request.getUnits() <= 0 || request.getHsCode() == null) {
+            throw new GeneralBadRequestException("Invalid landed cost request.");
+        }
+        LandedCostResponse response = service.calculateLandedCost(request);
+        if (response == null) {
+            throw new LandedCostNotFoundException("Landed cost calculation failed or not found.");
+        }
+        return response;
     }
 
     // GET endpoint for quick browser testing
@@ -41,6 +49,11 @@ public class LandedCostController {
             @RequestParam
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate date) {
+
+            // Exception for invalid parameters
+        if (importer == null || exporter == null || hsCode == null || units <= 0 || date == null) {
+            throw new GeneralBadRequestException("Missing or invalid parameters for landed cost calculation.");
+        }
 
         LandedCostRequest request = new LandedCostRequest();
 
@@ -62,6 +75,11 @@ public class LandedCostController {
         request.setUnits(units);
         request.setCalculationDate(date);
 
-        return service.calculateLandedCost(request);
+        LandedCostResponse response = service.calculateLandedCost(request);
+        if (response == null) {
+            throw new LandedCostNotFoundException("Landed cost calculation failed or not found.");
+        }
+        return response;
+        // return service.calculateLandedCost(request);
     }
 }
