@@ -237,14 +237,9 @@ System.out.println("😈😈 DIRECT SHIPPING" + exporter.getISO3() + " " + impor
 
         try {
             // Tariff between exporter and middle
-            TariffRequestDTO dto1 = new TariffRequestDTO(exporter.getISO3(), middle.getISO3(),
+            TariffRequestDTO dto = new TariffRequestDTO(exporter.getISO3(), importer.getISO3(),
                     petroleum.getHsCode(), date);
-            double rate1 = tariffService.resolveTariff(dto1).ratePercent() ;
-
-            // Tariff between middle and importer
-            TariffRequestDTO dto2 = new TariffRequestDTO(middle.getISO3(), importer.getISO3(),
-                    petroleum.getHsCode(), date);
-            double rate2 = tariffService.resolveTariff(dto2).ratePercent() ;
+            double rate = tariffService.resolveTariff(dto).ratePercent() ;
 
             //shipping fees between importer and middle, middle and exporter
             ShippingCostDetailResponseDTO exporterToMiddleCostDetail = shippingFeesService.getCostByUnit(
@@ -263,8 +258,7 @@ System.out.println("😈😈 DIRECT SHIPPING" + exporter.getISO3() + " " + impor
             baseCost += totalShippingCost;
 
             //calculate tariffs based on new basecost
-            totalTariff = baseCost * (rate1 / 100.0) + baseCost * (rate2 / 100.0); // cost times rate for both countries to get teriff extra
-                                                               // cost
+            totalTariff = baseCost * (rate / 100.0);  
 
         } catch (Exception e) {
             totalTariff = 0.0;
