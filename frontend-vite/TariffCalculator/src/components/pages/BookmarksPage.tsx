@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useBookmarkService } from '@/services/bookmarkapi';
-import type { UserSavedRoute } from '@/services/bookmarkapi';
+import { useBookmarkService } from '@/services/types/bookmarkapi';
+import type { UserSavedRoute } from '@/services/types/bookmarkapi';
 import { Bookmark, Trash2, TrendingUp, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 

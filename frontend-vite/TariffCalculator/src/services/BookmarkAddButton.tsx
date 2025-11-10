@@ -60,7 +60,7 @@
 // export default BookmarkAddButton;
 
 import React, { useState } from 'react';
-import { useBookmarkService } from '@/services/bookmarkapi';
+import { useBookmarkService } from '@/services/types/bookmarkapi';
 import type { Tariff } from '@/services/types/countrytariff';
 import { Bookmark, Check, Loader2 } from 'lucide-react';
 
