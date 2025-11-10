@@ -65,6 +65,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Layout } from "@/components/layout/layout";
 import SyncUserToBackend from './services/firebaseusersync';
+import { ProtectedRoute, AdminRoute } from "./services/auth/ProtectedRoute";
+
 
 // Page Imports
 import Home from "@/components/pages/home";
@@ -91,25 +93,83 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Home />} />
-        <Route path="/calculator" element={<TariffCalculator />} />
-        <Route path="/lookup" element={<TariffLookup />} />
-        <Route path="/country" element={<CountryInfoPage />} />
-        <Route path="/petroleum" element={<PetroleumDetailsPage />} />
-        <Route path="/refineries" element={<RefineryInfoPage />} />
-        <Route path="/shipping" element={<ShippingCostPage />} />
-        <Route path="/convertable" element={<Convertable />} />
+        <Route path="/calculator" element={
+          <ProtectedRoute>
+              <TariffCalculator />
+            </ProtectedRoute>
+          } />
+        <Route path="/lookup" element={
+            <ProtectedRoute>
+              <TariffLookup />
+            </ProtectedRoute>
+          } />
+        <Route path="/country" element={
+            <ProtectedRoute>
+              <CountryInfoPage />
+            </ProtectedRoute>
+          } />
+        <Route path="/petroleum" element={
+            <ProtectedRoute>
+              <PetroleumDetailsPage />
+            </ProtectedRoute>
+          } />
+        <Route path="/refineries" element={
+          <ProtectedRoute>
+            <RefineryInfoPage />
+          </ProtectedRoute>
+          } />
+        <Route path="/shipping" element={
+          <ProtectedRoute>
+            <ShippingCostPage />
+          </ProtectedRoute>
+          } />
+        <Route path="/convertable" element={
+          <ProtectedRoute>
+            <Convertable />
+          </ProtectedRoute>
+          } />
+        <Route path="/route" element={<div>Refinery Route Page (coming soon)</div>} />
+        <Route path="/bookmarks" element={
+          <ProtectedRoute>
+            <BookmarksPage />
+          </ProtectedRoute>
+          } />
+        <Route path="/administrator" element={
+          <AdminRoute>
+            <Adminhome />
+          </AdminRoute>
+          } />
+        <Route path="/administrator/tariffs" element={
+          <AdminRoute>
+            <EditTariffs />
+          </AdminRoute>
+          } />
+        <Route path="/administrator/VAT-rates" element={
+          <AdminRoute>
+            <EditVATRates />
+          </AdminRoute>
+          } />
+        <Route path="/administrator/shipping-fees" element={
+          <AdminRoute>
+            <EditShippingFee />
+          </AdminRoute>
+          } />
+        <Route path="/administrator/product-prices" element={
+          <AdminRoute>
+            <EditProductPricesPage />
+          </AdminRoute>
+          } />
+        <Route path = "/administrator/manage-admins" element= {
+           <AdminRoute>
+            <ManageAdminsPage/>
+          </AdminRoute>
+          } />
 
-        <Route path="/bookmarks" element={<BookmarksPage />} />
-        <Route path="/administrator" element={<Adminhome />} />
-        <Route path="/administrator/tariffs" element={<EditTariffs />} />
-        <Route path="/administrator/VAT-rates" element={<EditVATRates />} />
-        <Route path="/administrator/shipping-fees" element={<EditShippingFee />} />
-        <Route path="/administrator/product-prices" element={<EditProductPricesPage />} />
-        <Route path = "/administrator/manage-admins" element= {<ManageAdminsPage/>} />
       </Routes>
     </AnimatePresence>
   );
 }
+
 
 function App() {
   return (
