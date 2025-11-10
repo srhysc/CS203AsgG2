@@ -1,6 +1,7 @@
 package com.cs203.grp2.Asg2.models;
 
 import org.junit.jupiter.api.Test;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,7 +19,8 @@ class CountryTest {
         assertNull(country.getName());
         assertNull(country.getCode());
         assertNull(country.getISO3());
-        assertNull(country.getVatRates());
+        assertNotNull(country.getVatRates()); // VATRates is initialized to empty ArrayList
+        assertTrue(country.getVatRates().isEmpty());
         assertNull(country.getHs27_taxes());
     }
 
@@ -26,18 +28,19 @@ class CountryTest {
     void testSettersAndGetters() {
         // Arrange
         Country country = new Country();
+        List<VATRate> vatRates = Arrays.asList(new VATRate(LocalDate.now(), 7.0));
 
         // Act
         country.setName("Singapore");
         country.setCode("702");
         country.setISO3("SGP");
-        country.setVatRates(7L);
+        country.setVatRates(vatRates);
 
         // Assert
         assertEquals("Singapore", country.getName());
         assertEquals("702", country.getCode());
         assertEquals("SGP", country.getISO3());
-        assertEquals(7L, country.getVatRates());
+        assertEquals(vatRates, country.getVatRates());
     }
 
     @Test
@@ -49,7 +52,7 @@ class CountryTest {
         country.normalize();
 
         // Assert
-        assertEquals(0L, country.getVatRates());
+        assertNotNull(country.getVatRates());
         assertNotNull(country.getHs27_taxes());
     }
 
@@ -57,7 +60,8 @@ class CountryTest {
     void testNormalize_WithExistingValues() {
         // Arrange
         Country country = new Country();
-        country.setVatRates(10L);
+        List<VATRate> vatRates = Arrays.asList(new VATRate(LocalDate.now(), 10.0));
+        country.setVatRates(vatRates);
         Country.Hs27Taxes taxes = new Country.Hs27Taxes();
         country.setHs27_taxes(taxes);
 
@@ -65,7 +69,7 @@ class CountryTest {
         country.normalize();
 
         // Assert
-        assertEquals(10L, country.getVatRates());
+        assertEquals(vatRates, country.getVatRates());
         assertNotNull(country.getHs27_taxes());
     }
 
@@ -249,7 +253,7 @@ class CountryTest {
         country.setName("United States");
         country.setCode("840");
         country.setISO3("USA");
-        country.setVatRates(0L);
+        country.setVatRates(Arrays.asList(new VATRate(LocalDate.now(), 0.0)));
 
         taxes.setVat_gst_percent(0.0);
         taxes.setExcise_specific_per_liter(0.184);
@@ -278,23 +282,25 @@ class CountryTest {
     void testZeroVatRate() {
         // Arrange
         Country country = new Country();
+        List<VATRate> vatRates = Arrays.asList(new VATRate(LocalDate.now(), 0.0));
 
         // Act
-        country.setVatRates(0L);
+        country.setVatRates(vatRates);
 
         // Assert
-        assertEquals(0L, country.getVatRates());
+        assertEquals(vatRates, country.getVatRates());
     }
 
     @Test
     void testHighVatRate() {
         // Arrange
         Country country = new Country();
+        List<VATRate> vatRates = Arrays.asList(new VATRate(LocalDate.now(), 25.0));
 
         // Act
-        country.setVatRates(25L);
+        country.setVatRates(vatRates);
 
         // Assert
-        assertEquals(25L, country.getVatRates());
+        assertEquals(vatRates, country.getVatRates());
     }
 }

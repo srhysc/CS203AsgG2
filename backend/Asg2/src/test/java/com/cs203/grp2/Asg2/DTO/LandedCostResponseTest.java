@@ -13,7 +13,7 @@ class LandedCostResponseTest {
         // Arrange
         Map<String, RouteBreakdown> altRoutes = new HashMap<>();
         altRoutes.put("Route1", new RouteBreakdown("China", "Singapore", "USA", 
-                                                    100.0, 10.0, 5.0, 115.0, 0.05));
+                                                    100.0, 10.0, 5.0, 115.0, 0.05, "Crude Oil"));
 
         // Act
         LandedCostResponse response = new LandedCostResponse(
@@ -110,9 +110,9 @@ class LandedCostResponseTest {
         // Arrange
         Map<String, RouteBreakdown> routes = new HashMap<>();
         routes.put("Direct", new RouteBreakdown("USA", null, "Canada", 
-                                                100.0, 5.0, 2.5, 107.5, 0.025));
+                                                100.0, 5.0, 2.5, 107.5, 0.025, "Diesel"));
         routes.put("Via-Mexico", new RouteBreakdown("USA", "Mexico", "Canada", 
-                                                     110.0, 7.0, 3.0, 120.0, 0.03));
+                                                     110.0, 7.0, 3.0, 120.0, 0.03, "Diesel"));
 
         LandedCostResponse response = new LandedCostResponse(
             "Canada", "USA",
@@ -165,11 +165,11 @@ class LandedCostResponseTest {
         // Arrange
         Map<String, RouteBreakdown> routes = new HashMap<>();
         routes.put("Route-A", new RouteBreakdown("CHN", "SGP", "AUS", 
-                                                  200.0, 15.0, 12.5, 227.5, 0.0625));
+                                                  200.0, 15.0, 12.5, 227.5, 0.0625, "LNG"));
         routes.put("Route-B", new RouteBreakdown("CHN", "KOR", "AUS", 
-                                                  210.0, 18.0, 13.0, 241.0, 0.065));
+                                                  210.0, 18.0, 13.0, 241.0, 0.065, "LNG"));
         routes.put("Route-C", new RouteBreakdown("CHN", "JPN", "AUS", 
-                                                  220.0, 20.0, 14.0, 254.0, 0.07));
+                                                  220.0, 20.0, 14.0, 254.0, 0.07, "LNG"));
 
         // Act
         LandedCostResponse response = new LandedCostResponse(
