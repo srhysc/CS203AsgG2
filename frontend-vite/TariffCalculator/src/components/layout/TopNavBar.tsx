@@ -225,7 +225,7 @@ const navItems: NavItem[] = [
   { id: "petroleum", title: "Petroleum Details", url: "/petroleum", icon: Droplet },
   { id: "refineries", title: "Refineries", url: "/refineries", icon: Factory },
   { id: "shipping", title: "Shipping Cost", url: "/shipping", icon: Ship },
-  { id: "route", title: "Refinery Route", url: "/route", icon: Map },
+  { id: "convertable", title: "Petrol Conversions", url: "/convertable", icon: Map },
   { id: "admin", title: "Administrator", url: "/administrator", icon: Shield, requiresAdmin: true },
 ];
 

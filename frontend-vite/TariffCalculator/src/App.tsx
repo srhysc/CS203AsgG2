@@ -81,6 +81,7 @@ import EditProductPricesPage from "./components/pages/administrator/editproductp
 import ManageAdminsPage from "./components/pages/administrator/manageuserroles";
 
 import RefineryInfoPage from "@/components/pages/RefineryInfoPage";
+import Convertable from "@/components/pages/ConvertablePage";
 
 
 function AnimatedRoutes() {
@@ -96,7 +97,7 @@ function AnimatedRoutes() {
         <Route path="/petroleum" element={<PetroleumDetailsPage />} />
         <Route path="/refineries" element={<RefineryInfoPage />} />
         <Route path="/shipping" element={<ShippingCostPage />} />
-        <Route path="/route" element={<div>Refinery Route Page (coming soon)</div>} />
+        <Route path="/convertable" element={<Convertable />} />
         <Route path="/administrator" element={<Adminhome />} />
         <Route path="/administrator/tariffs" element={<EditTariffs />} />
         <Route path="/administrator/VAT-rates" element={<EditVATRates />} />
