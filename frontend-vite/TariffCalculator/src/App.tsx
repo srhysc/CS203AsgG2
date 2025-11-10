@@ -75,7 +75,7 @@ import TariffCalculator from "@/services/TariffCalculator";
 import TariffLookup from "@/services/TariffDisplay";
 import Adminhome from "@/components/pages/administrator/adminhome";
 import EditTariffs from "@/components/pages/administrator/edittariffs";
-import EditVATRates from "@/components/pages/administrator/editvatrates";
+import EditVATRates from "@/components/pages/administrator/editVATrates";
 import EditShippingFee from "@/components/pages/administrator/editshippingfees";
 import EditProductPricesPage from "./components/pages/administrator/editproductprices";
 import ManageAdminsPage from "./components/pages/administrator/manageuserroles";
