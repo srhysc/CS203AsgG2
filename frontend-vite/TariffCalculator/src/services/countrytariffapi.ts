@@ -36,7 +36,8 @@ export const tariffService = () => {
     importcountryid: string,
     exportcountryid: string,
     productcode: string,
-    units: string
+    units: string,
+    calculationDate: string,
   ): Promise<Tariff> => {
     if (!importcountryid || !exportcountryid || !productcode || !units) {
       throw new Error('Missing required parameters for tariff request.');
@@ -47,6 +48,7 @@ export const tariffService = () => {
       exporter: exportcountryid,
       hsCode: productcode,
       units: units,
+      date: calculationDate
     });
 
     try {

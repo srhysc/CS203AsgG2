@@ -1,5 +1,11 @@
 package com.cs203.grp2.Asg2.models;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.cs203.grp2.Asg2.DTO.LandedCostResponse;
+
 import jakarta.validation.constraints.NotBlank;
 
 
@@ -8,7 +14,6 @@ public class User {
     @NotBlank(message = "UserID is required")
     private String id;
 
-    @NotBlank(message = "Username is required")
     private String username;
 
     @NotBlank(message = "Email is required")
@@ -21,6 +26,8 @@ public class User {
     }
 
     private Role role;
+
+    private List<UserSavedRoute> bookmarks = new ArrayList<>();
 
     // Default constructor
     public User() {}
@@ -64,7 +71,15 @@ public class User {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(Role role){
         this.role = role;
+    }
+
+    public List<UserSavedRoute> getBookmarks(){
+        return bookmarks;
+    }
+
+    public void setBookmarks(List<UserSavedRoute> bookmarks){
+        this.bookmarks = bookmarks;
     }
 }

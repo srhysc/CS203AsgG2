@@ -5,9 +5,7 @@ import { DataTable } from "@/components/ui/datatable"
 import type { Tariff } from "@/components/tablecolumns/edittariffscol"
 import { tariffColumns } from "@/components/tablecolumns/edittariffscol"
 import { EditTariffForm } from "@/components/ui/edittariffform"
-import { Toaster, toast } from "@/components/ui/sonner"
-import { useSidebar } from "@/components/ui/sidebar"
- 
+import { Toaster, toast } from "@/components/ui/sonner" 
 
 const initialTariffData: Tariff[] = [
   {
@@ -17,7 +15,6 @@ const initialTariffData: Tariff[] = [
     importingCountry: "Singapore",
     tariffRate: 0.05,
     lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
   },
   {
     id: "2",
@@ -26,7 +23,6 @@ const initialTariffData: Tariff[] = [
     importingCountry: "Malaysia",
     tariffRate: 0.08,
     lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
   },
   {
     id: "3",
@@ -35,7 +31,6 @@ const initialTariffData: Tariff[] = [
     importingCountry: "Japan",
     tariffRate: 0.04,
     lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
   },
   {
     id: "4",
@@ -44,7 +39,6 @@ const initialTariffData: Tariff[] = [
     importingCountry: "Germany",
     tariffRate: 0.06,
     lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
   },
   {
     id: "5",
@@ -53,98 +47,8 @@ const initialTariffData: Tariff[] = [
     importingCountry: "China",
     tariffRate: 0.07,
     lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
   },
-  {
-    id: "1",
-    productCode: "PET001",
-    exportingCountry: "Saudi Arabia",
-    importingCountry: "Singapore",
-    tariffRate: 0.05,
-    lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
-  },
-  {
-    id: "2",
-    productCode: "PET002",
-    exportingCountry: "USA",
-    importingCountry: "Malaysia",
-    tariffRate: 0.08,
-    lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
-  },
-  {
-    id: "3",
-    productCode: "PET003",
-    exportingCountry: "Qatar",
-    importingCountry: "Japan",
-    tariffRate: 0.04,
-    lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
-  },
-  {
-    id: "4",
-    productCode: "PET004",
-    exportingCountry: "Russia",
-    importingCountry: "Germany",
-    tariffRate: 0.06,
-    lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
-  },
-  {
-    id: "5",
-    productCode: "PET005",
-    exportingCountry: "UAE",
-    importingCountry: "China",
-    tariffRate: 0.07,
-    lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
-  },
-  {
-    id: "1",
-    productCode: "PET001",
-    exportingCountry: "Saudi Arabia",
-    importingCountry: "Singapore",
-    tariffRate: 0.05,
-    lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
-  },
-  {
-    id: "2",
-    productCode: "PET002",
-    exportingCountry: "USA",
-    importingCountry: "Malaysia",
-    tariffRate: 0.08,
-    lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
-  },
-  {
-    id: "3",
-    productCode: "PET003",
-    exportingCountry: "Qatar",
-    importingCountry: "Japan",
-    tariffRate: 0.04,
-    lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
-  },
-  {
-    id: "4",
-    productCode: "PET004",
-    exportingCountry: "Russia",
-    importingCountry: "Germany",
-    tariffRate: 0.06,
-    lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
-  },
-  {
-    id: "5",
-    productCode: "PET005",
-    exportingCountry: "UAE",
-    importingCountry: "China",
-    tariffRate: 0.07,
-    lastUpdated: "2025-09-01",
-    updatedBy: "Admin",
-  },
+  
 ]
 
 // to be connected to database
@@ -167,7 +71,6 @@ function isEqual(obj1: any, obj2: any): boolean {
 
 export default function EditTariffsPage() {
   const [tariffData, setTariffData] = React.useState<Tariff[]>(initialTariffData)
-  const { open } = useSidebar()
   const handleSaveTariff = async (updatedTariff: Tariff) => {
     const originalTariff = tariffData.find(t => t.id === updatedTariff.id)
 
@@ -198,18 +101,10 @@ export default function EditTariffsPage() {
   }
 
   return (
-    <div className="relative p-6 min-h-screen text-gray-900 dark:text-gray-100 transition-colors">
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          style: {
-            transform: open ? "translateX(128px)" : "translateX(0px)",
-            transition: "transform 0.3s ease",
-          },
-        }}
-      />
+    <div className="h-screen w-screen overflow-hidden flex flex-col text-gray-900 dark:text-gray-100 transition-colors">
+      <Toaster/>
 
-      <a href="/administrator" className="btn-slate absolute top-6 right-6 z-50">
+      <a href="/administrator" className="btn-slate absolute top-6 right-6">
         Back
       </a>
       <div className="relative flex items-center justify-between mb-6">
@@ -223,7 +118,7 @@ export default function EditTariffsPage() {
           columns={tariffColumns}
           data={tariffData}
           setData={setTariffData}
-          filterPlaceholder="Search tariffs..."
+          filterPlaceholder="Search..."
           renderRowEditForm={(row, onSave, onCancel) => (
             <EditTariffForm
               defaultValues={row}
