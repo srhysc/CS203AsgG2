@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useBookmarkService } from '@/services/types/bookmarkapi';
 import type { UserSavedRoute } from '@/services/types/bookmarkapi';
-import { Bookmark, Trash2, TrendingUp, Loader2, Package, DollarSign, Ship, Receipt } from 'lucide-react';
+import { Bookmark, TrendingUp, Loader2, Package, DollarSign, Ship, Receipt } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const BookmarksPage: React.FC = () => {
