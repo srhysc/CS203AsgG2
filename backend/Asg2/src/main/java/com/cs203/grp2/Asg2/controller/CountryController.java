@@ -112,9 +112,9 @@ public class CountryController {
         }
     }
 
-    @GetMapping("/vat-rates-latest")
-    public List<CountryDTO> getLatestVatRatesForAllCountries() {
-        return svc.getLatestVatRatesForAllCountries();
+    @GetMapping("/vat-rates-all")
+    public List<CountryDTO> getAllVatRatesForAllCountries() {
+        return svc.getAllVatRatesForAllCountries();
     }
 
     @PostMapping("/{countryName}/vat-ratenew")

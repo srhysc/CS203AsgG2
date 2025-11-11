@@ -25,7 +25,7 @@ export default function EditVATRatesPage() {
         const backend = "http://localhost:8080"
         const token = await getToken()
 
-        const countriesRes = await fetch(`${backend}/countries/vat-rates-latest`, {
+        const countriesRes = await fetch(`${backend}/countries/vat-rates-all`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!countriesRes.ok) throw new Error("Failed to fetch VAT rates")
@@ -89,7 +89,7 @@ export default function EditVATRatesPage() {
     }
 
     // Refetch the data after successful save
-    const countriesRes = await fetch(`${backend}/countries/vat-rates-latest`, {
+    const countriesRes = await fetch(`${backend}/countries/vat-rates-all`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     if (!countriesRes.ok) throw new Error("Failed to fetch updated VAT rates")

@@ -131,35 +131,29 @@ public class CountryService {
         throw new CountryNotFoundException("No country with iso3=" + iso3);
     }
 
-    public List<CountryDTO> getLatestVatRatesForAllCountries() {
-    try {
-        init(); // Reload all countries from Firebase
-    } catch (Exception e) {
-        System.err.println("Failed to reload countries: " + e.getMessage());
-    }
-    
-    List<CountryDTO> result = new ArrayList<>();
+    public List<CountryDTO> getAllVatRatesForAllCountries() {
+        try {
+            init(); // Reload all countries from Firebase
+        } catch (Exception e) {
+            System.err.println("Failed to reload countries: " + e.getMessage());
+        }
 
-    for (Country country : countries) {
-        if (country.getVatRates() != null && !country.getVatRates().isEmpty()) {
-           
-            Optional<VATRate> latest = country.getVatRates().stream()
-                .max(Comparator.comparing(VATRate::getDate));
+        List<CountryDTO> result = new ArrayList<>();
 
-            if (latest.isPresent()) {
-                VATRate rate = latest.get();
-                result.add(new CountryDTO(
-                    country.getName(),
-                    rate.getVATRate(),
-                    rate.getDate()
-                ));
+        for (Country country : countries) {
+            if (country.getVatRates() != null && !country.getVatRates().isEmpty()) {
+                for (VATRate rate : country.getVatRates()) {
+                    result.add(new CountryDTO(
+                        country.getName(),
+                        rate.getVATRate(),
+                        rate.getDate()
+                    ));
+                }
             }
         }
+
+        return result;
     }
-
-    return result;
-}
-
 
     //ADD VAT RATE TO FIREBASE
     public void addVatRate(String countryName, VATRate newRate) throws Exception {
