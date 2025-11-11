@@ -16,7 +16,7 @@ public class FirebaseConfig {
     @Bean
     public FirebaseDatabase firebaseDatabase() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
-
+            //added test
             // ✅ Works both locally and in Docker (reads from classpath)
             InputStream serviceAccount =
                     getClass().getClassLoader().getResourceAsStream("serviceAccountKey.json");
