@@ -40,7 +40,8 @@ services:
       target: dev
     ports: ["5173:5173"]
     environment:
-      VITE_API_BASE: http://localhost:8080   # runtime env for Vite dev server
+      #VITE_API_BASE: http://13.251.59.196 
+      VITE_API_BASE: http://localhost:8080  # runtime env for Vite dev server
     depends_on: [backend]
     profiles: ["dev"]
 
