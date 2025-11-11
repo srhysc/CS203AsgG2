@@ -94,15 +94,13 @@ public class ShippingFeesController {
                     
                     Map<String, ShippingCostDetailResponseDTO> costs = entry.getCosts();
                     if (costs != null) {
-                        if (costs.containsKey("ton") && costs.get("ton") != null) {
-                            // getCostPerUnit() may be a primitive double — avoid null comparison; box to Double for map
-                            flat.put("ton", Double.valueOf(costs.get("ton").getCostPerUnit()));
+                        ShippingCostDetailResponseDTO ton = costs.get("ton");
+                        if (ton != null) {
+                            flat.put("ton", Double.valueOf(ton.getCostPerUnit()));
                         }
-                        if (costs.containsKey("barrel") && costs.get("barrel") != null) {
-                            flat.put("barrel", Double.valueOf(costs.get("barrel").getCostPerUnit()));
-                        }
-                        if (costs.containsKey("MMBtu") && costs.get("MMBtu") != null) {
-                            flat.put("MMBtu", Double.valueOf(costs.get("MMBtu").getCostPerUnit()));
+                        ShippingCostDetailResponseDTO barrel = costs.get("barrel");
+                        if (barrel != null) {
+                            flat.put("barrel", Double.valueOf(barrel.getCostPerUnit()));
                         }
                     }
                     

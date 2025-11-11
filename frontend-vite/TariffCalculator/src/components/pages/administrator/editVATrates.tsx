@@ -9,14 +9,16 @@ import { EditVATRateForm } from "@/components/ui/editVATratesform"
 import type { VATRate } from "@/components/tablecolumns/editVATratescol"
 import { TableSkeleton } from "@/components/ui/tableskeleton"
 
-const initialVATRateData: VATRate[] = [
-  { id: "1", country: "Singapore", vatRate: 0.07, lastUpdated: "2025-09-01" },
-  { id: "2", country: "Malaysia", vatRate: 0.06, lastUpdated: "2025-09-01"},
-  { id: "3", country: "Japan", vatRate: 0.10, lastUpdated: "2025-09-01" },
-]
+type VatRateResponse = {
+  country: string
+  rate: number
+  lastUpdated: string
+}
 
-function isEqual(obj1: any, obj2: any): boolean {
-  return Object.entries(obj1).every(([key, value]) => obj2[key] === value)
+function isEqual(obj1: VATRate, obj2: VATRate): boolean {
+  return (Object.keys(obj1) as Array<keyof VATRate>).every(
+    key => obj2[key] === obj1[key]
+  )
 }
 
 export default function EditVATRatesPage() {
@@ -35,18 +37,14 @@ export default function EditVATRatesPage() {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!countriesRes.ok) throw new Error("Failed to fetch VAT rates")
-        const data = await countriesRes.json()
+        const data: VatRateResponse[] = await countriesRes.json()
 
-
-      const formatted = data.map((item: any) => {
-        
-        return {
+        const formatted: VATRate[] = data.map(item => ({
           id: item.country,
           country: item.country,
-          vatRate: item.rate,  
+          vatRate: item.rate,
           lastUpdated: item.lastUpdated,
-        }
-      })
+        }))
 
         setTableData(formatted)
 
@@ -99,9 +97,9 @@ export default function EditVATRatesPage() {
       headers: { Authorization: `Bearer ${token}` },
     })
     if (!countriesRes.ok) throw new Error("Failed to fetch updated VAT rates")
-    const data = await countriesRes.json()
+    const data: VatRateResponse[] = await countriesRes.json()
 
-    const formatted = data.map((item: any) => ({
+    const formatted: VATRate[] = data.map(item => ({
       id: item.country,
       country: item.country,
       vatRate: item.rate,

@@ -9,8 +9,11 @@ import { EditUserRoleForm } from "@/components/ui/edituserroleform"
 import { userColumns } from "@/components/tablecolumns/manageusercol"
 import type { User } from "@/components/tablecolumns/manageusercol"
 
-function isEqual(obj1: any, obj2: any): boolean {
-  return Object.entries(obj1).every(([key, value]) => obj2[key] === value)
+type UserResponse = {
+  id: string
+  username: string
+  email: string
+  role: string
 }
 
 export default function ManageUsersPage() {
@@ -29,9 +32,9 @@ export default function ManageUsersPage() {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!res.ok) throw new Error("Failed to fetch users")
-        const data = await res.json()
+        const data: UserResponse[] = await res.json()
 
-        const formatted = data.map((user: any) => ({
+        const formatted: User[] = data.map(user => ({
           id: user.id,
           username: user.username,
           email: user.email,

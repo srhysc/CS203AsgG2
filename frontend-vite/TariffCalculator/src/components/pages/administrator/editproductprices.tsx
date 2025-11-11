@@ -9,8 +9,18 @@ import { productPriceColumns } from "@/components/tablecolumns/editproductprices
 import { EditProductPriceForm } from "@/components/ui/editproductpricesform"
 import { TableSkeleton } from "@/components/ui/tableskeleton"
 
-function isEqual(obj1: any, obj2: any): boolean {
-  return Object.entries(obj1).every(([key, value]) => obj2[key] === value)
+type LatestPetroleumResponse = {
+  hsCode: string
+  name: string
+  latestPrice: number
+  date: string
+  unit: string
+}
+
+function isEqual(obj1: ProductPrice, obj2: ProductPrice): boolean {
+  return (Object.keys(obj1) as Array<keyof ProductPrice>).every(
+    key => obj2[key] === obj1[key]
+  )
 }
 
 export default function EditProductPricesPage() {
@@ -29,18 +39,16 @@ export default function EditProductPricesPage() {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!productRes.ok) throw new Error("Failed to fetch petroleum data")
-        const products = await productRes.json()
+        const products: LatestPetroleumResponse[] = await productRes.json()
 
-        const formatted = products.map((p: any) => {
-          return {
-            id: p.hsCode,
-            productCode: p.hsCode,
-            productName: p.name,
-            price: p.latestPrice,
-            lastUpdated: p.date,
-            unit: p.unit,
-          }
-        })
+        const formatted: ProductPrice[] = products.map(p => ({
+          id: p.hsCode,
+          productCode: p.hsCode,
+          productName: p.name,
+          price: p.latestPrice,
+          lastUpdated: p.date,
+          unit: p.unit,
+        }))
 
         setProductPrices(formatted)
       } catch (error) {
@@ -93,14 +101,15 @@ export default function EditProductPricesPage() {
     })
     
     if (!productRes.ok) throw new Error("Failed to fetch updated petroleum data")
-    const products = await productRes.json()
+    const products: LatestPetroleumResponse[] = await productRes.json()
     
-    const formatted = products.map((p: any) => ({
+    const formatted: ProductPrice[] = products.map(p => ({
       id: p.hsCode,
       productCode: p.hsCode,
       productName: p.name,
       price: p.latestPrice,
       lastUpdated: p.date,
+      unit: p.unit,
     }))
 
     setProductPrices(formatted)

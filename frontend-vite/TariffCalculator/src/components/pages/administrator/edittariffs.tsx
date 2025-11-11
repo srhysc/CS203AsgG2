@@ -7,6 +7,12 @@ import { DataTable } from "@/components/ui/datatable"
 import { tariffColumns } from "@/components/tablecolumns/edittariffscol"
 import type { Tariff } from "@/components/tablecolumns/edittariffscol"
 
+type MfnRateResponse = {
+  countryIso3: string
+  mfnAve: number
+  year?: number
+}
+
 const COUNTRY_OPTIONS = [
   { label: "Saudi Arabia (SAU)", value: "SAU" },
   { label: "Singapore (SGP)", value: "SGP" },
@@ -104,9 +110,9 @@ export default function EditTariffsPage() {
 
         if (!res.ok) throw new Error("Failed to fetch MFN rates")
 
-        const data = await res.json()
+        const data: MfnRateResponse[] = await res.json()
         // Map backend fields to table columns
-        const formatted = data.map((entry: any, index: number) => ({
+        const formatted: Tariff[] = data.map((entry, index) => ({
           id: `${entry.countryIso3}-${entry.year}-${index}`,
           importingCountry: entry.countryIso3,
           tariffRate: entry.mfnAve / 100,
@@ -114,6 +120,7 @@ export default function EditTariffsPage() {
         }))
         setTableData(formatted)
       } catch (error) {
+        console.error("Error fetching MFN rates:", error)
         toast.error("Failed to load MFN rates.")
         setTableData([])
       } finally {

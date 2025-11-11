@@ -9,7 +9,7 @@ type TableSkeletonProps<T> = {
   tableHeight?: string
 }
 
-export function TableSkeleton<T extends Record<string, any>>({
+export function TableSkeleton<T extends Record<string, unknown>>({
   columns,
   rowCount = 8,
   showFilter = true,

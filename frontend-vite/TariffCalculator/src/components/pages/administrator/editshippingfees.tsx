@@ -9,6 +9,15 @@ import { EditShippingFeeForm } from "@/components/ui/editshippingfeesform"
 import type { ShippingFee } from "@/components/tablecolumns/editshippingfeescol"
 import { TableSkeleton } from "@/components/ui/tableskeleton"
 
+type FlattenedShippingFee = {
+  country1: { name: string; iso3: string }
+  country2: { name: string; iso3: string }
+  date?: string
+  ton?: number | null
+  barrel?: number | null
+  lastUpdated?: string
+}
+
 export default function EditShippingFeesPage() {
   const { getToken } = useAuth()
   const [tableData, setTableData] = React.useState<ShippingFee[]>([])
@@ -27,12 +36,12 @@ export default function EditShippingFeesPage() {
 
         if (!res.ok) throw new Error("Failed to fetch shipping fees")
 
-        const data = await res.json()
+        const data: FlattenedShippingFee[] = await res.json()
         
         console.log("Raw API response:", data) // Debug log
 
         // Backend now returns flattened data, so we can map directly
-        const formatted = data.map((entry: any, index: number) => ({
+        const formatted = data.map((entry, index) => ({
           id: `${entry.country1.iso3}-${entry.country2.iso3}-${entry.date}-${index}`,
           originCountry: entry.country1.name,
           originCountryIso3: entry.country1.iso3,
@@ -40,7 +49,7 @@ export default function EditShippingFeesPage() {
           destinationCountryIso3: entry.country2.iso3,
           costPerTon: entry.ton != null ? Number(entry.ton) : 0,
           costPerBarrel: entry.barrel != null ? Number(entry.barrel) : 0,
-          costPerMMBtu: entry.MMBtu != null ? Number(entry.MMBtu) : 0,
+          costPerMMBtu: 0,
           lastUpdated: entry.lastUpdated || entry.date || "" 
         }))
 
@@ -85,10 +94,6 @@ console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newF
                 barrel: {
                   cost_per_unit: Number(newFee.costPerBarrel),
                   unit: "barrel"
-                },
-                MMBtu: {
-                  cost_per_unit: Number(newFee.costPerMMBtu),
-                  unit: "MMBtu"
                 }
               }
             }
@@ -107,9 +112,9 @@ console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newF
         headers: { Authorization: `Bearer ${token}` },
       })
       
-      const data = await res.json()
+      const data: FlattenedShippingFee[] = await res.json()
       
-      const formatted = data.map((entry: any, index: number) => ({
+      const formatted = data.map((entry, index) => ({
         id: `${entry.country1.iso3}-${entry.country2.iso3}-${entry.date}-${index}`,
         originCountry: entry.country1.name,
         originCountryIso3: entry.country1.iso3,
@@ -117,7 +122,7 @@ console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newF
         destinationCountryIso3: entry.country2.iso3,
         costPerTon: entry.ton != null ? Number(entry.ton) : 0,
         costPerBarrel: entry.barrel != null ? Number(entry.barrel) : 0,
-        costPerMMBtu: entry.MMBtu != null ? Number(entry.MMBtu) : 0,
+        costPerMMBtu: 0,
         lastUpdated: entry.lastUpdated || entry.date || ""
       }))
 
@@ -129,10 +134,6 @@ console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newF
         error instanceof Error ? error.message : "Failed to update shipping fee."
       )
     }
-  }
-
-  function isEqual(obj1: any, obj2: any): boolean {
-    return Object.entries(obj1).every(([key, value]) => obj2[key] === value)
   }
 
   return (
