@@ -2,15 +2,16 @@
 
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, FormProvider } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FormProvider } from "react-hook-form";
 
 const formSchema = z.object({
   id: z.string(),
   originCountry: z.string(),
+  originCountryIso3: z.string().min(2, "Missing ISO3 code"),  // ✅ new
   destinationCountry: z.string(),
+  destinationCountryIso3: z.string().min(2, "Missing ISO3 code"), // ✅ new
   costPerTon: z.number().nonnegative(),
   costPerBarrel: z.number().nonnegative(),
   costPerMMBtu: z.number().nonnegative(),
@@ -33,51 +34,38 @@ export function EditShippingFeeForm({
   currentUserName,
 }: EditShippingFeeFormProps) {
   const methods = useForm<EditShippingFeeFormValues>({
-  resolver: zodResolver(formSchema),
-  defaultValues,
-});
+    resolver: zodResolver(formSchema),
+    defaultValues,
+  })
 
-const { 
-    register, 
-    handleSubmit, 
-    formState: { errors, isSubmitting },
-} = methods;
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = methods
 
-// const handleFormSubmit = async (values: EditShippingFeeFormValues) => {
-//     const hasChanged = values.costPerTon !== defaultValues.costPerTon ||
-//                        values.costPerBarrel !== defaultValues.costPerBarrel ||
-//                        values.costPerMMBtu !== defaultValues.costPerMMBtu;
-//     const updatedValues = {
-//     ...values,
-//     lastUpdated: hasChanged ? new Date().toISOString().split('T')[0] : defaultValues.lastUpdated,
-//     };
-//     await onSubmit(updatedValues);
-// };
+  const handleFormSubmit = async (values: EditShippingFeeFormValues) => {
+    const hasChanged =
+      values.costPerTon !== defaultValues.costPerTon ||
+      values.costPerBarrel !== defaultValues.costPerBarrel ||
+      values.costPerMMBtu !== defaultValues.costPerMMBtu
 
-const handleFormSubmit = async (values: EditShippingFeeFormValues) => {
-  const hasChanged =
-    values.costPerTon !== defaultValues.costPerTon ||
-    values.costPerBarrel !== defaultValues.costPerBarrel ||
-    values.costPerMMBtu !== defaultValues.costPerMMBtu;
+    const today = new Date().toISOString().split("T")[0]
+    const updatedValues = {
+      ...values,
+      lastUpdated: hasChanged ? today : defaultValues.lastUpdated,
+    }
 
-  const today = new Date().toISOString().split("T")[0];
+    console.log("Submitting form values →", updatedValues) // ✅ helpful debug log
+    await onSubmit(updatedValues)
+  }
 
-  const updatedValues = {
-    ...values,
-    lastUpdated: hasChanged ? today : defaultValues.lastUpdated,
-  };
-
-  await onSubmit(updatedValues);
-}
-
-return (
+  return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 p-6">
         <h2 className="text-xl font-semibold">Edit Shipping Fee</h2>
-  
-        {/* Hidden ID field */}
+
+        {/* Hidden ID + ISO3 fields */}
         <input type="hidden" {...register("id")} />
-  
+        <input type="hidden" {...register("originCountryIso3")} /> {/* ✅ */}
+        <input type="hidden" {...register("destinationCountryIso3")} /> {/* ✅ */}
+
         {/* Origin Country (read-only) */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
@@ -103,90 +91,66 @@ return (
             className="w-full h-9 text-sm bg-gray-100 dark:bg-gray-700"
           />
         </div>
-  
-        {/* Cost per Ton (editable) */}
+
+        {/* Editable cost fields */}
         <div className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            Cost per Ton 
-          </label>
+          <label className="text-sm font-medium">Cost per Ton</label>
           <Input
             {...register("costPerTon", { valueAsNumber: true })}
             type="number"
             step="0.01"
             className="w-full h-9 text-sm"
           />
-          {errors.costPerTon && (
-            <p className="text-xs text-red-600 mt-1">
-              {errors.costPerTon.message}
-            </p>
-          )}
+          {errors.costPerTon && <p className="text-xs text-red-600">{errors.costPerTon.message}</p>}
         </div>
 
-        {/* Cost per Barrel (editable) */}
         <div className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            Cost per Barrel 
-          </label>
+          <label className="text-sm font-medium">Cost per Barrel</label>
           <Input
             {...register("costPerBarrel", { valueAsNumber: true })}
             type="number"
             step="0.01"
             className="w-full h-9 text-sm"
           />
-          {errors.costPerBarrel && (
-            <p className="text-xs text-red-600 mt-1">
-              {errors.costPerBarrel.message}
-            </p>
-          )}
+          {errors.costPerBarrel && <p className="text-xs text-red-600">{errors.costPerBarrel.message}</p>}
         </div>
-      
-        {/* Cost per MMBtu (editable) */}
+
         <div className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            Cost per MMBtu
-          </label>
+          <label className="text-sm font-medium">Cost per MMBtu</label>
           <Input
             {...register("costPerMMBtu", { valueAsNumber: true })}
             type="number"
             step="0.01"
             className="w-full h-9 text-sm"
           />
-          {errors.costPerMMBtu && (
-            <p className="text-xs text-red-600 mt-1">
-              {errors.costPerMMBtu.message}
-            </p>
-          )}
+          {errors.costPerMMBtu && <p className="text-xs text-red-600">{errors.costPerMMBtu.message}</p>}
         </div>
 
-        {/* Last Updated (preview) */}
+        {/* Last Updated (display only) */}
         <div className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            Last Updated (will be set to today)
-          </label>
+          <label className="text-sm font-medium">Last Updated</label>
           <Input
-            value={new Date().toISOString().split('T')[0]}
+            value={new Date().toISOString().split("T")[0]}
             readOnly
-            tabIndex={-1}
             className="w-full h-9 text-sm bg-gray-100 dark:bg-gray-700"
           />
         </div>
-  
-        {/* Action buttons */}
+
+        {/* Buttons */}
         <div className="flex justify-end gap-2 pt-3">
-          <Button variant="outline" type="button" onClick={() => onCancel?.()}
-              className="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => onCancel?.()}
+            className="hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             Cancel
           </Button>
-          <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn-slate cursor-pointer"        
-          >
+          <Button type="submit" disabled={isSubmitting} className="btn-slate">
             {isSubmitting ? "Saving..." : "Save"}
           </Button>
         </div>
       </form>
     </FormProvider>
-  );
+  )
 }
