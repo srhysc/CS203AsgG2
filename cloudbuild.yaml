@@ -1,0 +1,14 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        'gcr.io/$PROJECT_ID/cs203asg-backend',   # choose any unique image name
+        '-f',
+        'backend/Asg2/Dockerfile',               # actual Dockerfile path
+        'backend/Asg2'                           # context directory to send to Docker
+      ]
+
+images:
+  - 'gcr.io/$PROJECT_ID/cs203asg-backend'
