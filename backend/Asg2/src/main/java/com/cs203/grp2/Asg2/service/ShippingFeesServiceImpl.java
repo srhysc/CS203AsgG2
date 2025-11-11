@@ -10,6 +10,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+
 
 @Service
 public class ShippingFeesServiceImpl implements ShippingFeesService {
@@ -19,7 +21,7 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
         private static final Logger logger = LoggerFactory.getLogger(ShippingFeesServiceImpl.class);
 
     // Only allow these units
-    private static final Set<String> ALLOWED_UNITS = Set.of("barrel", "ton");
+    private static final Set<String> ALLOWED_UNITS = Set.of("barrel", "ton", "MMBtu");
 
     private final List<ShippingFee> shippingFeeList = new ArrayList<>();
 
@@ -73,7 +75,18 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
                                 String unitKey = costSnap.getKey();
                                 if ("date".equals(unitKey)) continue;
                                 if (!ALLOWED_UNITS.contains(unitKey)) continue;
-                                Double costPerUnit = costSnap.child("cost_per_unit").getValue(Double.class);
+
+                                // READ cost_per_unit robustly: Firebase can store as Long/Double/String
+                                Object rawCost = costSnap.child("cost_per_unit").getValue();
+                                Double costPerUnit = null;
+                                if (rawCost instanceof Number) {
+                                    costPerUnit = ((Number) rawCost).doubleValue();
+                                } else if (rawCost instanceof String) {
+                                    try {
+                                        costPerUnit = Double.parseDouble((String) rawCost);
+                                    } catch (NumberFormatException ignored) { }
+                                }
+
                                 String unit = costSnap.child("unit").getValue(String.class);
                                 if (costPerUnit != null && unit != null) {
                                     costs.put(unitKey, new ShippingCostDetail(costPerUnit, unit));
@@ -189,91 +202,342 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
         return null;
     }
 
+    // // @Override
+    // public ShippingFeeResponseDTO addOrUpdateShippingFee(ShippingFeeRequestDTO requestDTO) {
+    //     DatabaseReference ref = firebaseDatabase.getReference("Shipping_cost");
+    //     CompletableFuture<String> future = new CompletableFuture<>();
+
+    //     try {
+    //         // Search for existing entry
+    //         ref.orderByChild("country1/iso3").equalTo(requestDTO.getCountry1Iso3())
+    //            .addListenerForSingleValueEvent(new ValueEventListener() {
+    //             @Override
+    //             public void onDataChange(DataSnapshot snapshot) {
+    //                 String existingKey = null;
+    //                 for (DataSnapshot feeSnap : snapshot.getChildren()) {
+    //                     String c2 = feeSnap.child("country2/iso3").getValue(String.class);
+    //                     if (c2 != null && c2.equalsIgnoreCase(requestDTO.getCountry2Iso3())) {
+    //                         existingKey = feeSnap.getKey();
+    //                         break;
+    //                     }
+    //                 }
+    //                 future.complete(existingKey);
+    //             }
+
+    //             @Override
+    //             public void onCancelled(DatabaseError error) {
+    //                 future.completeExceptionally(error.toException());
+    //             }
+    //         });
+
+    //         String key = future.get();
+    //         // Map<String, Object> updates = new HashMap<>();
+
+    //         if (key != null) {
+    //             // Update existing entry
+    //             // String newEntryKey = ref.child(key).child("shipping_fees").push().getKey();
+    //             // for (ShippingFeeEntryRequestDTO entryReq : requestDTO.getShippingFees()) {
+    //             //     Map<String, Object> entryMap = new HashMap<>();
+    //             //     entryMap.put("date", LocalDate.now().toString());
+                    
+    //             //     for (Map.Entry<String, ShippingCostDetailRequestDTO> cost : entryReq.getCosts().entrySet()) {
+    //             //         if (ALLOWED_UNITS.contains(cost.getKey())) {
+    //             //             Map<String, Object> costMap = new HashMap<>();
+    //             //             costMap.put("cost_per_unit", cost.getValue().getCostPerUnit());
+    //             //             costMap.put("unit", cost.getValue().getUnit());
+    //             //             entryMap.put(cost.getKey(), costMap);
+    //             //         }
+    //             //     }
+                    
+    //             //     updates.put("/Shipping_cost/" + key + "/shipping_fees/" + newEntryKey, entryMap);
+    //             // }
+    //              DatabaseReference shippingFeesRef = ref.child(key).child("shipping_fees");
+    //         CompletableFuture<DataSnapshot> arrayFuture = new CompletableFuture<>();
+            
+    //         shippingFeesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    //             @Override
+    //             public void onDataChange(DataSnapshot snapshot) {
+    //                 arrayFuture.complete(snapshot);
+    //             }
+                
+    //             @Override
+    //             public void onCancelled(DatabaseError error) {
+    //                 arrayFuture.completeExceptionally(error.toException());
+    //             }
+    //         });
+            
+    //         DataSnapshot currentArray = arrayFuture.get();
+    //         List<Map<String, Object>> entriesList = new ArrayList<>();
+            
+    //         // Copy existing entries
+    //         for (DataSnapshot entrySnap : currentArray.getChildren()) {
+    //             Map<String, Object> existingEntry = new HashMap<>();
+    //             existingEntry.put("date", entrySnap.child("date").getValue(String.class));
+                
+    //             for (String unit : ALLOWED_UNITS) {
+    //                 if (entrySnap.hasChild(unit)) {
+    //                     Map<String, Object> costMap = new HashMap<>();
+    //                     costMap.put("cost_per_unit", entrySnap.child(unit).child("cost_per_unit").getValue(Double.class));
+    //                     costMap.put("unit", entrySnap.child(unit).child("unit").getValue(String.class));
+    //                     existingEntry.put(unit, costMap);
+    //                 }
+    //             }
+    //             entriesList.add(existingEntry);
+    //         }
+            
+    //         // Add new entry from request
+    //         for (ShippingFeeEntryRequestDTO entryReq : requestDTO.getShippingFees()) {
+    //             Map<String, Object> newEntry = new HashMap<>();
+    //             newEntry.put("date", LocalDate.now().toString());
+                
+    //             for (Map.Entry<String, ShippingCostDetailRequestDTO> cost : entryReq.getCosts().entrySet()) {
+    //                 if (ALLOWED_UNITS.contains(cost.getKey())) {
+    //                     Map<String, Object> costMap = new HashMap<>();
+    //                     costMap.put("cost_per_unit", cost.getValue().getCostPerUnit());
+    //                     costMap.put("unit", cost.getValue().getUnit());
+    //                     newEntry.put(cost.getKey(), costMap);
+    //                 }
+    //             }
+    //             entriesList.add(newEntry);
+    //         }
+            
+    //         // Replace entire array
+    //         shippingFeesRef.setValueAsync(entriesList).get();
+    //         } else {
+    //             // Create new entry
+    //             key = ref.push().getKey();
+    //             Map<String, Object> feeMap = new HashMap<>();
+                
+    //             Map<String, Object> country1Map = new HashMap<>();
+    //             country1Map.put("name", requestDTO.getCountry1Name());
+    //             country1Map.put("iso3", requestDTO.getCountry1Iso3());
+                
+    //             Map<String, Object> country2Map = new HashMap<>();
+    //             country2Map.put("name", requestDTO.getCountry2Name());
+    //             country2Map.put("iso3", requestDTO.getCountry2Iso3());
+                
+    //             feeMap.put("country1", country1Map);
+    //             feeMap.put("country2", country2Map);
+                
+    //             // String entryKey = ref.child(key).child("shipping_fees").push().getKey();
+    //             // Map<String, Object> shippingFees = new HashMap<>();
+
+    //             List<Map<String, Object>> shippingFeesList = new ArrayList<>();
+                
+    //             for (ShippingFeeEntryRequestDTO entryReq : requestDTO.getShippingFees()) {
+    //             Map<String, Object> entryMap = new HashMap<>();
+    //             entryMap.put("date", LocalDate.now().toString());
+                
+    //             for (Map.Entry<String, ShippingCostDetailRequestDTO> cost : entryReq.getCosts().entrySet()) {
+    //                 if (ALLOWED_UNITS.contains(cost.getKey())) {
+    //                     Map<String, Object> costMap = new HashMap<>();
+    //                     costMap.put("cost_per_unit", cost.getValue().getCostPerUnit());
+    //                     costMap.put("unit", cost.getValue().getUnit());
+    //                     entryMap.put(cost.getKey(), costMap);
+    //                 }
+    //             }
+    //             shippingFeesList.add(entryMap);
+    //         }
+                
+    //             // feeMap.put("shipping_fees", shippingFees);
+    //             // updates.put("/Shipping_cost/" + key, feeMap);
+    //             feeMap.put("shipping_fees", shippingFeesList);
+    //             ref.child(key).setValueAsync(feeMap).get();
+    //         }
+            
+    //         // Wait for Firebase to complete the update
+    //         Thread.sleep(1000);
+            
+    //         return getShippingFees(requestDTO.getCountry1Iso3(), requestDTO.getCountry2Iso3());
+    //     } catch (Exception e) {
+    //         logger.error("Error updating shipping fee: ", e);
+    //         return null;
+    //     }
+    // }
+
     @Override
-    public ShippingFeeResponseDTO addOrUpdateShippingFee(ShippingFeeRequestDTO requestDTO) {
+    public  ShippingFeeResponseDTO addOrUpdateShippingFee(ShippingFeeRequestDTO requestDTO) {
+        System.out.println("==== addOrUpdateShippingFee called ====");
+        System.out.println("RequestDTO: " + requestDTO);
+
+        // ✅ Input validation — catch missing or invalid fields early
+        if (requestDTO == null) {
+            throw new IllegalArgumentException("Shipping fee request body cannot be null.");
+        }
+
+        if (isBlank(requestDTO.getCountry1Iso3()) || isBlank(requestDTO.getCountry2Iso3())) {
+            throw new IllegalArgumentException("Both origin and destination ISO3 codes are required.");
+        }
+
+        if (isBlank(requestDTO.getCountry1Name()) || isBlank(requestDTO.getCountry2Name())) {
+            throw new IllegalArgumentException("Both origin and destination country names are required.");
+        }
+
+        if (requestDTO.getShippingFees() == null || requestDTO.getShippingFees().isEmpty()) {
+            throw new IllegalArgumentException("At least one shipping fee entry is required.");
+        }
+
+        // ✅ Apply fallbacks for optional fields
+        if (isBlank(requestDTO.getCountry1IsoNumeric())) {
+            requestDTO.setCountry1IsoNumeric("000");
+        }
+        if (isBlank(requestDTO.getCountry2IsoNumeric())) {
+            requestDTO.setCountry2IsoNumeric("000");
+        }
+
         DatabaseReference ref = firebaseDatabase.getReference("Shipping_cost");
-        CompletableFuture<DataSnapshot> future = new CompletableFuture<>();
+
+        // 🔁 Asynchronous Firebase write
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                future.complete(snapshot);
+                try {
+                    String reqC1 = requestDTO.getCountry1Iso3().trim().toUpperCase();
+                    String reqC2 = requestDTO.getCountry2Iso3().trim().toUpperCase();
+
+                    // 🔍 Look for existing country pair
+                    String key = null;
+                    for (DataSnapshot feeSnap : snapshot.getChildren()) {
+                        String c1 = feeSnap.child("country1").child("iso3").getValue(String.class);
+                        String c2 = feeSnap.child("country2").child("iso3").getValue(String.class);
+                        if (c1 != null) c1 = c1.trim().toUpperCase();
+                        if (c2 != null) c2 = c2.trim().toUpperCase();
+
+                        if (c1 != null && c2 != null &&
+                                ((c1.equals(reqC1) && c2.equals(reqC2)) || (c1.equals(reqC2) && c2.equals(reqC1)))) {
+                            key = feeSnap.getKey();
+                            System.out.println("Existing country pair found! Key=" + key);
+                            break;
+                        }
+                    }
+
+                    if (key != null) {
+                        // 🔁 Update existing country pair
+                        DatabaseReference entriesRef = ref.child(key).child("shipping_fees");
+                        entriesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot feesSnap) {
+                                try {
+                                    for (ShippingFeeEntryRequestDTO entryReq : requestDTO.getShippingFees()) {
+                                        if (isBlank(entryReq.getDate())) {
+                                            System.err.println("⚠️ Skipping entry with missing date.");
+                                            continue;
+                                        }
+
+                                        String entryDate = entryReq.getDate();
+                                        Map<String, Object> entryMap = new HashMap<>();
+                                        entryMap.put("date", entryDate);
+
+                                        for (Map.Entry<String, ShippingCostDetailRequestDTO> cost : entryReq.getCosts().entrySet()) {
+                                            if (!ALLOWED_UNITS.contains(cost.getKey())) continue;
+                                            ShippingCostDetailRequestDTO costDetail = cost.getValue();
+
+                                            Double costPerUnit = costDetail != null ? costDetail.getCostPerUnit() : null;
+                                System.out.println(" ⚠️⚠️⚠️ Writing cost for unit " + cost.getKey() + ": " + costPerUnit);
+
+                                            if (costPerUnit == null) {
+                                                System.err.println("⚠️ Skipping incomplete cost entry for " + cost.getKey());
+                                                continue;
+                                            }
+
+                                            Map<String, Object> costMap = new HashMap<>();
+                                            costMap.put("cost_per_unit", costPerUnit);
+                                            costMap.put("unit", costDetail.getUnit() != null ? costDetail.getUnit() : "unknown");
+                                            entryMap.put(cost.getKey(), costMap);
+
+                                    System.err.println("⚠️ ENTRYMAP " + entryMap);
+
+                                        }
+
+                                        // Update or insert
+                                        DataSnapshot existingSnap = null;
+                                        for (DataSnapshot snap : feesSnap.getChildren()) {
+                                            String existingDate = snap.child("date").getValue(String.class);
+                                            if (entryDate.equals(existingDate)) {
+                                                existingSnap = snap;
+                                                break;
+                                            }
+                                        }
+
+                                        System.out.println("Adding new entry for " + entryDate);
+                                        entriesRef.push().setValueAsync(entryMap);
+
+                                    }
+                                    System.out.println("✅ Firebase write complete for existing country pair.");
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError error) {
+                                System.err.println("Firebase cancelled (inner): " + error.getMessage());
+                            }
+                        });
+
+                    } else {
+                        // 🆕 Create new country pair
+                        Map<String, Object> feeMap = new HashMap<>();
+
+                        Map<String, Object> country1Map = new HashMap<>();
+                        country1Map.put("name", requestDTO.getCountry1Name());
+                        country1Map.put("iso3", requestDTO.getCountry1Iso3());
+                        country1Map.put("iso_numeric", requestDTO.getCountry1IsoNumeric());
+
+                        Map<String, Object> country2Map = new HashMap<>();
+                        country2Map.put("name", requestDTO.getCountry2Name());
+                        country2Map.put("iso3", requestDTO.getCountry2Iso3());
+                        country2Map.put("iso_numeric", requestDTO.getCountry2IsoNumeric());
+
+                        feeMap.put("country1", country1Map);
+                        feeMap.put("country2", country2Map);
+
+                        Map<String, Object> entriesMap = new HashMap<>();
+                        for (ShippingFeeEntryRequestDTO entryReq : requestDTO.getShippingFees()) {
+                            if (isBlank(entryReq.getDate())) continue;
+
+                            Map<String, Object> entryMap = new HashMap<>();
+                            entryMap.put("date", entryReq.getDate());
+
+                            for (Map.Entry<String, ShippingCostDetailRequestDTO> cost : entryReq.getCosts().entrySet()) {
+                                if (!ALLOWED_UNITS.contains(cost.getKey())) continue;
+                                ShippingCostDetailRequestDTO costDetail = cost.getValue();
+
+                                Double costPerUnit = costDetail != null ? costDetail.getCostPerUnit() : null;
+                                if (costPerUnit == null) continue;
+
+                                Map<String, Object> costMap = new HashMap<>();
+                                costMap.put("cost_per_unit", costPerUnit);
+                                costMap.put("unit", costDetail.getUnit() != null ? costDetail.getUnit() : "unknown");
+                                entryMap.put(cost.getKey(), costMap);
+                            }
+
+                            entriesMap.put(UUID.randomUUID().toString(), entryMap);
+                        }
+
+                        feeMap.put("shipping_fees", entriesMap);
+
+                        ref.push().setValueAsync(feeMap);
+                        System.out.println("✅ New country pair added successfully.");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+
             @Override
             public void onCancelled(DatabaseError error) {
-                future.completeExceptionally(error.toException());
+                System.err.println("Firebase cancelled (outer): " + error.getMessage());
             }
         });
 
-        try {
-            DataSnapshot snap = future.get();
-            String key = null;
-
-            // Search for existing country pair (bidirectional match)
-            for (DataSnapshot feeSnap : snap.getChildren()) {
-                String c1 = feeSnap.child("country1").child("iso3").getValue(String.class);
-                String c2 = feeSnap.child("country2").child("iso3").getValue(String.class);
-                if (
-                    c1 != null && c2 != null &&
-                    ((c1.equalsIgnoreCase(requestDTO.getCountry1Iso3()) && c2.equalsIgnoreCase(requestDTO.getCountry2Iso3())) ||
-                     (c1.equalsIgnoreCase(requestDTO.getCountry2Iso3()) && c2.equalsIgnoreCase(requestDTO.getCountry1Iso3())))
-                ) {
-                    key = feeSnap.getKey();
-                    break;
-                }
-            }
-
-            if (key != null) {
-                DatabaseReference entriesRef = ref.child(key).child("shipping_fees");
-                for (ShippingFeeEntryRequestDTO entryReq : requestDTO.getShippingFees()) {
-                    Map<String, Object> entryMap = new HashMap<>();
-                    entryMap.put("date", entryReq.getDate());
-                    for (Map.Entry<String, ShippingCostDetailRequestDTO> cost : entryReq.getCosts().entrySet()) {
-                        if (!ALLOWED_UNITS.contains(cost.getKey())) continue;
-                        Map<String, Object> costMap = new HashMap<>();
-                        costMap.put("cost_per_unit", cost.getValue().getCostPerUnit());
-                        costMap.put("unit", cost.getValue().getUnit());
-                        entryMap.put(cost.getKey(), costMap);
-                    }
-                    entriesRef.push().setValueAsync(entryMap);
-                }
-            } else {
-                Map<String, Object> feeMap = new HashMap<>();
-
-                Map<String, Object> country1Map = new HashMap<>();
-                country1Map.put("name", requestDTO.getCountry1Name());
-                country1Map.put("iso3", requestDTO.getCountry1Iso3());
-                country1Map.put("iso_numeric", requestDTO.getCountry1IsoNumeric());
-
-                Map<String, Object> country2Map = new HashMap<>();
-                country2Map.put("name", requestDTO.getCountry2Name());
-                country2Map.put("iso3", requestDTO.getCountry2Iso3());
-                country2Map.put("iso_numeric", requestDTO.getCountry2IsoNumeric());
-
-                feeMap.put("country1", country1Map);
-                feeMap.put("country2", country2Map);
-
-                Map<String, Object> entriesMap = new HashMap<>();
-                for (ShippingFeeEntryRequestDTO entryReq : requestDTO.getShippingFees()) {
-                    Map<String, Object> entryMap = new HashMap<>();
-                    entryMap.put("date", entryReq.getDate());
-                    for (Map.Entry<String, ShippingCostDetailRequestDTO> cost : entryReq.getCosts().entrySet()) {
-                        if (!ALLOWED_UNITS.contains(cost.getKey())) continue;
-                        Map<String, Object> costMap = new HashMap<>();
-                        costMap.put("cost_per_unit", cost.getValue().getCostPerUnit());
-                        costMap.put("unit", cost.getValue().getUnit());
-                        entryMap.put(cost.getKey(), costMap);
-                    }
-                    String entryKey = UUID.randomUUID().toString();
-                    entriesMap.put(entryKey, entryMap);
-                }
-                feeMap.put("shipping_fees", entriesMap);
-                ref.push().setValueAsync(feeMap);
-            }
-
-            Thread.sleep(500);
-            return getShippingFees(requestDTO.getCountry1Iso3(), requestDTO.getCountry2Iso3());
-        } catch (Exception e) {
-            return null;
-        }
+        ShippingFeeResponseDTO response = new ShippingFeeResponseDTO();
+    System.out.println("Shipping fee update initiated successfully.");
+        return response;
     }
+
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
 }

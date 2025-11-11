@@ -4,7 +4,11 @@ import com.cs203.grp2.Asg2.DTO.*;
 import com.cs203.grp2.Asg2.service.ShippingFeesService;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/shipping-fees")
@@ -61,8 +65,61 @@ public class ShippingFeesController {
         return List.of(entry);
     }
 
+    @GetMapping("/cost/all")
+    public List<Map<String, Object>> getAllShippingFeesFlat() {
+        List<ShippingFeeResponseDTO> allFees = shippingFeesService.getAllShippingFees();
+        List<Map<String, Object>> flattened = new ArrayList<>();
+        
+        for (ShippingFeeResponseDTO feeGroup : allFees) {
+            if (feeGroup.getShippingFees() != null) {
+                for (ShippingFeeEntryResponseDTO entry : feeGroup.getShippingFees()) {
+                    Map<String, Object> flat = new HashMap<>();
+                    
+                    Map<String, String> country1 = new HashMap<>();
+                    country1.put("name", feeGroup.getCountry1Name());
+                    country1.put("iso3", feeGroup.getCountry1Iso3());
+                    flat.put("country1", country1);
+                    
+                    Map<String, String> country2 = new HashMap<>();
+                    country2.put("name", feeGroup.getCountry2Name());
+                    country2.put("iso3", feeGroup.getCountry2Iso3());
+                    flat.put("country2", country2);
+                    
+                    // Null-safe date
+                    if (entry.getDate() != null) {
+                        flat.put("date", entry.getDate().toString());
+                    } else {
+                        flat.put("date", "");
+                    }
+                    
+                    Map<String, ShippingCostDetailResponseDTO> costs = entry.getCosts();
+                    if (costs != null) {
+                        if (costs.containsKey("ton") && costs.get("ton") != null) {
+                            // getCostPerUnit() may be a primitive double — avoid null comparison; box to Double for map
+                            flat.put("ton", Double.valueOf(costs.get("ton").getCostPerUnit()));
+                        }
+                        if (costs.containsKey("barrel") && costs.get("barrel") != null) {
+                            flat.put("barrel", Double.valueOf(costs.get("barrel").getCostPerUnit()));
+                        }
+                        if (costs.containsKey("MMBtu") && costs.get("MMBtu") != null) {
+                            flat.put("MMBtu", Double.valueOf(costs.get("MMBtu").getCostPerUnit()));
+                        }
+                    }
+                    
+                    flattened.add(flat);
+                }
+            }
+        }
+        
+        return flattened;
+    }
+
+
     @PostMapping
     public ShippingFeeResponseDTO addOrUpdateShippingFee(@RequestBody ShippingFeeRequestDTO requestDTO) {
+System.out.println("HITTING CONTROLLER: " );
+System.out.println("FEES: " + requestDTO.getShippingFees());
+
         return shippingFeesService.addOrUpdateShippingFee(requestDTO);
     }
 }

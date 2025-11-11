@@ -34,12 +34,7 @@ export const VATRateColumns: ColumnDef<VATRate>[] = [
   meta: { label: "VAT Rate" },
   cell: ({ row }) => {
     const rate = Number(row.getValue("vatRate"))
-    return isNaN(rate)
-      ? "-"
-      : new Intl.NumberFormat("en-US", {
-          style: "percent",
-          minimumFractionDigits: 2,
-        }).format(rate)
+    return isNaN(rate) ? "-" : `${rate.toFixed(2)}%`
     }
   },
   {

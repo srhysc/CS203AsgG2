@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.cs203.grp2.Asg2.models.Petroleum;
 import com.cs203.grp2.Asg2.models.Country;
 import com.cs203.grp2.Asg2.models.VATRate;
+import com.cs203.grp2.Asg2.DTO.CountryDTO;
 import com.cs203.grp2.Asg2.exceptions.*;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -130,6 +131,30 @@ public class CountryService {
         throw new CountryNotFoundException("No country with iso3=" + iso3);
     }
 
+    public List<CountryDTO> getAllVatRatesForAllCountries() {
+        try {
+            init(); // Reload all countries from Firebase
+        } catch (Exception e) {
+            System.err.println("Failed to reload countries: " + e.getMessage());
+        }
+
+        List<CountryDTO> result = new ArrayList<>();
+
+        for (Country country : countries) {
+            if (country.getVatRates() != null && !country.getVatRates().isEmpty()) {
+                for (VATRate rate : country.getVatRates()) {
+                    result.add(new CountryDTO(
+                        country.getName(),
+                        rate.getVATRate(),
+                        rate.getDate()
+                    ));
+                }
+            }
+        }
+
+        return result;
+    }
+
     //ADD VAT RATE TO FIREBASE
     public void addVatRate(String countryName, VATRate newRate) throws Exception {
     if (countryName == null || newRate == null) {
@@ -166,10 +191,8 @@ public class CountryService {
     // Wait until Firebase write completes
     future.get();
 
-    // Optional: also update in-memory object for fast access
-    List<VATRate> vatRates = new ArrayList<>(country.getVatRates());
-    vatRates.add(newRate);
-    country.setVatRates(vatRates);
+    System.out.println("🔄 Reloading countries from Firebase after VAT rate update...");
+    init();  // This will reload all countries with the new VAT rate
     }
 
 

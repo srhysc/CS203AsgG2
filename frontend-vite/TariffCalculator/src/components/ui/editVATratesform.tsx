@@ -11,7 +11,13 @@ import { FormProvider } from "react-hook-form";
 const formSchema = z.object({
   id: z.string(),
   country: z.string(),
-  vatRate: z.number().min(0).max(1, "Use decimal: e.g., 0.07 for 7%"),
+  vatRate: z
+    .number()
+    .min(0, "Must be at least 0")
+    .max(100, "Must be less than or equal to 100")
+    .refine(val => /^\d+(\.\d{1,2})?$/.test(val.toString()), {
+      message: "Max 2 decimal places allowed",
+    }),
   lastUpdated: z.string().optional(),
 })
 
@@ -69,7 +75,7 @@ return (
         {/* VAT Rate (editable) */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            VAT Rate (decimal, e.g., 0.05 for 5%)
+            VAT Rate (e.g., 7.25 for 7.25%)
           </label>
           <Input
             {...register("vatRate", { valueAsNumber: true })}

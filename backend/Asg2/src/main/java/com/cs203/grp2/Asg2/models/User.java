@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.cs203.grp2.Asg2.DTO.LandedCostResponse;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotBlank;
 
@@ -25,6 +26,7 @@ public class User {
         ADMIN
     }
 
+    @JsonProperty("role")
     private Role role;
 
     private List<UserSavedRoute> bookmarks = new ArrayList<>();

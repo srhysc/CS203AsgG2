@@ -8,6 +8,7 @@ export type ProductPrice = {
   productName: string
   price: number
   lastUpdated?: string
+  unit?: string
 }
 
 export const productPriceColumns: ColumnDef<ProductPrice>[] = [

@@ -23,17 +23,46 @@ import java.util.concurrent.CompletableFuture;
 public class WitsService {
     private static final Logger log = LoggerFactory.getLogger(WitsService.class);
 
-    private final FirebaseDatabase firebase;   // already configured in your app
+    private final FirebaseDatabase firebase; // already configured in your app
     private final RestTemplate http = new RestTemplate(); // swap for WebClient if you prefer
 
     public WitsService(FirebaseDatabase firebase) {
         this.firebase = firebase;
     }
 
+    // Add a new MFN rate entry
+    public void addMfnRate(AddMfnRateDTO dto) throws Exception {
+        String path = String.format("/Tariff/mfnRates/%s", dto.countryIso3());
+        Map<String, Object> data = new HashMap<>();
+        data.put("MFNave", dto.mfnAve());
+        data.put("year", dto.year());
+        firebase.getReference(path).push().setValueAsync(data).get();
+    }
+
+    // Get all MFN rates
+    public List<MfnRateDTO> getAllMfnRates() throws Exception {
+        DataSnapshot snap = await(firebase.getReference("/Tariff/mfnRates"));
+        List<MfnRateDTO> rates = new ArrayList<>();
+        if (snap.exists()) {
+            for (DataSnapshot countryNode : snap.getChildren()) {
+                String countryIso3 = countryNode.getKey();
+                for (DataSnapshot entryNode : countryNode.getChildren()) {
+                    Double mfnAve = entryNode.child("MFNave").getValue(Double.class);
+                    Integer year = entryNode.child("year").getValue(Integer.class);
+                    if (mfnAve != null && year != null) {
+                        rates.add(new MfnRateDTO(countryIso3, mfnAve, year));
+                    }
+                }
+            }
+        }
+        return rates;
+    }
+
     /** Public entrypoint: DB → WITS → 0.0 */
     @Cacheable
     public WitsTariff resolveTariff(TariffRequestDTO req) {
-        // 1) Preferential from Firebase (if exporter+importer in same agreement & hs covered & date in force)
+        // 1) Preferential from Firebase (if exporter+importer in same agreement & hs
+        // covered & date in force)
         Optional<WitsTariff> pref = findPreferentialFromDb(req);
         if (pref.isPresent()) {
             System.out.println("🔎 pref present");
@@ -59,34 +88,38 @@ public class WitsService {
   
     }
 
-    /* =====================  DB LOOKUPS  ===================== */
+    /* ===================== DB LOOKUPS ===================== */
 
     private Optional<WitsTariff> findPreferentialFromDb(TariffRequestDTO req) {
         try {
             // 1) Load importer’s agreements + EIF date
             Map<String, LocalDate> importerAgreements = getAgreementsFor(req.importerIso3());
-            if (importerAgreements.isEmpty()) return Optional.empty();
+            if (importerAgreements.isEmpty())
+                return Optional.empty();
 
             // 2) Load exporter’s agreements
             Map<String, LocalDate> exporterAgreements = getAgreementsFor(req.exporterIso3());
-            if (exporterAgreements.isEmpty()) return Optional.empty();
+            if (exporterAgreements.isEmpty())
+                return Optional.empty();
 
             // 3) Intersect by agreements where both are in & EIF <= req.date
             for (var entry : importerAgreements.entrySet()) {
                 String agreement = entry.getKey();
                 LocalDate importerEIF = entry.getValue();
                 LocalDate exporterEIF = exporterAgreements.get(agreement);
-                if (exporterEIF == null) continue;
-                if (importerEIF != null && importerEIF.isAfter(req.date())) continue;
-                if (exporterEIF != null && exporterEIF.isAfter(req.date())) continue;
+                if (exporterEIF == null)
+                    continue;
+                if (importerEIF != null && importerEIF.isAfter(req.date()))
+                    continue;
+                if (exporterEIF != null && exporterEIF.isAfter(req.date()))
+                    continue;
 
                 // 4) Read preferential HS6 rate for this agreement (adjust path to your schema)
                 Double rate = readDouble("/Tariff/agreementRates/" + agreement + "/" + req.hs6() + "/ratePercent");
                 if (rate != null) {
                     return Optional.of(new WitsTariff(
                             req.importerIso3(), req.exporterIso3(), req.hs6(), req.date(),
-                            normalize(rate), "preferential", "DB: " + agreement + " HS6"
-                    ));
+                            normalize(rate), "preferential", "DB: " + agreement + " HS6"));
                 }
             }
             return Optional.empty();
@@ -105,15 +138,14 @@ public class WitsService {
             if (rate == null) return Optional.empty();
             return Optional.of(new WitsTariff(
                     req.importerIso3(), req.exporterIso3(), req.hs6(), req.date(),
-                    normalize(rate), "mfn", "DB: MFN HS6"
-            ));
+                    normalize(rate), "mfn", "DB: MFN HS6"));
         } catch (Exception e) {
             log.warn("MFN DB lookup failed: {}", e.getMessage());
             return Optional.empty();
         }
     }
 
-    /* =====================  WITS LOOKUP  ===================== */
+    /* ===================== WITS LOOKUP ===================== */
 
     private Optional<WitsTariff> fetchFromWits(TariffRequestDTO req) {
         try {
@@ -125,23 +157,24 @@ public class WitsService {
             );
 
             ResponseEntity<String> resp = http.getForEntity(url, String.class);
-            if (!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) return Optional.empty();
+            if (!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null)
+                return Optional.empty();
 
             // TODO: parse SDMX-XML/JSON → extract the rate. For now, use a parser stub:
             Double parsedRate = parseWitsRateFromBody(resp.getBody());
-            if (parsedRate == null) return Optional.empty();
+            if (parsedRate == null)
+                return Optional.empty();
 
             return Optional.of(new WitsTariff(
                     req.importerIso3(), req.exporterIso3(), req.hs6(), req.date(),
-                    normalize(parsedRate), "wits", "WITS fallback"
-            ));
+                    normalize(parsedRate), "wits", "WITS fallback"));
         } catch (RestClientException e) {
             log.warn("WITS call failed: {}", e.getMessage());
             return Optional.empty();
         }
     }
 
-    /* =====================  HELPERS  ===================== */
+    /* ===================== HELPERS ===================== */
 
     private Map<String, LocalDate> getAgreementsFor(String iso3) throws Exception {
         // Reads: /countryMembers/{ISO3}/* → {eif: "YYYY-MM-DD"}
@@ -167,10 +200,12 @@ public class WitsService {
 
     private Double readDouble(String path) throws Exception {
         DataSnapshot snap = await(firebase.getReference(path));
-        if (!snap.exists()) return null;
+        if (!snap.exists())
+            return null;
         try {
             Object v = snap.getValue();
-            if (v == null) return null;
+            if (v == null)
+                return null;
             return Double.parseDouble(v.toString());
         } catch (NumberFormatException e) {
             return null;
@@ -180,8 +215,13 @@ public class WitsService {
     private DataSnapshot await(DatabaseReference ref) throws Exception {
         CompletableFuture<DataSnapshot> fut = new CompletableFuture<>();
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            public void onDataChange(DataSnapshot snapshot) { fut.complete(snapshot); }
-            public void onCancelled(DatabaseError error) { fut.completeExceptionally(new RuntimeException(error.getMessage())); }
+            public void onDataChange(DataSnapshot snapshot) {
+                fut.complete(snapshot);
+            }
+
+            public void onCancelled(DatabaseError error) {
+                fut.completeExceptionally(new RuntimeException(error.getMessage()));
+            }
         });
         return fut.get(); // waits
     }
@@ -197,7 +237,8 @@ public class WitsService {
     }
 
     private double normalize(Double v) {
-        if (v == null || v.isNaN() || v < 0) return 0.0;
+        if (v == null || v.isNaN() || v < 0)
+            return 0.0;
         // Ensure one decimal place if you prefer: return Math.round(v * 10.0) / 10.0;
         return v;
     }

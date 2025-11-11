@@ -112,6 +112,10 @@ public class CountryController {
         }
     }
 
+    @GetMapping("/vat-rates-all")
+    public List<CountryDTO> getAllVatRatesForAllCountries() {
+        return svc.getAllVatRatesForAllCountries();
+    }
 
     @PostMapping("/{countryName}/vat-ratenew")
     public ResponseEntity<String> addVatRate(

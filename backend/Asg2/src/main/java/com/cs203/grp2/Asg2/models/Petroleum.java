@@ -3,11 +3,16 @@ package com.cs203.grp2.Asg2.models;
 import java.util.*;
 
 import java.time.LocalDate;
+import jakarta.persistence.*;
 
-
+@Entity
 public class Petroleum {
-    private String name;
+    @Id
     private String hsCode;
+    
+    private String name;
+
+    @OneToMany(mappedBy = "petroleum", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<PetroleumPrice> prices = new ArrayList<>();
 
 
