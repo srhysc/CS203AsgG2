@@ -4,44 +4,12 @@ import { Button } from "@/components/ui/button"
 
 export type Tariff = {
   id: string
-  productCode: string
-  exportingCountry: string
   importingCountry: string
   tariffRate: number
   lastUpdated?: string
 }
 
 export const tariffColumns: ColumnDef<Tariff>[] = [
-  {
-    id: "productCode",
-    accessorKey: "productCode",
-    header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Product Code
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-    ),
-    meta: { label: "Product Code" }
-  },
-
-  {
-    id: "exportingCountry",
-    accessorKey: "exportingCountry",
-    header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Exporting Country
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-    ),
-    meta: { label: "Exporting Country" }
-  },
-
   {
     id: "importingCountry",
     accessorKey: "importingCountry",

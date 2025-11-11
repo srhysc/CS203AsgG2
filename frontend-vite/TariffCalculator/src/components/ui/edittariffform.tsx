@@ -10,9 +10,7 @@ import { FormProvider } from "react-hook-form";
 
 const formSchema = z.object({
   id: z.string(),
-  productCode: z.string().min(1, "Product Code is required"),
   importingCountry: z.string().min(1, "Importing Country is required"),
-  exportingCountry: z.string().min(1, "Exporting Country is required"),
   tariffRate: z.number().min(0).max(1, "Use decimal: e.g., 0.07 for 7%"),
   lastUpdated: z.string().optional(),
 });
@@ -60,32 +58,6 @@ return (
 
         {/* Hidden ID field */}
         <input type="hidden" {...register("id")} />
-
-        {/* Product Code (read-only) */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            Product Code
-          </label>
-          <Input
-            {...register("productCode")}
-            readOnly
-            tabIndex={-1}
-            className="w-full h-9 text-sm bg-gray-100 dark:bg-gray-700"
-          />
-        </div>
-
-        {/* Exporting Country (read-only) */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            Exporting Country
-          </label>
-          <Input
-            {...register("exportingCountry")}
-            readOnly
-            tabIndex={-1}
-            className="w-full h-9 text-sm bg-gray-100 dark:bg-gray-700"
-          />
-        </div>
 
         {/* Importing Country (read-only) */}
         <div className="flex flex-col">
