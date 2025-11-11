@@ -1,0 +1,119 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    branches:
+      - main
+      - development
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  backend:
+    name: Backend · Maven Verify
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/Asg2
+    env:
+      FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Temurin JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Make Maven wrapper executable
+        run: chmod +x mvnw
+
+      - name: Inject Firebase service account
+        if: env.FIREBASE_SERVICE_ACCOUNT != ''
+        run: |
+          mkdir -p src/main/resources src/test/resources
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > src/main/resources/serviceAccountKey.json
+          cp src/main/resources/serviceAccountKey.json src/test/resources/serviceAccountKey.json
+
+      - name: Run unit tests & coverage
+        run: ./mvnw -B -ntp verify
+
+      - name: Upload backend artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-package
+          path: |
+            backend/Asg2/target/*.jar
+            backend/Asg2/target/site/jacoco
+
+  frontend:
+    name: Frontend · Lint & Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-vite/TariffCalculator
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend-vite/TariffCalculator/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload static build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend-vite/TariffCalculator/dist
+
+  docker-images:
+    name: Docker images · Compose build
+    needs:
+      - backend
+      - frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        run: docker compose build backend
+
+      - name: Build dev frontend image
+        run: docker compose --profile dev build frontend
+
+      - name: Build prod frontend image
+        run: docker compose --profile prod build frontend_prod

@@ -12,5 +12,17 @@ export interface Tariff{
     vatFees: number;
     totalLandedCost: number;
     currency: string;
+    shippingCost: number;
+    alternativeRoutes: Record<string, RouteBreakdown>;
 }
 //no need for API wrapper because just returning those two values
+
+export interface RouteBreakdown {
+    transitCountry: string;
+    baseCost: number;
+    tariffFees: number;
+    vatRate: number;
+    vatFees: number;
+    totalLandedCost: number;
+    shippingCost: number;
+}

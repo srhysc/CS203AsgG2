@@ -52,7 +52,9 @@ public class SecurityConfig {
         "/route-optimization/**", // RouteOptimizationController
         "/shipping-fees/**", // ShippingFeesController
         "/tariffs/**", // TariffController
-        "/trade-agreements/**" // TradeAgreementController
+        "/trade-agreements/**", // TradeAgreementController
+        "/refineries/**",
+        "/convertables/**"
     };
 
     http
@@ -62,6 +64,7 @@ public class SecurityConfig {
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(clerkJwtFilter, UsernamePasswordAuthenticationFilter.class)
         .authorizeHttpRequests(auth -> auth
+  
             //ONLY ADMINS ABLE TO ACCESS USERS
             .requestMatchers("/api/users").hasRole("ADMIN")
             // READ for USER or ADMIN on your domain controllers

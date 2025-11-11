@@ -31,6 +31,9 @@
     --popover-foreground: 222.2 84% 4.9%;
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
+    --toast-bg: 0 0% 100%;
+    --toast-fg: 222.2 84% 4.9%;
+    --toast-border: 214.3 31.8% 91.4%;
   }
 
   .dark {
@@ -42,5 +45,48 @@
     --popover-foreground: 210 40% 98%;
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
+    --toast-bg: 222.2 84% 4.9%;
+    --toast-fg: 210 40% 98%;
+    --toast-border: 217.2 32.6% 17.5%;
   }
+}
+
+@layer components {
+  /* Default (light mode) */
+  .btn-slate {
+     @apply text-slate-900 font-medium px-4 py-2.5 rounded-lg shadow-lg transition-transform;
+    background: linear-gradient(to right, #dcff1a, #10b981);
+  }
+
+  .btn-slate:hover {
+    @apply scale-105 shadow-2xl;
+  }
+
+  /* Dark mode */
+  .dark .btn-slate {
+    @apply text-slate-900; /* keep same text color */
+    background: linear-gradient(to right, #dcff1a, #10b981); /* same gradient in dark mode */
+  }
+
+  .dark .btn-slate:hover {
+    @apply scale-105 shadow-2xl;
+  }
+}
+
+[data-sonner-toast] {
+  background-color: hsl(var(--toast-bg)) !important;
+  border: 1px solid hsl(var(--toast-border)) !important;
+  color: hsl(var(--toast-fg)) !important;
+}
+
+[data-sonner-toast] [data-content] {
+  color: hsl(var(--toast-fg)) !important;
+}
+
+[data-sonner-toast] [data-title] {
+  color: hsl(var(--toast-fg)) !important;
+}
+
+[data-sonner-toast] [data-description] {
+  color: hsl(var(--toast-fg) / 0.7) !important;
 }
