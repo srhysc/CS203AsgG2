@@ -31,7 +31,7 @@ export default function SyncUserToBackend() {
         
         const token = await getToken();
         
-        const response = await fetch(`${API_BASE}/api/users/profile`, {
+        const response = await fetch(`${API_BASE}/users/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

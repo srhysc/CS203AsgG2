@@ -29,7 +29,7 @@ export default function ManageUsersPage() {
       try {
         const token = await getToken()
 
-        const res = await fetch(`${API_BASE}/api/users`, {
+        const res = await fetch(`${API_BASE}/users`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!res.ok) throw new Error("Failed to fetch users")
@@ -64,7 +64,7 @@ export default function ManageUsersPage() {
     try {
       const token = await getToken()
 
-      const res = await fetch(`${API_BASE}/api/users/${updatedUser.id}/role`, {
+      const res = await fetch(`${API_BASE}/users/${updatedUser.id}/role`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
