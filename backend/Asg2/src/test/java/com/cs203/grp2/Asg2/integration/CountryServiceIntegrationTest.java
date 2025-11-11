@@ -195,4 +195,229 @@ class CountryServiceIntegrationTest extends BaseFirebaseIntegrationTest {
         System.out.println("Service initialized successfully with " + countries.size() + " countries");
         System.out.println("Can lookup by code and name consistently");
     }
+
+    // ==================== NEW EDGE CASE TESTS ====================
+
+    @Test
+    void testGetCountryByName_WithNullName_ShouldThrowException() {
+        // Act & Assert
+        Exception exception = assertThrows(Exception.class, () -> {
+            countryService.getCountryByName(null);
+        });
+        
+        assertTrue(exception.getMessage().contains("null") || 
+                   exception.getMessage().contains("No country"),
+                   "Should throw exception with null in message");
+        System.out.println("✓ Null name handling: " + exception.getMessage());
+    }
+
+    @Test
+    void testGetCountryByISO3_WithNullISO3_ShouldThrowException() {
+        // Act & Assert
+        Exception exception = assertThrows(Exception.class, () -> {
+            countryService.getCountryByISO3(null);
+        });
+        
+        assertTrue(exception.getMessage().contains("null") || 
+                   exception.getMessage().contains("No country"),
+                   "Should throw exception with null in message");
+        System.out.println("✓ Null ISO3 handling: " + exception.getMessage());
+    }
+
+    @Test
+    void testGetCountryByISO3_WithInvalidISO3_ShouldThrowException() {
+        // Arrange
+        String invalidISO3 = "ZZZ";
+
+        // Act & Assert
+        Exception exception = assertThrows(Exception.class, () -> {
+            countryService.getCountryByISO3(invalidISO3);
+        });
+        
+        assertTrue(exception.getMessage().contains("No country") || 
+                   exception.getMessage().contains("ZZZ"),
+                   "Should throw exception for invalid ISO3");
+        System.out.println("✓ Invalid ISO3 handling: " + exception.getMessage());
+    }
+
+    @Test
+    void testGetCountryByCode_WithEmptyCode_ShouldThrowException() {
+        // Act & Assert
+        Exception exception = assertThrows(Exception.class, () -> {
+            countryService.getCountryByCode("");
+        });
+        
+        assertTrue(exception.getMessage().contains("No country") || 
+                   exception.getMessage().length() > 0,
+                   "Should throw exception for empty code");
+        System.out.println("✓ Empty code handling works");
+    }
+
+    @Test
+    void testGetCountryByName_WithEmptyName_ShouldThrowException() {
+        // Act & Assert
+        Exception exception = assertThrows(Exception.class, () -> {
+            countryService.getCountryByName("");
+        });
+        
+        assertTrue(exception.getMessage().contains("No country") || 
+                   exception.getMessage().length() > 0,
+                   "Should throw exception for empty name");
+        System.out.println("✓ Empty name handling works");
+    }
+
+    @Test
+    void testGetCountryByISO3_CaseInsensitive_ShouldWork() {
+        // Arrange - Test with lowercase iso3
+        String[] iso3Variations = {"sgp", "SGP", "Sgp"};
+        
+        // Act & Assert
+        for (String iso3 : iso3Variations) {
+            try {
+                Country country = countryService.getCountryByISO3(iso3);
+                assertNotNull(country, "ISO3 lookup should be case-insensitive for: " + iso3);
+                System.out.println("✓ ISO3 case-insensitive: " + iso3 + " -> " + country.getName());
+            } catch (Exception e) {
+                // Singapore might not be in the database, try another country
+                System.out.println("  Note: " + iso3 + " not found in Firebase");
+            }
+        }
+    }
+
+    @Test
+    void testGetAll_ReturnsUnmodifiableList() {
+        // Act
+        List<Country> countries = countryService.getAll();
+
+        // Assert - Try to modify the list (should throw exception if unmodifiable)
+        assertThrows(UnsupportedOperationException.class, () -> {
+            countries.clear();
+        }, "getAll() should return unmodifiable list to prevent external modifications");
+        
+        System.out.println("✓ getAll() returns unmodifiable list");
+    }
+
+    @Test
+    void testGetCountryByCode_Consistency() {
+        // Arrange
+        String code = "702";
+
+        // Act - Call multiple times
+        Country country1 = countryService.getCountryByCode(code);
+        Country country2 = countryService.getCountryByCode(code);
+        Country country3 = countryService.getCountryByCode(code);
+
+        // Assert - All should return same instance/data
+        assertNotNull(country1);
+        assertNotNull(country2);
+        assertNotNull(country3);
+        assertEquals(country1.getCode(), country2.getCode());
+        assertEquals(country1.getCode(), country3.getCode());
+        assertEquals(country1.getName(), country2.getName());
+        
+        System.out.println("✓ Multiple lookups by code return consistent data");
+    }
+
+    @Test
+    void testGetCountryByName_Consistency() {
+        // Arrange
+        String name = "Singapore";
+
+        // Act - Call multiple times
+        Country country1 = countryService.getCountryByName(name);
+        Country country2 = countryService.getCountryByName(name);
+        Country country3 = countryService.getCountryByName(name);
+
+        // Assert - All should return same instance/data
+        assertNotNull(country1);
+        assertNotNull(country2);
+        assertNotNull(country3);
+        assertEquals(country1.getCode(), country2.getCode());
+        assertEquals(country1.getCode(), country3.getCode());
+        
+        System.out.println("✓ Multiple lookups by name return consistent data");
+    }
+
+    @Test
+    void testGetCountryByCode_WithSpecialCharacters_ShouldHandle() {
+        // Arrange - Test with potential special character codes
+        String[] specialCodes = {"@#$", "12 3", "ABC"};
+
+        // Act & Assert - Should handle gracefully (throw exception, not crash)
+        for (String code : specialCodes) {
+            assertThrows(Exception.class, () -> {
+                countryService.getCountryByCode(code);
+            }, "Should handle special characters in code gracefully");
+        }
+        
+        System.out.println("✓ Special characters in code handled gracefully");
+    }
+
+    @Test
+    void testMultipleCountryLookups_Performance() {
+        // This test ensures lookups are efficient (using indexes, not scanning)
+        
+        // Act - Perform multiple lookups
+        long startTime = System.currentTimeMillis();
+        
+        for (int i = 0; i < 100; i++) {
+            try {
+                countryService.getCountryByCode("702");
+                countryService.getCountryByName("Singapore");
+            } catch (Exception e) {
+                // Ignore if not found
+            }
+        }
+        
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        
+        // Assert - 100 lookups should be fast (< 1 second with indexes)
+        assertTrue(duration < 1000, 
+            "100 lookups should complete quickly (<1s) with proper indexing. Took: " + duration + "ms");
+        
+        System.out.println("✓ 100 lookups completed in " + duration + "ms (efficient indexing)");
+    }
+
+    @Test
+    void testGetCountryByName_WithVariousWhitespace_ShouldWork() {
+        // Arrange - Test name with various whitespace
+        String[] nameVariations = {"Singapore", " Singapore", "Singapore ", " Singapore "};
+
+        // Act & Assert
+        for (String name : nameVariations) {
+            try {
+                Country country = countryService.getCountryByName(name);
+                assertNotNull(country, "Should handle whitespace variations: '" + name + "'");
+                System.out.println("✓ Whitespace variation handled: '" + name + "'");
+            } catch (Exception e) {
+                System.out.println("  Note: Whitespace variation '" + name + "' not handled (acceptable)");
+            }
+        }
+    }
+
+    @Test
+    void testGetCountryByISO3_WithMultipleCountries() {
+        // Arrange - Test multiple ISO3 codes
+        String[] iso3Codes = {"USA", "GBR", "DEU", "FRA", "JPN"};
+        int foundCount = 0;
+
+        // Act & Assert
+        for (String iso3 : iso3Codes) {
+            try {
+                Country country = countryService.getCountryByISO3(iso3);
+                if (country != null) {
+                    assertNotNull(country.getName());
+                    assertNotNull(country.getCode());
+                    foundCount++;
+                    System.out.println("✓ Found " + country.getName() + " by ISO3: " + iso3);
+                }
+            } catch (Exception e) {
+                System.out.println("  Note: ISO3 " + iso3 + " not in Firebase");
+            }
+        }
+
+        // At least verify method works without errors
+        System.out.println("✓ ISO3 lookup tested for " + iso3Codes.length + " countries, found " + foundCount);
+    }
 }

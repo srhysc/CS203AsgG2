@@ -5,6 +5,7 @@ import com.cs203.grp2.Asg2.service.RefineryServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -284,5 +285,461 @@ public class RefineryServiceIntegrationTest extends BaseFirebaseIntegrationTest 
         }
         
         System.out.println("✅ DTO structure validates correctly");
+    }
+
+    
+    @Test
+    void testAddOrUpdateRefinery_AddNewRefinery() {
+        // Arrange - Create a new test refinery with unique name
+        String uniqueSuffix = String.valueOf(System.currentTimeMillis() % 10000);
+        String testCountry = "TRF";  // Test refinery country
+        
+        RefineryRequestDTO requestDTO = new RefineryRequestDTO();
+        requestDTO.setName("Test Refinery " + uniqueSuffix);
+        requestDTO.setCompany("Test Oil Company");
+        requestDTO.setLocation("Test City");
+        requestDTO.setOperational_from(2020);
+        requestDTO.setOperational_to(2050);
+        requestDTO.setCan_refine_any(true);
+        requestDTO.setCountryName("Test Refinery Country");
+        requestDTO.setCountryIsoNumeric("999");
+        
+        // Add estimated costs
+        RefineryCostRequestDTO costRequest = new RefineryCostRequestDTO();
+        costRequest.setDate("2024-01-01");
+        
+        Map<String, CostDetailRequestDTO> costs = new HashMap<>();
+        CostDetailRequestDTO barrelCost = new CostDetailRequestDTO();
+        barrelCost.setCost_per_unit(50.0);
+        barrelCost.setUnit("USD per barrel");
+        costs.put("barrel", barrelCost);
+        costRequest.setCosts(costs);
+        
+        requestDTO.setEstimated_costs(List.of(costRequest));
+        
+        // Act - Add new refinery
+        RefineryResponseDTO result = refineryService.addOrUpdateRefinery(testCountry, requestDTO);
+        
+        // Assert
+        assertNotNull(result, "Should return response DTO");
+        assertEquals("Test Refinery " + uniqueSuffix, result.getName(), "Name should match");
+        assertEquals("Test Oil Company", result.getCompany(), "Company should match");
+        assertEquals("Test City", result.getLocation(), "Location should match");
+        assertEquals(2020, result.getOperational_from(), "Operational from should match");
+        assertEquals(2050, result.getOperational_to(), "Operational to should match");
+        assertTrue(result.isCan_refine_any(), "Can refine any should be true");
+        assertEquals(testCountry, result.getCountryIso3(), "Country ISO3 should match");
+        assertNotNull(result.getEstimated_costs(), "Estimated costs should not be null");
+        assertEquals(1, result.getEstimated_costs().size(), "Should have 1 cost entry");
+        
+        System.out.println("✅ New refinery added: " + result.getName());
+    }
+    
+    @Test
+    void testAddOrUpdateRefinery_UpdateExistingRefinery() {
+        // Given - First add a refinery
+        String uniqueSuffix = String.valueOf(System.currentTimeMillis() % 10000);
+        String testCountry = "TRU";
+        String refineryName = "Update Test Refinery " + uniqueSuffix;
+        
+        RefineryRequestDTO initialRequest = new RefineryRequestDTO();
+        initialRequest.setName(refineryName);
+        initialRequest.setCompany("Initial Company");
+        initialRequest.setLocation("Initial Location");
+        initialRequest.setOperational_from(2020);
+        initialRequest.setOperational_to(2050);
+        initialRequest.setCan_refine_any(false);
+        initialRequest.setCountryName("Update Test Country");
+        initialRequest.setCountryIsoNumeric("998");
+        
+        RefineryCostRequestDTO initialCost = new RefineryCostRequestDTO();
+        initialCost.setDate("2024-01-01");
+        Map<String, CostDetailRequestDTO> initialCosts = new HashMap<>();
+        CostDetailRequestDTO initialBarrelCost = new CostDetailRequestDTO();
+        initialBarrelCost.setCost_per_unit(45.0);
+        initialBarrelCost.setUnit("USD per barrel");
+        initialCosts.put("barrel", initialBarrelCost);
+        initialCost.setCosts(initialCosts);
+        initialRequest.setEstimated_costs(List.of(initialCost));
+        
+        refineryService.addOrUpdateRefinery(testCountry, initialRequest);
+        
+        // When - Update with new cost entry
+        RefineryRequestDTO updateRequest = new RefineryRequestDTO();
+        updateRequest.setName(refineryName);  // Same name to trigger update
+        updateRequest.setCompany("Initial Company");
+        updateRequest.setLocation("Initial Location");
+        updateRequest.setOperational_from(2020);
+        updateRequest.setOperational_to(2050);
+        updateRequest.setCan_refine_any(false);
+        updateRequest.setCountryName("Update Test Country");
+        updateRequest.setCountryIsoNumeric("998");
+        
+        RefineryCostRequestDTO newCost = new RefineryCostRequestDTO();
+        newCost.setDate("2024-06-01");  // Different date
+        Map<String, CostDetailRequestDTO> newCosts = new HashMap<>();
+        CostDetailRequestDTO newBarrelCost = new CostDetailRequestDTO();
+        newBarrelCost.setCost_per_unit(55.0);  // Different cost
+        newBarrelCost.setUnit("USD per barrel");
+        newCosts.put("barrel", newBarrelCost);
+        newCost.setCosts(newCosts);
+        updateRequest.setEstimated_costs(List.of(newCost));
+        
+        RefineryResponseDTO result = refineryService.addOrUpdateRefinery(testCountry, updateRequest);
+        
+        // Assert - Should return the new cost (not verify Firebase has both, as that's complex)
+        assertNotNull(result, "Should return response DTO");
+        assertEquals(refineryName, result.getName(), "Name should match");
+        assertEquals("2024-06-01", result.getEstimated_costs().get(0).getDate(), "Should have new date");
+        
+        System.out.println("✅ Refinery updated with new cost entry");
+    }
+    
+    @Test
+    void testAddOrUpdateRefinery_WithMultipleCostTypes() {
+        // Arrange - Refinery with barrel and metric ton costs
+        String uniqueSuffix = String.valueOf(System.currentTimeMillis() % 10000);
+        String testCountry = "TRM";
+        
+        RefineryRequestDTO requestDTO = new RefineryRequestDTO();
+        requestDTO.setName("Multi-Cost Refinery " + uniqueSuffix);
+        requestDTO.setCompany("Multi Oil Corp");
+        requestDTO.setLocation("Industrial Zone");
+        requestDTO.setOperational_from(2015);
+        requestDTO.setOperational_to(2045);
+        requestDTO.setCan_refine_any(true);
+        requestDTO.setCountryName("Multi Test Country");
+        requestDTO.setCountryIsoNumeric("997");
+        
+        RefineryCostRequestDTO costRequest = new RefineryCostRequestDTO();
+        costRequest.setDate("2024-03-01");
+        
+        Map<String, CostDetailRequestDTO> costs = new HashMap<>();
+        
+        CostDetailRequestDTO barrelCost = new CostDetailRequestDTO();
+        barrelCost.setCost_per_unit(48.5);
+        barrelCost.setUnit("USD per barrel");
+        costs.put("barrel", barrelCost);
+        
+        CostDetailRequestDTO tonCost = new CostDetailRequestDTO();
+        tonCost.setCost_per_unit(350.0);
+        tonCost.setUnit("USD per metric ton");
+        costs.put("metric_ton", tonCost);
+        
+        costRequest.setCosts(costs);
+        requestDTO.setEstimated_costs(List.of(costRequest));
+        
+        // Act
+        RefineryResponseDTO result = refineryService.addOrUpdateRefinery(testCountry, requestDTO);
+        
+        // Assert
+        assertNotNull(result, "Should return response DTO");
+        assertNotNull(result.getEstimated_costs(), "Should have estimated costs");
+        assertEquals(1, result.getEstimated_costs().size(), "Should have 1 cost entry");
+        
+        RefineryCostResponseDTO costResponse = result.getEstimated_costs().get(0);
+        assertEquals(2, costResponse.getCosts().size(), "Should have 2 cost types");
+        assertTrue(costResponse.getCosts().containsKey("barrel"), "Should have barrel cost");
+        assertTrue(costResponse.getCosts().containsKey("metric_ton"), "Should have metric ton cost");
+        
+        System.out.println("✅ Refinery added with multiple cost types");
+    }
+    
+    
+    @Test
+    void testGetCostByUnit_BarrelUnit() {
+        // Given - Get a refinery with costs
+        List<RefineryResponseDTO> refineries = refineryService.getAllRefineries();
+        
+        if (refineries.isEmpty()) {
+            System.out.println("⚠️ No refineries in database, skipping test");
+            return;
+        }
+        
+        // Find a refinery with barrel cost
+        RefineryResponseDTO testRefinery = null;
+        for (RefineryResponseDTO refinery : refineries) {
+            if (refinery.getEstimated_costs() != null && !refinery.getEstimated_costs().isEmpty()) {
+                RefineryCostResponseDTO cost = refinery.getEstimated_costs().get(0);
+                if (cost.getCosts() != null && cost.getCosts().containsKey("barrel")) {
+                    testRefinery = refinery;
+                    break;
+                }
+            }
+        }
+        
+        if (testRefinery == null) {
+            System.out.println("⚠️ No refinery with barrel cost found");
+            return;
+        }
+        
+        // When - Get cost by barrel unit
+        CostDetailResponseDTO result = refineryService.getCostByUnit(
+            testRefinery.getCountryIso3(),
+            testRefinery.getName(),
+            "barrel",
+            null  // Latest date
+        );
+        
+        // Assert
+        assertNotNull(result, "Should return cost detail");
+        assertNotNull(result.getCost_per_unit(), "Cost per unit should not be null");
+        assertNotNull(result.getUnit(), "Unit should not be null");
+        assertTrue(result.getCost_per_unit() > 0, "Cost should be positive");
+        
+        System.out.println("✅ Retrieved barrel cost: $" + result.getCost_per_unit() + "/" + result.getUnit());
+    }
+    
+    @Test
+    void testGetCostByUnit_WithSpecificDate() {
+        // Given - Get a refinery with costs
+        List<RefineryResponseDTO> refineries = refineryService.getAllRefineries();
+        
+        if (refineries.isEmpty()) {
+            System.out.println("⚠️ No refineries in database, skipping test");
+            return;
+        }
+        
+        RefineryResponseDTO testRefinery = null;
+        String testDate = null;
+        
+        for (RefineryResponseDTO refinery : refineries) {
+            if (refinery.getEstimated_costs() != null && !refinery.getEstimated_costs().isEmpty()) {
+                RefineryCostResponseDTO cost = refinery.getEstimated_costs().get(0);
+                if (cost.getCosts() != null && cost.getCosts().containsKey("barrel")) {
+                    testRefinery = refinery;
+                    testDate = cost.getDate();
+                    break;
+                }
+            }
+        }
+        
+        if (testRefinery == null || testDate == null) {
+            System.out.println("⚠️ No suitable refinery found");
+            return;
+        }
+        
+        // When - Get cost for specific date
+        CostDetailResponseDTO result = refineryService.getCostByUnit(
+            testRefinery.getCountryIso3(),
+            testRefinery.getName(),
+            "barrel",
+            testDate
+        );
+        
+        // Assert
+        assertNotNull(result, "Should return cost detail");
+        assertNotNull(result.getCost_per_unit(), "Cost per unit should not be null");
+        
+        System.out.println("✅ Retrieved cost for date " + testDate + ": $" + result.getCost_per_unit());
+    }
+    
+    @Test
+    void testGetCostByUnit_NonExistentUnit() {
+        // Given - Get any refinery
+        List<RefineryResponseDTO> refineries = refineryService.getAllRefineries();
+        
+        if (refineries.isEmpty()) {
+            System.out.println("⚠️ No refineries in database, skipping test");
+            return;
+        }
+        
+        RefineryResponseDTO testRefinery = refineries.get(0);
+        
+        // When/Then - Request non-existent unit should throw exception
+        assertThrows(com.cs203.grp2.Asg2.exceptions.RefineryNotFoundException.class, () -> {
+            refineryService.getCostByUnit(
+                testRefinery.getCountryIso3(),
+                testRefinery.getName(),
+                "nonexistent_unit",
+                null
+            );
+        });
+        
+        System.out.println("✅ Non-existent unit throws exception correctly");
+    }
+    
+    @Test
+    void testGetCostByUnit_NullUnit() {
+        // Given - Get any refinery
+        List<RefineryResponseDTO> refineries = refineryService.getAllRefineries();
+        
+        if (refineries.isEmpty()) {
+            System.out.println("⚠️ No refineries in database, skipping test");
+            return;
+        }
+        
+        RefineryResponseDTO testRefinery = refineries.get(0);
+        
+        // When/Then - Null unit should throw exception
+        assertThrows(com.cs203.grp2.Asg2.exceptions.GeneralBadRequestException.class, () -> {
+            refineryService.getCostByUnit(
+                testRefinery.getCountryIso3(),
+                testRefinery.getName(),
+                null,
+                null
+            );
+        });
+        
+        System.out.println("✅ Null unit throws exception correctly");
+    }
+    
+    @Test
+    void testGetCostByUnit_EmptyUnit() {
+        // Given - Get any refinery
+        List<RefineryResponseDTO> refineries = refineryService.getAllRefineries();
+        
+        if (refineries.isEmpty()) {
+            System.out.println("⚠️ No refineries in database, skipping test");
+            return;
+        }
+        
+        RefineryResponseDTO testRefinery = refineries.get(0);
+        
+        // When/Then - Empty unit should throw exception
+        assertThrows(com.cs203.grp2.Asg2.exceptions.GeneralBadRequestException.class, () -> {
+            refineryService.getCostByUnit(
+                testRefinery.getCountryIso3(),
+                testRefinery.getName(),
+                "",
+                null
+            );
+        });
+        
+        System.out.println("✅ Empty unit throws exception correctly");
+    }
+    
+    // ========== EDGE CASE TESTS FOR OTHER METHODS ==========
+    
+    @Test
+    void testGetLatestCost_NullDate() {
+        // Given - Get a refinery with costs
+        List<RefineryResponseDTO> refineries = refineryService.getAllRefineries();
+        
+        if (refineries.isEmpty()) {
+            System.out.println("⚠️ No refineries in database, skipping test");
+            return;
+        }
+        
+        RefineryResponseDTO testRefinery = null;
+        for (RefineryResponseDTO refinery : refineries) {
+            if (refinery.getEstimated_costs() != null && !refinery.getEstimated_costs().isEmpty()) {
+                testRefinery = refinery;
+                break;
+            }
+        }
+        
+        if (testRefinery == null) {
+            System.out.println("⚠️ No refinery with costs found");
+            return;
+        }
+        
+        // When - Get cost with null date (should return all costs)
+        List<RefineryCostResponseDTO> results = refineryService.getLatestCost(
+            testRefinery.getCountryIso3(),
+            testRefinery.getName(),
+            null
+        );
+        
+        // Assert
+        assertNotNull(results, "Results should not be null");
+        assertFalse(results.isEmpty(), "Should return all costs when date is null");
+        
+        System.out.println("✅ Null date returns all " + results.size() + " cost entries");
+    }
+    
+    @Test
+    void testGetLatestCost_EmptyDate() {
+        // Given - Get a refinery with costs
+        List<RefineryResponseDTO> refineries = refineryService.getAllRefineries();
+        
+        if (refineries.isEmpty()) {
+            System.out.println("⚠️ No refineries in database, skipping test");
+            return;
+        }
+        
+        RefineryResponseDTO testRefinery = null;
+        for (RefineryResponseDTO refinery : refineries) {
+            if (refinery.getEstimated_costs() != null && !refinery.getEstimated_costs().isEmpty()) {
+                testRefinery = refinery;
+                break;
+            }
+        }
+        
+        if (testRefinery == null) {
+            System.out.println("⚠️ No refinery with costs found");
+            return;
+        }
+        
+        // When - Get cost with empty date (should return all costs)
+        List<RefineryCostResponseDTO> results = refineryService.getLatestCost(
+            testRefinery.getCountryIso3(),
+            testRefinery.getName(),
+            ""
+        );
+        
+        // Assert
+        assertNotNull(results, "Results should not be null");
+        assertFalse(results.isEmpty(), "Should return all costs when date is empty");
+        
+        System.out.println("✅ Empty date returns all " + results.size() + " cost entries");
+    }
+    
+    @Test
+    void testGetLatestCost_FutureDate() {
+        // Given - Get a refinery with costs
+        List<RefineryResponseDTO> refineries = refineryService.getAllRefineries();
+        
+        if (refineries.isEmpty()) {
+            System.out.println("⚠️ No refineries in database, skipping test");
+            return;
+        }
+        
+        RefineryResponseDTO testRefinery = null;
+        for (RefineryResponseDTO refinery : refineries) {
+            if (refinery.getEstimated_costs() != null && !refinery.getEstimated_costs().isEmpty()) {
+                testRefinery = refinery;
+                break;
+            }
+        }
+        
+        if (testRefinery == null) {
+            System.out.println("⚠️ No refinery with costs found");
+            return;
+        }
+        
+        // When - Get cost with future date (should return latest available cost)
+        List<RefineryCostResponseDTO> results = refineryService.getLatestCost(
+            testRefinery.getCountryIso3(),
+            testRefinery.getName(),
+            "2030-12-31"  // Future date
+        );
+        
+        // Assert
+        assertNotNull(results, "Results should not be null");
+        assertFalse(results.isEmpty(), "Should return latest cost before future date");
+        assertEquals(1, results.size(), "Should return only one cost entry");
+        
+        System.out.println("✅ Future date returns latest cost: " + results.get(0).getDate());
+    }
+    
+    @Test
+    void testGetRefinery_NonExistentRefinery() {
+        // When/Then - Non-existent refinery should throw exception
+        assertThrows(com.cs203.grp2.Asg2.exceptions.RefineryNotFoundException.class, () -> {
+            refineryService.getRefinery("USA", "Nonexistent Refinery " + System.currentTimeMillis());
+        });
+        
+        System.out.println("✅ Non-existent refinery throws exception correctly");
+    }
+    
+    @Test
+    void testGetAllCosts_NonExistentRefinery() {
+        // When/Then - Non-existent refinery should throw exception
+        assertThrows(com.cs203.grp2.Asg2.exceptions.RefineryNotFoundException.class, () -> {
+            refineryService.getAllCosts("USA", "Nonexistent Refinery " + System.currentTimeMillis());
+        });
+        
+        System.out.println("✅ Non-existent refinery for getAllCosts throws exception correctly");
     }
 }
