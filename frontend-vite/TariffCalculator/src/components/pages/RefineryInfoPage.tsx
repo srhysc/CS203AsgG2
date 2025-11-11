@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Calendar, ChevronLeft, ChevronRight, Building2, Globe, Activity, Loader2 } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Building2, Globe, Activity, Loader2, Search } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 // Types
@@ -121,7 +121,7 @@ const PriceChart = ({ costs }: { costs: { date: string; cost_per_unit: number; u
           }}
           labelStyle={{ color: '#94a3b8' }}
           itemStyle={{ color: '#dcff1a' }}
-          formatter={(value, name, props) => [`$${value}`, props.payload.unit]}
+          formatter={(value, _label, props) => [`$${value}`, props.payload.unit]}
         />
         <Line
           type="monotone"
@@ -192,8 +192,8 @@ export default function RefineryInfoPage() {
   // Find selected refinery
   const refineryData = useMemo(() => {
     if (!selectedRefinery) return undefined;
-    const [name, iso3] = selectedRefinery.split("|");
-    return refineries.find(r => r.name === name && r.countryIso3 === iso3);
+    const [refineryName, iso3] = selectedRefinery.split("|");
+    return refineries.find(r => r.name === refineryName && r.countryIso3 === iso3);
   }, [selectedRefinery, refineries]);
 
   // Filter costs by date and unit (only after search button is clicked)

@@ -137,7 +137,7 @@
 //     </div>
 //   );
 // }"use client";
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios, { isAxiosError } from "axios";
 import { useAuth } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

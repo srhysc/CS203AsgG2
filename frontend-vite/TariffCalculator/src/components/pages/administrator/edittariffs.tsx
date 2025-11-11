@@ -52,20 +52,6 @@ const initialTariffData: Tariff[] = [
   
 ]
 
-// to be connected to database
-const COUNTRY_OPTIONS = [
-  { label: "Saudi Arabia", value: "Saudi Arabia" },
-  { label: "Singapore", value: "Singapore" },
-  { label: "USA", value: "USA" },
-  { label: "Malaysia", value: "Malaysia" },
-  { label: "Qatar", value: "Qatar" },
-  { label: "Japan", value: "Japan" },
-  { label: "Russia", value: "Russia" },
-  { label: "Germany", value: "Germany" },
-  { label: "UAE", value: "UAE" },
-  { label: "China", value: "China" },
-]
-
 export default function EditTariffsPage() {
   const [tariffData, setTariffData] = React.useState<Tariff[]>(initialTariffData)
   const handleSaveTariff = async (updatedTariff: Tariff) => {
@@ -119,7 +105,6 @@ export default function EditTariffsPage() {
           renderRowEditForm={(row, onSave, onCancel) => (
             <EditTariffForm
               defaultValues={row}
-              countryOptions={COUNTRY_OPTIONS}
               onCancel={onCancel}
               onSubmit={(values) => {
                 onSave(values)       // saves in DataTable

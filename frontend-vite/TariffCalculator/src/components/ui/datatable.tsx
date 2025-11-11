@@ -36,6 +36,7 @@ import {
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 type Identifiable = { id?: string | number }
+type DataTableColumnMeta = { label?: string }
 
 type DataTableProps<T extends Identifiable> = {
   columns: ColumnDef<T>[]
@@ -126,7 +127,7 @@ export function DataTable<T extends Identifiable>({
     initialState: {
       pagination: { pageSize: 8 }
     },
-    globalFilterFn: (row, columnId, filterValue) => {
+    globalFilterFn: (row, _columnId, filterValue) => {
       if (!filterValue) return true
       const search = filterValue.toString().toLowerCase().trim().replace(/[%\s]/g, "")
       return row.getAllCells().some(cell => {
@@ -177,7 +178,7 @@ export function DataTable<T extends Identifiable>({
                   checked={col.getIsVisible()}
                   onCheckedChange={(value) => col.toggleVisibility(!!value)}
                 >
-                  {col.columnDef.meta?.label ?? ""}
+                  {(col.columnDef.meta as DataTableColumnMeta | undefined)?.label ?? col.id}
                 </DropdownMenuCheckboxItem>
               ))}
           </DropdownMenuContent>

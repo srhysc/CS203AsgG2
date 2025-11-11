@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { DataTable } from "@/components/ui/datatable"
-import type { ProductPrice } from "@components/tablecolumns/editproductpricescol"
+import type { ProductPrice } from "@/components/tablecolumns/editproductpricescol"
 import { productPriceColumns } from "@/components/tablecolumns/editproductpricescol"
 import { EditProductPriceForm } from "@/components/ui/editproductpricesform"
 import { Toaster, toast } from "@/components/ui/sonner"
