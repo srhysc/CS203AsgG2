@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-
+// eslint-disable-next-line react-refresh/only-export-components
 export const columns: ColumnDef<Tradeagreement>[] = [
   {
     accessorKey: "agreementName",

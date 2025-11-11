@@ -9,6 +9,12 @@ import { EditVATRateForm } from "@/components/ui/editVATratesform"
 import type { VATRate } from "@/components/tablecolumns/editVATratescol"
 import { TableSkeleton } from "@/components/ui/tableskeleton"
 
+const initialVATRateData: VATRate[] = [
+  { id: "1", country: "Singapore", vatRate: 0.07, lastUpdated: "2025-09-01" },
+  { id: "2", country: "Malaysia", vatRate: 0.06, lastUpdated: "2025-09-01"},
+  { id: "3", country: "Japan", vatRate: 0.10, lastUpdated: "2025-09-01" },
+]
+
 function isEqual(obj1: any, obj2: any): boolean {
   return Object.entries(obj1).every(([key, value]) => obj2[key] === value)
 }

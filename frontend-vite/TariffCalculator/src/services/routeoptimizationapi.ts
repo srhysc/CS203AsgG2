@@ -23,7 +23,7 @@ export interface RouteOptimizationRequest {
 }
 
 // Hook-style Route Optimization service
-export const routeOptimizationService = () => {
+export const useRouteOptimizationService = () => {
   const { getToken } = useAuth();
 
   // Fetch optimized routes based on inputs
@@ -54,11 +54,12 @@ export const routeOptimizationService = () => {
 
       console.log('✅ Route optimization response:', response.data);
       return response.data;
-    } catch (error: any) {
-      console.error('❌ Error fetching optimized route:', error);
-      console.error('❌ Error response:', error.response?.data);
-      console.error('❌ Error status:', error.response?.status);
-      console.error('❌ Error headers:', error.response?.headers);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('❌ Error fetching optimized route:', error);
+      } else {
+        console.error('❌ Unknown error fetching optimized route:', error);
+      }
       throw error;
     }
   };

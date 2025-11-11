@@ -275,6 +275,7 @@ const CalendarView = ({ date, onDateChange }: { date: Date, onDateChange: (date:
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const tariffSchema = z.object({
   importcountry: z.string().min(1, "Import country is required."),
   exportcountry: z.string().min(1, "Export country is required."),
@@ -425,7 +426,7 @@ export function TariffForm({ onSubmit, countries, petroleum, clearSignal, onClea
                 className="h-10 bg-slate-800 border-slate-700 
                   text-gray-100 placeholder:text-gray-400
                   hover:border-[#dcff1a] transition-colors"
-                placeholder="Enter quantity in barrels..."
+                placeholder="Enter number of units..."
               />
               {form.formState.errors.units && (
                 <p className="text-sm text-red-400">{form.formState.errors.units.message}</p>

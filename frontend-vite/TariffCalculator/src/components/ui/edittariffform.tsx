@@ -21,14 +21,12 @@ interface EditTariffFormProps {
   defaultValues: EditTariffFormValues;
   onSubmit: (values: EditTariffFormValues) => Promise<void> | void;
   onCancel?: () => void;
-  currentUserName: string;
 }
 
 export function EditTariffForm({
   defaultValues,
   onSubmit,
   onCancel,
-  currentUserName,
 }: EditTariffFormProps) {
   const methods = useForm<EditTariffFormValues>({
   resolver: zodResolver(formSchema),

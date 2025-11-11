@@ -16,7 +16,8 @@ public class GlobalControllerExceptionHandler {
         ShippingFeesNotFoundException.class,
         TariffNotFoundException.class,
         UserNotFoundException.class,
-        TradeAgreementNotFoundException.class // <-- add this
+        TradeAgreementNotFoundException.class,
+        ConvertableNotFoundException.class
     })
     public @ResponseBody String handleNotFound(RuntimeException ex) {
         return ex.getMessage();
@@ -38,5 +39,12 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(Exception.class)
     public @ResponseBody String handleGeneral(Exception ex) {
         return "An unexpected error occurred: " + ex.getMessage();
+    }
+
+    //for duplicate bookmark
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DuplicateBookmarkException.class)
+    public @ResponseBody String handleDuplicateBookmark(DuplicateBookmarkException ex) {
+        return ex.getMessage();
     }
 }

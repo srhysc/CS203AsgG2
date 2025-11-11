@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -121,7 +121,7 @@ const PriceChart = ({ costs }: { costs: { date: string; cost_per_unit: number; u
           }}
           labelStyle={{ color: '#94a3b8' }}
           itemStyle={{ color: '#dcff1a' }}
-          formatter={(value, name, props) => [`$${value}`, props.payload.unit]}
+          formatter={(value, _label, props) => [`$${value}`, props.payload.unit]}
         />
         <Line
           type="monotone"
@@ -192,14 +192,14 @@ export default function RefineryInfoPage() {
   // Find selected refinery
   const refineryData = useMemo(() => {
     if (!selectedRefinery) return undefined;
-    const [name, iso3] = selectedRefinery.split("|");
-    return refineries.find(r => r.name === name && r.countryIso3 === iso3);
+    const [refineryName, iso3] = selectedRefinery.split("|");
+    return refineries.find(r => r.name === refineryName && r.countryIso3 === iso3);
   }, [selectedRefinery, refineries]);
 
   // Filter costs by date and unit (only after search button is clicked)
   const filteredCosts = useMemo(() => {
     if (!searchClicked || !refineryData || !Array.isArray(refineryData.estimated_costs)) return [];
-    let costs: { date: string; cost_per_unit: number; unit: string }[] = [];
+    const costs: { date: string; cost_per_unit: number; unit: string }[] = [];
     refineryData.estimated_costs.forEach(costEntry => {
       if (!selectedDate || new Date(costEntry.date) <= selectedDate) {
         if (costEntry.costs && costEntry.costs[unit]) {
