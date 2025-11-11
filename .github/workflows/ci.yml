@@ -26,6 +26,8 @@ jobs:
     defaults:
       run:
         working-directory: backend/Asg2
+    env:
+      FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -39,6 +41,13 @@ jobs:
 
       - name: Make Maven wrapper executable
         run: chmod +x mvnw
+
+      - name: Inject Firebase service account
+        if: env.FIREBASE_SERVICE_ACCOUNT != ''
+        run: |
+          mkdir -p src/main/resources src/test/resources
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > src/main/resources/serviceAccountKey.json
+          cp src/main/resources/serviceAccountKey.json src/test/resources/serviceAccountKey.json
 
       - name: Run unit tests & coverage
         run: ./mvnw -B -ntp verify
