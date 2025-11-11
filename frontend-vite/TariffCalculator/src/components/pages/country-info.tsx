@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import { useAuth } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
@@ -149,11 +149,15 @@ export default function CountryInfoPage() {
         setError("No VAT rate found for this date.");
         console.log("No VAT rate found in backend response.");
       }
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-        "Failed to fetch VAT rate for this country and date."
-      );
+    } catch (err: unknown) {
+      if (isAxiosError(err)) {
+        setError(
+          err.response?.data?.message ||
+          "Failed to fetch VAT rate for this country and date."
+        );
+      } else {
+        setError("Failed to fetch VAT rate for this country and date.");
+      }
       console.error("Error fetching VAT rate from backend:", err);
     } finally {
       setLoading(false);

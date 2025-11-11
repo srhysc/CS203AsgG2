@@ -31,14 +31,12 @@ interface EditUserRoleFormProps {
   defaultValues: EditUserRoleFormValues
   onSubmit: (values: EditUserRoleFormValues) => Promise<void> | void
   onCancel?: () => void
-  currentUserName: string
 }
 
 export function EditUserRoleForm({
   defaultValues,
   onSubmit,
   onCancel,
-  currentUserName,
 }: EditUserRoleFormProps) {
   const methods = useForm<EditUserRoleFormValues>({
     resolver: zodResolver(formSchema),
@@ -50,7 +48,7 @@ export function EditUserRoleForm({
     handleSubmit, 
     watch,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = methods
 
   const currentRole = watch("currentRole")

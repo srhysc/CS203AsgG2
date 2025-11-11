@@ -14,7 +14,7 @@ const countrytariffapi: AxiosInstance = axios.create({
 });
 
 // Hook-style tariff service
-export const tariffService = () => {
+export const useTariffService = () => {
   const { getToken } = useAuth();
 
   // Fetch all tariffs

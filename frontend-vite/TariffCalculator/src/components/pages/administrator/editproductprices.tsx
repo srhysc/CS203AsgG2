@@ -6,6 +6,7 @@ import type { ProductPrice } from "@components/tablecolumns/editproductpricescol
 import { productPriceColumns } from "@/components/tablecolumns/editproductpricescol"
 import { EditProductPriceForm } from "@/components/ui/editproductpricesform"
 import { Toaster, toast } from "@/components/ui/sonner"
+import { isRecordEqual } from "@/lib/is-record-equal"
 
 const initialProductPriceData: ProductPrice[] = [
   {
@@ -24,16 +25,12 @@ const initialProductPriceData: ProductPrice[] = [
   }
 ]
 
-function isEqual(obj1: any, obj2: any): boolean {
-  return Object.entries(obj1).every(([key, value]) => obj2[key] === value)
-}
-
 export default function EditProductPricesPage() {
   const [productPrices, setProductPrice] = React.useState(initialProductPriceData)
 
   const handleSaveProductPrice = async (updatedPrice: ProductPrice) => {
     const original = productPrices.find(p => p.id === updatedPrice.id)
-    if (original && isEqual(original, updatedPrice)) {
+    if (original && isRecordEqual(original, updatedPrice)) {
       toast.info("No changes detected.")
       return
     }
@@ -66,7 +63,6 @@ export default function EditProductPricesPage() {
           renderRowEditForm={(row, onSave, onCancel) => (
             <EditProductPriceForm
               defaultValues={row}
-              currentUserName="Admin User"
               onCancel={onCancel}
               onSubmit={(values) => {
                 onSave(values)

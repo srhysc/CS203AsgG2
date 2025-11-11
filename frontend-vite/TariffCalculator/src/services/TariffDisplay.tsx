@@ -1,8 +1,8 @@
 import React, { useState, useEffect} from 'react'; 
 import {motion} from "motion/react"
 
-import { countryService } from './countryapi';
-import { petrolService } from './petroleumapi';
+import { useCountryService } from './countryapi';
+import { usePetroleumService } from './petroleumapi';
 import { agreeementService } from './agreementapi';
 
 import type { Petroleum } from './types/petroleum';
@@ -22,12 +22,14 @@ const TariffLookup: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
+    const { getAllCountries } = useCountryService();
+    const { getAllPetroleum } = usePetroleumService();
 
     //run on render to get all countries
     useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const data = await countryService.getAllCountries();
+        const data = await getAllCountries();
         setCountries(data);
 
       } catch (err) {
@@ -39,13 +41,13 @@ const TariffLookup: React.FC = () => {
     };
 
     fetchCountries();
-  }, []); // empty dependency array → runs once on mount  
+  }, [getAllCountries]);
 
   //run on render to get all petroleum
     useEffect(() => {
     const fetchPetroleum = async () => {
       try {
-        const data = await petrolService.getAllPetroleum();
+        const data = await getAllPetroleum();
         setPetroleum(data);
 
       } catch (err) {
@@ -57,7 +59,7 @@ const TariffLookup: React.FC = () => {
     };
 
     fetchPetroleum();
-  }, []); // empty dependency array → runs once on mount
+  }, [getAllPetroleum]);
 
 
   //run on render to get all agreements
@@ -78,7 +80,7 @@ console.log("agreemeents", data)
     };
 
     fetchAgreements();
-  }, []); // empty dependency array → runs once on mount
+  }, []);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;

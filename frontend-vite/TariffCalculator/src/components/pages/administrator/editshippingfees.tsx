@@ -6,6 +6,7 @@ import type { ShippingFee } from "@/components/tablecolumns/editshippingfeescol"
 import { shippingFeeColumns } from "@/components/tablecolumns/editshippingfeescol"
 import { EditShippingFeeForm } from "@/components/ui/editshippingfeesform"
 import { Toaster, toast } from "@/components/ui/sonner"
+import { isRecordEqual } from "@/lib/is-record-equal"
 
 const initialShippingFeeData: ShippingFee[] = [
   {
@@ -28,16 +29,12 @@ const initialShippingFeeData: ShippingFee[] = [
   }
 ]
 
-function isEqual(obj1: any, obj2: any): boolean {
-  return Object.entries(obj1).every(([key, value]) => obj2[key] === value)
-}
-
 export default function EditShippingFeesPage() {
   const [shippingFees, setShippingFees] = React.useState(initialShippingFeeData)
 
   const handleSaveShippingFee = async (updatedCost: ShippingFee) => {
     const original = shippingFees.find(c => c.id === updatedCost.id)
-    if (original && isEqual(original, updatedCost)) {
+    if (original && isRecordEqual(original, updatedCost)) {
       toast.info("No changes detected.")
       return
     }
@@ -70,7 +67,6 @@ export default function EditShippingFeesPage() {
           renderRowEditForm={(row, onSave, onCancel) => (
             <EditShippingFeeForm
               defaultValues={row}
-              currentUserName="Admin User"
               onCancel={onCancel}
               onSubmit={(values) => {
                 onSave(values)

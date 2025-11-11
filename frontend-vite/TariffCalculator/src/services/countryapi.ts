@@ -1,7 +1,8 @@
 import axios from 'axios';
-import type{ AxiosInstance} from 'axios';
-import type {Country} from '@/services/types/country'
+import type { AxiosInstance } from 'axios';
+import type { Country } from '@/services/types/country';
 import { useAuth } from '@clerk/clerk-react';
+import { useCallback } from "react";
 
 
 
@@ -20,29 +21,24 @@ const countryapi: AxiosInstance = axios.create({
 //gives all the cookies, tokens, etc. no need for interceptors
 
 // Country service with proper typing
-export const countryService = () => {
+export const useCountryService = () => {
+  const { getToken } = useAuth();
 
-    const { getToken } = useAuth();
-
-  const getAllCountries = async (): Promise<Country[]> => {
-
-    //Call /Country API endpoint
+  const getAllCountries = useCallback(async (): Promise<Country[]> => {
     try {
       const token = await getToken();
-
-console.log(`Testing: ${import.meta.env.VITE_API_URL}/countries`)
-        //try getting data from api
-        const response = await countryapi.get<Country[]>(`/countries`,{
-            headers: { Authorization: `Bearer ${token}` },
-        });
+      console.log(`Testing: ${import.meta.env.VITE_API_URL}/countries`);
+      const response = await countryapi.get<Country[]>(`/countries`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
     } catch (error) {
       console.error(`Error fetching the list of countries`, error);
       throw error;
     }
-  };
-    return { getAllCountries }; 
+  }, [getToken]);
 
+  return { getAllCountries };
 };
 
 export default countryapi;

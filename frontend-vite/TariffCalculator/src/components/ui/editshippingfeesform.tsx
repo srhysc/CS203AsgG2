@@ -23,14 +23,12 @@ interface EditShippingFeeFormProps {
   defaultValues: EditShippingFeeFormValues
   onSubmit: (values: EditShippingFeeFormValues) => Promise<void> | void
   onCancel?: () => void
-  currentUserName: string
 }
 
 export function EditShippingFeeForm({
   defaultValues,
   onSubmit,
   onCancel,
-  currentUserName,
 }: EditShippingFeeFormProps) {
   const methods = useForm<EditShippingFeeFormValues>({
   resolver: zodResolver(formSchema),

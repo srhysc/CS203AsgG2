@@ -6,6 +6,7 @@ import type { Tariff } from "@/components/tablecolumns/edittariffscol"
 import { tariffColumns } from "@/components/tablecolumns/edittariffscol"
 import { EditTariffForm } from "@/components/ui/edittariffform"
 import { Toaster, toast } from "@/components/ui/sonner" 
+import { isRecordEqual } from "@/lib/is-record-equal"
 
 const initialTariffData: Tariff[] = [
   {
@@ -65,16 +66,12 @@ const COUNTRY_OPTIONS = [
   { label: "China", value: "China" },
 ]
 
-function isEqual(obj1: any, obj2: any): boolean {
-  return Object.entries(obj1).every(([key, value]) => obj2[key] === value)
-}
-
 export default function EditTariffsPage() {
   const [tariffData, setTariffData] = React.useState<Tariff[]>(initialTariffData)
   const handleSaveTariff = async (updatedTariff: Tariff) => {
     const originalTariff = tariffData.find(t => t.id === updatedTariff.id)
 
-    if (originalTariff && isEqual(originalTariff, updatedTariff)) {
+    if (originalTariff && isRecordEqual(originalTariff, updatedTariff)) {
     toast.info("No changes detected.")
     return
    }
@@ -122,7 +119,6 @@ export default function EditTariffsPage() {
           renderRowEditForm={(row, onSave, onCancel) => (
             <EditTariffForm
               defaultValues={row}
-              currentUserName="Admin User" // TODO: Replace with actual auth user from context/session
               countryOptions={COUNTRY_OPTIONS}
               onCancel={onCancel}
               onSubmit={(values) => {

@@ -275,6 +275,7 @@ const CalendarView = ({ date, onDateChange }: { date: Date, onDateChange: (date:
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const tariffSchema = z.object({
   importcountry: z.string().min(1, "Import country is required."),
   exportcountry: z.string().min(1, "Export country is required."),

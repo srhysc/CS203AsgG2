@@ -1,15 +1,16 @@
 import { Home, Calculator, Search, Shield, Globe, Droplet, Factory, Ship, Map, Bookmark, Menu, X } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { getUserRole } from "@/services/clerkauthentication";
+import { useUserRole } from "@/services/clerkauthentication";
 import { useState } from "react";
 
 interface NavItem {
   id: string;
   title: string;
   url: string;
-  icon: React.FC<any>;
+  icon: LucideIcon;
   requiresAdmin?: boolean;
 }
 
@@ -31,7 +32,7 @@ const navItems: NavItem[] = [
 
 export function TopNavBar() {
   const location = useLocation();
-  const { userRole, loading } = getUserRole();
+  const { userRole, loading } = useUserRole();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   if (loading) {

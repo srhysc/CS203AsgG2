@@ -6,6 +6,7 @@ import type { User } from "@/components/tablecolumns/manageusercol"
 import { userColumns } from "@/components/tablecolumns/manageusercol"
 import { EditUserRoleForm } from "@/components/ui/edituserroleform"
 import { Toaster, toast } from "@/components/ui/sonner"
+import { isRecordEqual } from "@/lib/is-record-equal"
 
 const initialUserData: User[] = [
   {
@@ -40,16 +41,12 @@ const initialUserData: User[] = [
   }
 ]
 
-function isEqual(obj1: any, obj2: any): boolean {
-  return Object.entries(obj1).every(([key, value]) => obj2[key] === value)
-}
-
 export default function ManageUsersPage() {
   const [users, setUsers] = React.useState(initialUserData)
 
   const handleSaveUser = async (updatedUser: User) => {
     const original = users.find(u => u.id === updatedUser.id)
-    if (original && isEqual(original, updatedUser)) {
+    if (original && isRecordEqual(original, updatedUser)) {
       toast.info("No changes detected.")
       return
     }
@@ -82,7 +79,6 @@ export default function ManageUsersPage() {
           renderRowEditForm={(row, onSave, onCancel) => (
             <EditUserRoleForm
               defaultValues={row}
-              currentUserName="Admin User"
               onCancel={onCancel}
               onSubmit={(values) => {
                 onSave(values)

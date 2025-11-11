@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, BarChart2, Calendar, ChevronLeft, ChevronRight, Droplet, Globe } from "lucide-react";
+import { Loader2, BarChart2, Calendar, ChevronLeft, ChevronRight, Droplet, Globe } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
@@ -119,7 +119,8 @@ export default function TariffDetailsPage() {
         basis: res.data.basis,
         note: res.data.sourceNote
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      console.error(err);
       setError("Failed to fetch tariff rate.");
       setTariff(null);
     } finally {

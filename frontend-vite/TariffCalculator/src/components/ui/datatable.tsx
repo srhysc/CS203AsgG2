@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import type {
+  CellContext,
   ColumnDef,
   ColumnFiltersState,
   SortingState,
@@ -34,7 +35,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 
-type DataTableProps<T> = {
+type Identifiable = { id?: string | number }
+
+type DataTableProps<T extends Identifiable> = {
   columns: ColumnDef<T>[]
   data: T[]
   setData?: React.Dispatch<React.SetStateAction<T[]>>
@@ -48,7 +51,7 @@ type DataTableProps<T> = {
   tableWidth?: string
 }
 
-export function DataTable<T extends Record<string, any>>({
+export function DataTable<T extends Identifiable>({
   columns,
   data,
   setData,
@@ -68,13 +71,13 @@ export function DataTable<T extends Record<string, any>>({
     setTableData(data)
   }, [data])
 
-  const handleEditClick = (row: T) => setEditingRow(row)
+  const handleEditClick = React.useCallback((row: T) => setEditingRow(row), [])
 
   const handleSaveRow = (updatedRow: T) => {
     const updatedData = tableData.map((r) => {
-      const rowId = (r as any).id
-      const editingId = (editingRow as any).id
-      return rowId && editingId && rowId === editingId ? updatedRow : r
+      const rowId = r.id
+      const editingId = editingRow?.id
+      return rowId != null && editingId != null && rowId === editingId ? updatedRow : r
     })
     setTableData(updatedData)
     if (setData) setData(updatedData)
@@ -86,7 +89,7 @@ export function DataTable<T extends Record<string, any>>({
       if (col.id === "actions") {
         return {
           ...col,
-          cell: ({ row }: any) => (
+          cell: ({ row }: CellContext<T, unknown>) => (
             <Button
               variant="ghost"
               size="sm"
@@ -101,7 +104,7 @@ export function DataTable<T extends Record<string, any>>({
       }
       return col
     })
-  }, [columns])
+  }, [columns, handleEditClick])
 
   const table = useReactTable({
     data: tableData,

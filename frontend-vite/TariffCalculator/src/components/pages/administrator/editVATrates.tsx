@@ -13,8 +13,10 @@ const initialVATRateData: VATRate[] = [
   { id: "3", country: "Japan", vatRate: 0.10, lastUpdated: "2025-09-01" },
 ]
 
-function isEqual(obj1: any, obj2: any): boolean {
-  return Object.entries(obj1).every(([key, value]) => obj2[key] === value)
+function isEqualVATRate(first: VATRate, second: VATRate): boolean {
+  return (Object.keys(first) as Array<keyof VATRate>).every(
+    (key) => first[key] === second[key]
+  )
 }
 
 export default function EditVATRatesPage() {
@@ -23,7 +25,7 @@ export default function EditVATRatesPage() {
   const handleSaveVATRate = async (updatedVATRate: VATRate) => {
     const original = VATRates.find(a => a.id === updatedVATRate.id)
 
-    if (original && isEqual(original, updatedVATRate)) {
+    if (original && isEqualVATRate(original, updatedVATRate)) {
       toast.info("No changes detected.")
       return
     }
@@ -60,7 +62,6 @@ export default function EditVATRatesPage() {
           renderRowEditForm={(row, onSave, onCancel) => (
             <EditVATRateForm
               defaultValues={row}
-              currentUserName="Admin User"
               onCancel={onCancel}
               onSubmit={(values) => {
                 onSave(values)

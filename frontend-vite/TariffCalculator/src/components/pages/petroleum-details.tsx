@@ -138,7 +138,7 @@
 //   );
 // }"use client";
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import { useAuth } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -159,6 +159,14 @@ interface Petroleum {
   hsCode: string;
   prices: PetroleumPrice[];
 }
+
+type RawPetroleum = Omit<Petroleum, "hsCode"> & { hsCode: string | number };
+type RawPetroleumPrice = {
+  date: string | number | Date;
+  avgPricePerUnitUsd?: number;
+  price?: number;
+  unit?: string;
+};
 
 const CalendarView = ({ date, onDateChange }: { date: Date | null, onDateChange: (date: Date) => void }) => {
   const [viewDate, setViewDate] = useState(date || new Date());
@@ -284,12 +292,12 @@ export default function PetroleumDetailsPage() {
     setError("");
     getToken().then(token => {
       console.log("Petroleum List - Token:", token);
-      axios.get(`${API_BASE}/petroleum`, {
+      axios.get<RawPetroleum[]>(`${API_BASE}/petroleum`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => {
           console.log("Petroleum List Response:", res.data);
-          const mapped = (res.data ?? []).map((p: any) => ({
+          const mapped = (res.data ?? []).map((p) => ({
             ...p,
             hsCode: String(p.hsCode),
           }));
@@ -297,7 +305,7 @@ export default function PetroleumDetailsPage() {
         })
         .catch(err => {
           console.error("Petroleum List Error:", err);
-          if (err.response && err.response.status === 403) {
+          if (isAxiosError(err) && err.response?.status === 403) {
             setError("Access denied (403). Please check your login or permissions.");
           } else {
             setError("Failed to load petroleum list. Please try again later.");
@@ -326,20 +334,30 @@ export default function PetroleumDetailsPage() {
       console.log("Search - Petroleum:", petroleum);
       const url = `${API_BASE}/petroleum/${petroleum.hsCode}`;
       console.log("Search - URL:", url);
-      const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.get<{ prices?: RawPetroleumPrice[] }>(url, { headers: { Authorization: `Bearer ${token}` } });
       console.log("Search - Response:", res.data);
       const backendPrices = res.data.prices || [];
       console.log("Search - Backend Prices:", backendPrices);
-      const mappedPrices: PetroleumPrice[] = backendPrices.map((pt: any) => ({
-        date: typeof pt.date === "string" ? pt.date : pt.date?.toString(),
-        price: typeof pt.avgPricePerUnitUsd === "number" ? pt.avgPricePerUnitUsd : pt.price,
-        unit: pt.unit
+      const mappedPrices: PetroleumPrice[] = backendPrices.map((pt) => ({
+        date: typeof pt.date === "string"
+          ? pt.date
+          : pt.date instanceof Date
+            ? pt.date.toISOString().split("T")[0]
+            : pt.date
+              ? new Date(pt.date).toISOString().split("T")[0]
+              : new Date().toISOString().split("T")[0],
+        price: typeof pt.avgPricePerUnitUsd === "number"
+          ? pt.avgPricePerUnitUsd
+          : typeof pt.price === "number"
+            ? pt.price
+            : 0,
+        unit: pt.unit ?? "unit"
       }));
       console.log("Search - Mapped Prices:", mappedPrices);
       setPriceHistory(mappedPrices);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Search - Error:", err);
-      if (err.response && err.response.status === 403) {
+      if (isAxiosError(err) && err.response?.status === 403) {
         setError("Access denied (403). Please check your login or permissions.");
       } else {
         setError("Failed to fetch price history");

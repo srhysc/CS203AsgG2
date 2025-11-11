@@ -2,7 +2,7 @@
 import { useAuth, SignInButton } from "@clerk/clerk-react";
 import { motion } from "framer-motion";
 import { Shield, Lock } from "lucide-react";
-import { getUserRole } from "@/services/clerkauthentication";
+import { useUserRole } from "@/services/clerkauthentication";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -73,7 +73,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 // Admin-only route wrapper that checks backend role
 export function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isSignedIn, isLoaded } = useAuth();
-  const { userRole, loading } = getUserRole();
+  const { userRole, loading } = useUserRole();
 
   // Loading state while checking both Clerk and backend
   if (!isLoaded || loading) {

@@ -21,7 +21,7 @@ const BookmarksPage: React.FC = () => {
       }
     };
     fetchBookmarks();
-  }, []);
+  }, [getBookmarks]);
 
   return (
     <div className="flex-1 space-y-8 p-8">

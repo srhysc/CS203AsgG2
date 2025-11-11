@@ -165,8 +165,8 @@
 // }import React, { useEffect, useState } from "react";"use client";
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
-import { SignOutButton, useAuth } from "@clerk/clerk-react";
+import axios, { isAxiosError } from "axios";
+import { useAuth } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
@@ -342,7 +342,6 @@ export default function ShippingCostPage() {
       });
 
       if (!Array.isArray(response.data)) {
-        response.data
         setError("Unexpected response from server.");
         setShippingData(null);
         return;
@@ -368,8 +367,12 @@ export default function ShippingCostPage() {
         country2IsoNumeric: destCountry?.code || "",
         shippingFees: validEntries
       });
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to fetch shipping costs");
+    } catch (err: unknown) {
+      if (isAxiosError(err)) {
+        setError(err.response?.data?.message || "Failed to fetch shipping costs");
+      } else {
+        setError("Failed to fetch shipping costs");
+      }
       setShippingData(null);
     } finally {
       setLoading(false);
@@ -397,32 +400,35 @@ export default function ShippingCostPage() {
   // Prepare filtered cost history
   const filteredCosts = useMemo(() => {
     if (!shippingData || !Array.isArray(shippingData.shippingFees)) return [];
-    let entries = shippingData.shippingFees;
-    if (selectedDate) {
-      entries = entries.filter(e => new Date(e.date) <= selectedDate);
-    }
-    let result;
-    if (unit) {
-      result = entries
-        .map(e => ({
-          date: e.date,
-          cost: e.costs[unit]?.costPerUnit ?? 0,
-          unit: e.costs[unit]?.unit ?? unit,
-        }))
-        .filter(e => e.cost > 0);
-    } else {
-      result = entries
-        .map(e => {
-          const firstUnit = ALLOWED_UNITS.find(u => e.costs[u]);
-          return {
-            date: e.date,
-            cost: firstUnit ? e.costs[firstUnit].costPerUnit : 0,
-            unit: firstUnit ? e.costs[firstUnit].unit : "",
-          };
-        })
-        .filter(e => e.cost > 0);
-    }
-    return result;
+    const entries = selectedDate
+      ? shippingData.shippingFees.filter(e => new Date(e.date) <= selectedDate)
+      : shippingData.shippingFees;
+
+    const mapEntry = (entry: ShippingFeeEntry): { date: string; cost: number; unit: string } | null => {
+      if (unit) {
+        const costDetails = entry.costs[unit];
+        if (!costDetails) return null;
+        return {
+          date: entry.date,
+          cost: costDetails.costPerUnit,
+          unit: costDetails.unit,
+        };
+      }
+
+      const firstUnit = ALLOWED_UNITS.find(u => entry.costs[u]);
+      if (!firstUnit) return null;
+
+      const costDetails = entry.costs[firstUnit];
+      return {
+        date: entry.date,
+        cost: costDetails.costPerUnit,
+        unit: costDetails.unit,
+      };
+    };
+
+    return entries
+      .map(mapEntry)
+      .filter((entry): entry is { date: string; cost: number; unit: string } => !!entry && entry.cost > 0);
   }, [shippingData, selectedDate, unit]);
 
   // Prepare country dropdown options

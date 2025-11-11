@@ -21,14 +21,12 @@ interface EditVATRateFormProps {
   defaultValues: EditVATRateFormValues;
   onSubmit: (values: EditVATRateFormValues) => Promise<void> | void;
   onCancel?: () => void;
-  currentUserName: string;
 }
 
 export function EditVATRateForm({
   defaultValues,
   onSubmit,
-  onCancel,
-  currentUserName
+  onCancel
 }: EditVATRateFormProps) {
   const methods = useForm<EditVATRateFormValues>({
   resolver: zodResolver(formSchema),

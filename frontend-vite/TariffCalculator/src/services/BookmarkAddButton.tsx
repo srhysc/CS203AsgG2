@@ -60,6 +60,7 @@
 // export default BookmarkAddButton;
 
 import React, { useState } from 'react';
+import { isAxiosError } from 'axios';
 import { useBookmarkService } from '@/services/types/bookmarkapi';
 import type { Tariff } from '@/services/types/countrytariff';
 import { Bookmark, Check, Loader2, AlertCircle } from 'lucide-react';
@@ -89,17 +90,18 @@ const BookmarkAddButton: React.FC<BookmarkButtonProps> = ({ savedResponse, onSuc
       setBookmarkName('');
       setTimeout(() => setSaved(false), 2000);
       onSuccess?.();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      if (err.response?.status === 409) {
+      if (isAxiosError(err) && err.response?.status === 409) {
         // Duplicate bookmark error
         setError(err.response?.data || 'A bookmark with this name already exists, please use another name!');
-      } else if (err.response?.status === 400) {
+      } else if (isAxiosError(err) && err.response?.status === 400) {
         // Bad request (e.g., empty bookmark name)
         setError(err.response?.data || 'Invalid bookmark name');
       } else {
         // Generic error
-        setError(err.response?.data || 'Failed to save bookmark. Please try again.');
+        const message = isAxiosError(err) ? err.response?.data : undefined;
+        setError(message || 'Failed to save bookmark. Please try again.');
       }
     } finally {
       setLoading(false);

@@ -153,15 +153,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calculator, Loader2, Check, CheckCircle} from "lucide-react";
+import { Calculator, Loader2, Check } from "lucide-react";
+import { isAxiosError } from "axios";
 import type { Tariff } from './types/countrytariff';
-import { tariffService } from './countrytariffapi';
+import { useTariffService } from './countrytariffapi';
 import { TariffForm } from '@/components/ui/tarifflookupform';
 import { tariffSchema } from '@/components/ui/tarifflookupform';
 import { z } from 'zod';
 import TariffBreakdownTable from "@/components/ui/tariffbreakdowntable";
-import { countryService } from './countryapi';
-import { petrolService } from './petroleumapi';
+import { useCountryService } from './countryapi';
+import { usePetroleumService } from './petroleumapi';
 import type { Petroleum } from './types/petroleum';
 import type { Country } from '@/services/types/country';
 import BookmarkAddButton from './BookmarkAddButton';
@@ -180,52 +181,55 @@ const TariffCalculator: React.FC = () => {
     const [petroleum, setPetroleum] = useState<Petroleum[] | null >(null);
     const [showSuccessToast, setShowSuccessToast] = useState(false);
 
-    const { getAllCountries } = countryService();
-    const { getByRequirements } = tariffService();
-    const { getAllPetroleum } = petrolService();
+    const { getAllCountries } = useCountryService();
+    const { getByRequirements } = useTariffService();
+    const { getAllPetroleum } = usePetroleumService();
 
     const todayISOString = new Date().toISOString().split('T')[0];
-    const getFormattedDate = (date) => {
-        if (date instanceof Date && !isNaN(date as any)) {
+    const getFormattedDate = (date?: Date | string | null): string => {
+        if (date instanceof Date && !Number.isNaN(date.getTime())) {
             return date.toISOString().split('T')[0];
+        }
+        if (typeof date === "string" && date.trim().length > 0) {
+            return date;
         }
         return todayISOString;
     }
 
     //run on render to get all countries
-        useEffect(() => {
-        const fetchCountries = async () => {
+    useEffect(() => {
+      const fetchCountries = async () => {
         try {
-            const data = await getAllCountries();
-            setCountries(data);
+          const data = await getAllCountries();
+          setCountries(data);
         } catch (err) {
-            setError('Failed to load countries.');
-            console.error(err);
+          setError('Failed to load countries.');
+          console.error(err);
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-        };
+      };
 
-        fetchCountries();
-    }, []); // empty dependency array → runs once on mount  
+      fetchCountries();
+    }, [getAllCountries]);
 
     //run on render to get all petroleum
-        useEffect(() => {
-        const fetchPetroleum = async () => {
+    useEffect(() => {
+      const fetchPetroleum = async () => {
         try {
-            const data = await getAllPetroleum();
-            setPetroleum(data);
+          const data = await getAllPetroleum();
+          setPetroleum(data);
 
         } catch (err) {
-            setError('Failed to retrieve petroleum.');
-            console.error(err);
+          setError('Failed to retrieve petroleum.');
+          console.error(err);
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-        };
+      };
 
-        fetchPetroleum();
-    }, []); // empty dependency array → runs once on mount
+      fetchPetroleum();
+    }, [getAllPetroleum]);
 
 
 
@@ -234,7 +238,7 @@ const TariffCalculator: React.FC = () => {
     const handleClearAll = () => {
         setTariffs(null);        // clears calculated results
         setError(null);
-        
+        setClearFormSignal((prev) => !prev);
     };
 
     const handleBookmarkSuccess = () => {
@@ -278,9 +282,13 @@ const TariffCalculator: React.FC = () => {
             );
             //update tariffs field
             setTariffs(tariffs);      
-        } catch (err: any) {
-            setError('Failed to fetch Tariffs');
-            setError(err.response?.data?.message || 'Failed to fetch tariffs');
+        } catch (err: unknown) {
+            console.error(err);
+            if (isAxiosError(err)) {
+                setError(err.response?.data?.message || 'Failed to fetch tariffs');
+            } else {
+                setError('Failed to fetch tariffs');
+            }
         } finally{
             setLoading(false);
         }       

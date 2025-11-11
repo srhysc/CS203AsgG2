@@ -236,6 +236,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import type { LucideIcon } from "lucide-react";
 import {
   Calculator,
   Search,
@@ -249,7 +250,7 @@ import {
 
 interface ToolCard {
   id: string;
-  icon: React.FC<any>;
+  icon: LucideIcon;
   title: string;
   description: string;
   buttonText: string;

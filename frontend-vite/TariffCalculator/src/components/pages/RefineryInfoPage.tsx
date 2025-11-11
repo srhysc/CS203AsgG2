@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Calendar, ChevronLeft, ChevronRight, Building2, Globe, Activity, Loader2, Search } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Building2, Globe, Activity, Loader2 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 // Types
@@ -199,7 +199,7 @@ export default function RefineryInfoPage() {
   // Filter costs by date and unit (only after search button is clicked)
   const filteredCosts = useMemo(() => {
     if (!searchClicked || !refineryData || !Array.isArray(refineryData.estimated_costs)) return [];
-    let costs: { date: string; cost_per_unit: number; unit: string }[] = [];
+    const costs: { date: string; cost_per_unit: number; unit: string }[] = [];
     refineryData.estimated_costs.forEach(costEntry => {
       if (!selectedDate || new Date(costEntry.date) <= selectedDate) {
         if (costEntry.costs && costEntry.costs[unit]) {

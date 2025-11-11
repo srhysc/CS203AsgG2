@@ -20,11 +20,9 @@ interface EditProductPriceFormProps {
   defaultValues: EditProductPriceFormValues
   onSubmit: (values: EditProductPriceFormValues) => Promise<void> | void
   onCancel?: () => void
-  currentUserName: string
 }
 
-export function EditProductPriceForm({ defaultValues, onSubmit, onCancel, currentUserName 
-}: EditProductPriceFormProps) {
+export function EditProductPriceForm({ defaultValues, onSubmit, onCancel }: EditProductPriceFormProps) {
     const methods = useForm<EditProductPriceFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
