@@ -8,7 +8,6 @@ import type { ProductPrice } from "@/components/tablecolumns/editproductpricesco
 import { productPriceColumns } from "@/components/tablecolumns/editproductpricescol"
 import { EditProductPriceForm } from "@/components/ui/editproductpricesform"
 import { TableSkeleton } from "@/components/ui/tableskeleton"
-import type { ProductPrice } from "@/components/tablecolumns/editproductpricescol"
 
 function isEqual(obj1: any, obj2: any): boolean {
   return Object.entries(obj1).every(([key, value]) => obj2[key] === value)

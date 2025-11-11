@@ -202,13 +202,13 @@ const TariffCalculator: React.FC = () => {
                             <div className="p-6 bg-slate-800/50 rounded-lg">
                                 <p className="text-sm text-gray-400 mb-2">Total Cost</p>
                                 <p className="text-3xl font-bold text-[#dcff1a]">
-                                    {tariffs.totalLandedCost} {tariffs.currency}
+                                    {Number(tariffs.totalLandedCost).toFixed(2)} {tariffs.currency}
                                 </p>
                             </div>
                             <div className="p-6 bg-slate-800/50 rounded-lg">
                                 <p className="text-sm text-gray-400 mb-2">Base Price</p>
                                 <p className="text-3xl font-bold text-gray-300">
-                                    {tariffs.basePrice} {tariffs.currency}
+                                    {Number(tariffs.basePrice).toFixed(2)} {tariffs.currency}
                                 </p>
                             </div>
                         </div>
@@ -230,13 +230,13 @@ const TariffCalculator: React.FC = () => {
                             <div className="p-4 bg-slate-800/50 rounded-lg">
                                 <p className="text-sm text-gray-400">Tariff Fees</p>
                                 <p className="text-lg text-gray-300">
-                                    {tariffs.tariffFees} {tariffs.currency}
+                                    {Number(tariffs.tariffFees).toFixed(2)}  {tariffs.currency}
                                 </p>
                             </div>
                             <div className="p-4 bg-slate-800/50 rounded-lg">
                                 <p className="text-sm text-gray-400">VAT Fees</p>
                                 <p className="text-lg text-gray-300">
-                                    {tariffs.vatFees} {tariffs.currency}
+                                    {Number(tariffs.vatFees).toFixed(2)} {tariffs.currency}
                                 </p>
                             </div>
                         </div>
