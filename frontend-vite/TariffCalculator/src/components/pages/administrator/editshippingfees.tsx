@@ -159,7 +159,6 @@ console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newF
             renderRowEditForm={(row, onSave, onCancel) => (
               <EditShippingFeeForm
                 defaultValues={row}
-                currentUserName="Admin User"
                 onCancel={onCancel}
                 onSubmit={(values) => {
 console.log("PUSHING VALUES - COST PER TON:", values.costPerTon, "MBTU: ", values.costPerMMBtu, "PERBARREL: ", values.costPerBarrel )

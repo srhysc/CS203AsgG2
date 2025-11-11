@@ -38,7 +38,7 @@ export default function ManageUsersPage() {
           id: user.id,
           username: user.username,
           email: user.email,
-          currentRole: user.role,
+          currentRole: user.role === "ADMIN" ? "ADMIN" : "USER",
         }))
 
         setUsers(formatted)
@@ -119,7 +119,6 @@ export default function ManageUsersPage() {
             renderRowEditForm={(row, onSave, onCancel) => (
               <EditUserRoleForm
                 defaultValues={row}
-                currentUserName="Admin User"
                 onCancel={onCancel}
                 onSubmit={values => {
                   onSave(values)

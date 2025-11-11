@@ -138,7 +138,6 @@ export default function EditVATRatesPage() {
             renderRowEditForm={(row, onSave, onCancel) => (
               <EditVATRateForm
                 defaultValues={row}
-                currentUserName="Admin User"
                 onCancel={onCancel}
                 onSubmit={values => {
                   onSave(values)

@@ -141,7 +141,6 @@ export default function EditProductPricesPage() {
             renderRowEditForm={(row, onSave, onCancel) => (
               <EditProductPriceForm
                 defaultValues={row}
-                currentUserName="Admin User"
                 onCancel={onCancel}
                 onSubmit={(values) => {
                   onSave(values)
