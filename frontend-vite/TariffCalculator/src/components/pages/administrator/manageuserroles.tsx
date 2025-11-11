@@ -9,6 +9,8 @@ import { EditUserRoleForm } from "@/components/ui/edituserroleform"
 import { userColumns } from "@/components/tablecolumns/manageusercol"
 import type { User } from "@/components/tablecolumns/manageusercol"
 
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080"
+
 type UserResponse = {
   id: string
   username: string
@@ -25,10 +27,9 @@ export default function ManageUsersPage() {
     const fetchUsers = async () => {
       setLoading(true)
       try {
-        const backend = "http://localhost:8080"
         const token = await getToken()
 
-        const res = await fetch(`${backend}/api/users`, {
+        const res = await fetch(`${API_BASE}/api/users`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!res.ok) throw new Error("Failed to fetch users")
@@ -61,10 +62,9 @@ export default function ManageUsersPage() {
     }
 
     try {
-      const backend = "http://localhost:8080"
       const token = await getToken()
 
-      const res = await fetch(`${backend}/api/users/${updatedUser.id}/role`, {
+      const res = await fetch(`${API_BASE}/api/users/${updatedUser.id}/role`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
