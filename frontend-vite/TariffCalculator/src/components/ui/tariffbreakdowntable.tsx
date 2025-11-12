@@ -85,9 +85,9 @@ export default function TariffBreakdownTable({ tariffObject }: { tariffObject: T
                   ["Petroleum Code", tariffObject.hsCode],
                   ["Price per Unit", formatCurrency(tariffObject.pricePerUnit)],
                   ["Base Price", formatCurrency(tariffObject.basePrice)],
-                  ["Tariff Rate", formatPercentage(tariffObject.tariffRate)],
+                  ["Tariff Rate", Number(tariffObject.tariffRate).toFixed(2)],
                   ["Tariff Fees", formatCurrency(tariffObject.tariffFees)],
-                  ["VAT Rate", formatPercentage(tariffObject.vatRate)],
+                  ["VAT Rate", Number(tariffObject.vatRate).toFixed(2)],
                   ["VAT Fees", formatCurrency(tariffObject.vatFees)],
                 ].map(([label, value], index) => (
                   <tr key={index} className="border-b border-white/10">
