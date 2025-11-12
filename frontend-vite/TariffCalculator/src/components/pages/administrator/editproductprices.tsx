@@ -9,6 +9,8 @@ import { productPriceColumns } from "@/components/tablecolumns/editproductprices
 import { EditProductPriceForm } from "@/components/ui/editproductpricesform"
 import { TableSkeleton } from "@/components/ui/tableskeleton"
 
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080"
+
 type LatestPetroleumResponse = {
   hsCode: string
   name: string
@@ -32,10 +34,9 @@ export default function EditProductPricesPage() {
     const fetchProductPrices = async () => {
       setLoading(true)
       try {
-        const backend = "http://localhost:8080"
         const token = await getToken()
 
-        const productRes = await fetch(`${backend}/petroleum/latest`, {
+        const productRes = await fetch(`${API_BASE}/petroleum/latest`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!productRes.ok) throw new Error("Failed to fetch petroleum data")
@@ -71,7 +72,6 @@ export default function EditProductPricesPage() {
 
   try {
     
-    const backend = "http://localhost:8080"
     const token = await getToken()
 
     const originalProduct = productPrices.find(p => p.id === updatedPrice.id)
@@ -82,7 +82,7 @@ export default function EditProductPricesPage() {
       unit: originalProduct?.unit || "USD per ton" 
     }
 
-    const response = await fetch(`${backend}/petroleum/${updatedPrice.productCode}/prices`, {
+    const response = await fetch(`${API_BASE}/petroleum/${updatedPrice.productCode}/prices`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -96,7 +96,7 @@ export default function EditProductPricesPage() {
       throw new Error(errorText || "Failed to save product price")
     }
 
-    const productRes = await fetch(`${backend}/petroleum/latest`, {
+    const productRes = await fetch(`${API_BASE}/petroleum/latest`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     
@@ -141,7 +141,6 @@ export default function EditProductPricesPage() {
             renderRowEditForm={(row, onSave, onCancel) => (
               <EditProductPriceForm
                 defaultValues={row}
-                currentUserName="Admin User"
                 onCancel={onCancel}
                 onSubmit={(values) => {
                   onSave(values)

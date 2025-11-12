@@ -1,6 +1,8 @@
 import { useAuth } from "@clerk/clerk-react";
 import { useEffect, useRef } from "react";
 
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+
 export default function SyncUserToBackend() {
   const { getToken, isSignedIn, isLoaded } = useAuth();
   const hasSynced = useRef(false);
@@ -29,7 +31,7 @@ export default function SyncUserToBackend() {
         
         const token = await getToken();
         
-        const response = await fetch("http://localhost:8080/api/users/profile", {
+        const response = await fetch(`${API_BASE}/users/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

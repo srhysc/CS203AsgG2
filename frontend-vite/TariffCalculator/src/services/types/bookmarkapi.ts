@@ -28,7 +28,7 @@ export const useBookmarkService = () => {
 
   const getBookmarks = async (): Promise<UserSavedRoute[]> => {
     const token = await getToken();
-    const response = await api.get<UserSavedRoute[]>('/api/users/bookmarks', {
+    const response = await api.get<UserSavedRoute[]>('/users/bookmarks', {
       headers: { Authorization: `Bearer ${token}` },
     });
 console.log(response.data);
@@ -42,7 +42,7 @@ console.log(response.data);
     const token = await getToken();
     const body: BookmarkRequest = { savedResponse, bookmarkName };
     const apiresponse = await api.post<UserSavedRoute>(
-      '/api/users/bookmarks',
+      '/users/bookmarks',
       body,
       { headers: { Authorization: `Bearer ${token}` } }
     );

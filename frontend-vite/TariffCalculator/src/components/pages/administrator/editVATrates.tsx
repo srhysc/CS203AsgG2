@@ -9,6 +9,8 @@ import { EditVATRateForm } from "@/components/ui/editVATratesform"
 import type { VATRate } from "@/components/tablecolumns/editVATratescol"
 import { TableSkeleton } from "@/components/ui/tableskeleton"
 
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080"
+
 type VatRateResponse = {
   country: string
   rate: number
@@ -30,10 +32,9 @@ export default function EditVATRatesPage() {
     const fetchVATRates = async () => {
       setLoading(true)
       try {
-        const backend = "http://localhost:8080"
         const token = await getToken()
 
-        const countriesRes = await fetch(`${backend}/countries/vat-rates-all`, {
+        const countriesRes = await fetch(`${API_BASE}/countries/vat-rates-all`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!countriesRes.ok) throw new Error("Failed to fetch VAT rates")
@@ -69,11 +70,10 @@ export default function EditVATRatesPage() {
 
   try {
     console.log("Saving VAT rate:", updatedVATRate)
-    const backend = "http://localhost:8080"
     const token = await getToken()
 
     const response = await fetch(
-      `${backend}/countries/${updatedVATRate.country}/vat-ratenew`,
+      `${API_BASE}/countries/${updatedVATRate.country}/vat-ratenew`,
       {
         method: "POST",
         headers: {
@@ -93,7 +93,7 @@ export default function EditVATRatesPage() {
     }
 
     // Refetch the data after successful save
-    const countriesRes = await fetch(`${backend}/countries/vat-rates-all`, {
+    const countriesRes = await fetch(`${API_BASE}/countries/vat-rates-all`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     if (!countriesRes.ok) throw new Error("Failed to fetch updated VAT rates")
@@ -138,7 +138,6 @@ export default function EditVATRatesPage() {
             renderRowEditForm={(row, onSave, onCancel) => (
               <EditVATRateForm
                 defaultValues={row}
-                currentUserName="Admin User"
                 onCancel={onCancel}
                 onSubmit={values => {
                   onSave(values)

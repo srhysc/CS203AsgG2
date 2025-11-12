@@ -25,7 +25,7 @@ export const useUserRole = () => {
 
         const token = await getToken();
 
-        const response = await userapi.get<string>("/api/users/roles", {
+        const response = await userapi.get<string>("/users/roles", {
           headers: { Authorization: `Bearer ${token}` },
         });
 

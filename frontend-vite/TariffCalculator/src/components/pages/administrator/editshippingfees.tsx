@@ -9,6 +9,8 @@ import { EditShippingFeeForm } from "@/components/ui/editshippingfeesform"
 import type { ShippingFee } from "@/components/tablecolumns/editshippingfeescol"
 import { TableSkeleton } from "@/components/ui/tableskeleton"
 
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080"
+
 type FlattenedShippingFee = {
   country1: { name: string; iso3: string }
   country2: { name: string; iso3: string }
@@ -28,9 +30,8 @@ export default function EditShippingFeesPage() {
       setLoading(true)
       try {
         // Using the flattened endpoint
-        const backend = "http://localhost:8080/shipping-fees/cost/all"
         const token = await getToken()
-        const res = await fetch(backend, {
+        const res = await fetch(`${API_BASE}/shipping-fees/cost/all`, {
           headers: { Authorization: `Bearer ${token}` },
         })
 
@@ -67,7 +68,7 @@ export default function EditShippingFeesPage() {
 
   const handleSaveShippingFee = async (newFee: ShippingFee) => {
     try {
-      const backend = "http://localhost:8080/shipping-fees"
+      const backend = `${API_BASE}/shipping-fees`
       const token = await getToken()
 
 console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newFee.destinationCountryIso3)
@@ -108,7 +109,7 @@ console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newF
 
       // Refetch updated data using the flattened endpoint
       
-      const res = await fetch("http://localhost:8080/shipping-fees/cost/all", {
+      const res = await fetch(`${API_BASE}/shipping-fees/cost/all`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       
@@ -159,7 +160,6 @@ console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newF
             renderRowEditForm={(row, onSave, onCancel) => (
               <EditShippingFeeForm
                 defaultValues={row}
-                currentUserName="Admin User"
                 onCancel={onCancel}
                 onSubmit={(values) => {
 console.log("PUSHING VALUES - COST PER TON:", values.costPerTon, "MBTU: ", values.costPerMMBtu, "PERBARREL: ", values.costPerBarrel )
