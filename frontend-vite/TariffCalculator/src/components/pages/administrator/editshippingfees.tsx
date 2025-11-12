@@ -8,6 +8,8 @@ import { shippingFeeColumns } from "@/components/tablecolumns/editshippingfeesco
 import { EditShippingFeeForm } from "@/components/ui/editshippingfeesform"
 import type { ShippingFee } from "@/components/tablecolumns/editshippingfeescol"
 import { TableSkeleton } from "@/components/ui/tableskeleton"
+import { Link } from "react-router-dom"; 
+
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080"
 
@@ -140,9 +142,9 @@ console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newF
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col text-gray-900 dark:text-gray-100 transition-colors">
       <Toaster />
-      <a href="/administrator" className="btn-slate absolute top-6 right-6">
+      <Link to="/administrator" className="btn-slate absolute top-6 right-6">
         Back
-      </a>
+      </Link>
       <div className="relative flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-center w-full">
           Edit Shipping Fees

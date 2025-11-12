@@ -22,8 +22,8 @@ import com.cs203.grp2.Asg2.models.UserSavedRoute;
 
 
 @RestController
-@RequestMapping("/api/users")
-public class UserController {
+@RequestMapping("users")
+public class UserCoantroller {
 
     private final UserService userService;
 
@@ -92,24 +92,4 @@ System.out.println("BOOKMARK RESPONSE: " + bookmarkRequest.getBookmarkName() + "
     public List<User> getAllUsers() throws ExecutionException, InterruptedException {
         return userService.getAllUsers();
     }
-
-    @PutMapping("/{userId}/role")
-    public ResponseEntity<?> updateUserRoleById(
-            @PathVariable String userId, 
-            @RequestBody String newRole)
-            throws ExecutionException, InterruptedException {
-        
-        try {
-            // Parse the string to Role enum
-            Role role = Role.valueOf(newRole.replace("\"", "").trim());
-            userService.updateUserRole(userId, role);
-            return ResponseEntity.ok(Map.of("message", "Role updated successfully"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid role: " + newRole));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body(Map.of("error", "Failed to update role: " + e.getMessage()));
-        }
-    }
-    
 }

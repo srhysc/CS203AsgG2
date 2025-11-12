@@ -66,7 +66,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
   
             //ONLY ADMINS ABLE TO ACCESS USERS
-            .requestMatchers("/api/users").hasRole("ADMIN")
+            .requestMatchers("/users").hasRole("ADMIN")
             // READ for USER or ADMIN on your domain controllers
             .requestMatchers(HttpMethod.GET, DOMAIN_PATHS).hasAnyRole("USER", "ADMIN")
 
@@ -88,7 +88,7 @@ public class SecurityConfig {
     // allowed domains to send cross-origin request
     configuration.setAllowedOrigins(Arrays.asList(
         "http://localhost:5173", // dev
-        "https://myfrontend.com" // production
+        "https://g2-tariff-git-main-shane-rhys-chuas-projects.vercel.app/" // production
     ));
     // allow all methods and request headers and cookies
     configuration.setAllowedMethods(Arrays.asList("*"));

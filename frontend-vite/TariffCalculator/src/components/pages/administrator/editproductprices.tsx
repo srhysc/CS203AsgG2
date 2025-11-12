@@ -8,6 +8,8 @@ import type { ProductPrice } from "@/components/tablecolumns/editproductpricesco
 import { productPriceColumns } from "@/components/tablecolumns/editproductpricescol"
 import { EditProductPriceForm } from "@/components/ui/editproductpricesform"
 import { TableSkeleton } from "@/components/ui/tableskeleton"
+import { Link } from "react-router-dom"; 
+
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080"
 
@@ -125,7 +127,7 @@ export default function EditProductPricesPage() {
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col text-gray-900 dark:text-gray-100 transition-colors">
       <Toaster />
-      <a href="/administrator" className="btn-slate absolute top-6 right-6">Back</a>
+      <Link to="/administrator" className="btn-slate absolute top-6 right-6">Back</Link>
 
       <h1 className="text-3xl font-bold text-center mb-6">Edit Product Prices</h1>
 
