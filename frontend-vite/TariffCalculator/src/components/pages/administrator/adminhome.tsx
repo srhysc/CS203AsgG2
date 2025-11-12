@@ -1,5 +1,6 @@
-import {motion} from "motion/react"
+import { motion } from "motion/react";
 import { FileText, FileSignature, Ship, DollarSign, UserPlus } from "lucide-react";
+import { Link } from "react-router-dom"; // ✅ Import Link from react-router-dom
 
 const adminActions = [
   {
@@ -69,7 +70,6 @@ export default function Adminhome() {
         </motion.p>
       </div>
 
-
       {/* Admin Action Cards */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -84,54 +84,58 @@ export default function Adminhome() {
             animate={{ opacity: 1, y: 0 }}
             transition={{
               duration: 0.5,
-              delay: 1.0 + (index * 0.1),
-              ease: "easeOut"
+              delay: 1.0 + index * 0.1,
+              ease: "easeOut",
             }}
           >
-            <motion.a
-              href={action.url}
-              className="block h-full bg-white/10 backdrop-blur-md rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all border border-white/10 cursor-pointer p-6"
+            {/* ✅ Use Link instead of <a> */}
+            <motion.div
               whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
               whileTap={{ scale: 0.98 }}
+              className="h-full"
             >
-              {/* Icon */}
-              <div className="mb-4 w-16 h-16 rounded-xl bg-gradient-to-br from-[#dcff1a] to-emerald-400 flex items-center justify-center shadow-lg">
-                <action.icon className="w-8 h-8 text-slate-900" />
-              </div>
+              <Link
+                to={action.url}
+                className="block h-full bg-white/10 backdrop-blur-md rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all border border-white/10 cursor-pointer p-6"
+              >
+                {/* Icon */}
+                <div className="mb-4 w-16 h-16 rounded-xl bg-gradient-to-br from-[#dcff1a] to-emerald-400 flex items-center justify-center shadow-lg">
+                  <action.icon className="w-8 h-8 text-slate-900" />
+                </div>
 
-              {/* Content */}
-              <div>
-                <h3 className="text-xl font-semibold mb-2 text-white">
-                  {action.title}
-                </h3>
-                <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                  {action.description}
-                </p>
-                <motion.div
-                  className="inline-flex items-center text-[#dcff1a] font-medium text-sm"
-                  whileHover={{ x: 5 }}
-                >
-                  Manage
-                  <svg
-                    className="w-4 h-4 ml-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                {/* Content */}
+                <div>
+                  <h3 className="text-xl font-semibold mb-2 text-white">
+                    {action.title}
+                  </h3>
+                  <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                    {action.description}
+                  </p>
+                  <motion.div
+                    className="inline-flex items-center text-[#dcff1a] font-medium text-sm"
+                    whileHover={{ x: 5 }}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </motion.div>
-              </div>
-            </motion.a>
+                    Manage
+                    <svg
+                      className="w-4 h-4 ml-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </motion.div>
+                </div>
+              </Link>
+            </motion.div>
           </motion.div>
         ))}
       </motion.div>
     </div>
   );
 }
-
