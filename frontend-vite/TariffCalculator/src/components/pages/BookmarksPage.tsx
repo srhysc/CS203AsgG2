@@ -111,7 +111,7 @@ const BookmarksPage: React.FC = () => {
                                   Base Price
                                 </span>
                                 <span className="text-gray-200 font-medium">
-                                  {bookmark.savedResponse.basePrice} {bookmark.savedResponse.currency}
+                                  {Number(bookmark.savedResponse.basePrice).toFixed(2)} {bookmark.savedResponse.currency}
                                 </span>
                               </div>
                               
@@ -121,7 +121,7 @@ const BookmarksPage: React.FC = () => {
                                   Shipping Cost
                                 </span>
                                 <span className="text-gray-200 font-medium">
-                                  {bookmark.savedResponse.shippingCost} {bookmark.savedResponse.currency}
+                                  {Number(bookmark.savedResponse.shippingCost).toFixed(2)} {bookmark.savedResponse.currency}
                                 </span>
                               </div>
                               
@@ -131,7 +131,7 @@ const BookmarksPage: React.FC = () => {
                                   Tariff Fees ({bookmark.savedResponse.tariffRate}%)
                                 </span>
                                 <span className="text-gray-200 font-medium">
-                                  {bookmark.savedResponse.tariffFees} {bookmark.savedResponse.currency}
+                                  {Number(bookmark.savedResponse.tariffFees).toFixed(2)} {bookmark.savedResponse.currency}
                                 </span>
                               </div>
                               
@@ -141,7 +141,7 @@ const BookmarksPage: React.FC = () => {
                                   VAT Fees ({bookmark.savedResponse.vatRate}%)
                                 </span>
                                 <span className="text-gray-200 font-medium">
-                                  {bookmark.savedResponse.vatFees} {bookmark.savedResponse.currency}
+                                  {Number(bookmark.savedResponse.vatFees).toFixed(2)} {bookmark.savedResponse.currency}
                                 </span>
                               </div>
                             </div>
