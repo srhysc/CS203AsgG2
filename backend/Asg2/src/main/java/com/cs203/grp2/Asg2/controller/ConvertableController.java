@@ -21,7 +21,6 @@ public class ConvertableController {
 
     @GetMapping("/{hscode}")
     public ConvertableResponseDTO getConvertableByHscode(@PathVariable String hscode) {
-        // return convertableService.getConvertableByHscode(hscode);
         ConvertableResponseDTO dto = convertableService.getConvertableByHscode(hscode);
         if (dto == null) {
             throw new ConvertableNotFoundException(hscode);

@@ -162,12 +162,6 @@ const BookmarksPage: React.FC = () => {
                       )}
                     </div>
                     
-                    {/* <button
-                      className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-all"
-                      title="Delete bookmark"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button> */}
                   </div>
                 </div>
               ))}

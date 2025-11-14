@@ -10,8 +10,6 @@ import com.google.firebase.database.PropertyName;
 
 import com.cs203.grp2.Asg2.models.VATRate;
 
-
-//@Table(name = "country_view") // mapping to SQL View
 public class Country {
 
     // Parameterized constructor
@@ -78,22 +76,4 @@ public class Country {
             if (mpf_max == null) mpf_max = 0.0;
         }
     }
-
-    // public Country(String name, Integer code, String iso3, Long vatRates) {
-    //     this.name = name;
-    //     this.code = code;
-    //     this.iso3 = iso3;
-    //     this.vatRates = vatRates;
-
-    // }
-
-    // public String getName() { return name; }
-    // public Integer getCode() { return code; }
-    // public String getIso3n() { return iso3; }
-    // public Long getVatRate() { return vatRates; }
-
-    // @Override public String toString() {
-    //     return "Country{name='" + name + "', code=" + code +
-    //            ", iso3='" + iso3 + "', vatRates=" + vatRates + "}";
-    // }
 }

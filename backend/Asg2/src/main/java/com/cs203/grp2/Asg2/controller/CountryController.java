@@ -34,15 +34,6 @@ public class CountryController {
 
     @GetMapping
     public List<Country> getAllCountries() {
-        // try {
-
-        // return svc.getAll();
-        // } catch (Exception e) {
-
-        // // TODO: handle exception
-        // System.out.println("return failed");
-        // }
-        // return null;
         try {
             return svc.getAll();
         } catch (Exception e) {
@@ -62,8 +53,7 @@ public class CountryController {
         return country;
     }
 
-    // Added this to connect to the frontedn: Get VAT rate for a country by name and
-    // date
+    // Added this to connect to the frontend: Get VAT rate for a country by name and date
     @GetMapping("/{countryName}/vat-rate")
     public VATRate getVatRateForCountryAndDate(
             @PathVariable String countryName,
@@ -81,20 +71,6 @@ public class CountryController {
             throw new CountryNotFoundException("No VAT rates found for country: " + countryName);
         }
 
-        // LocalDate queryDate = LocalDate.parse(date);
-        // Optional<VATRate> found = country.getVatRates().stream()
-        // .filter(rate -> !rate.getDate().isAfter(queryDate))
-        // .max(Comparator.comparing(VATRate::getDate));
-
-        // if (found.isPresent()) {
-        // System.out.println("Found VAT rate: " + found.get().getVATRate() + " on " +
-        // found.get().getDate());
-        // return found.get();
-        // } else {
-        // System.out.println("No VAT rate found for country " + countryName + " on or
-        // before " + date);
-        // throw new RuntimeException("No VAT rate found for this date.");
-        // }
         LocalDate queryDate;
         try {
             queryDate = LocalDate.parse(date);

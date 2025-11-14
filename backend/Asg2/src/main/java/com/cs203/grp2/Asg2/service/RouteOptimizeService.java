@@ -55,47 +55,6 @@ public class RouteOptimizeService {
 
     //FULL FUNCTION
     public RouteOptimizationResponse optimizeRoutes(RouteOptimizationRequest request) {
-
-        // logger.info("=== Starting route optimization ===");
-        // logger.info("Request - HS Code: {}, Units: {}", request.getHsCode(),
-        // request.getUnits());
-
-        // //establish countries
-        // Country exporter = request.getExportingCountry();
-        // Country importer = request.getImportingCountry();
-
-        // //ERROR HANDLING
-        // if (exporter.getCode().equals(importer.getCode())) {
-        // throw new IllegalArgumentException("Importer and exporter cannot be the same
-        // country");
-        // }
-
-        // Petroleum petroleum =
-        // petroleumService.getPetroleumByHsCode(request.getHsCode());
-        // if (petroleum == null) {
-        // throw new IllegalArgumentException("Invalid HS Code for petroleum");
-        // }
-
-        // //set a new list to return top x results
-        // List<RouteBreakdown> candidateRoutes = new ArrayList<>();
-
-        // //get latest petroleum price
-        // double latestprice = petroleum.getPricePerUnit(request.getCalculationDate());
-
-        // //Calculate direct route
-        // RouteBreakdown direct = computeDirectRoute(exporter, importer, petroleum,
-        // request.getUnits(), latestprice, request.getCalculationDate());
-        // logger.info("Direct route calculated - Total cost: ${}",
-        // direct.getTotalLandedCost());
-        // candidateRoutes.add(direct);
-
-        // //Calculate transit routes
-        // computeFixedEndpointsRoutes(exporter, importer, petroleum,
-        // request.getUnits(),candidateRoutes, latestprice,
-        // request.getCalculationDate());
-        // logger.info("Total candidate routes: {}", candidateRoutes.size());
-
-        // return new RouteOptimizationResponse(candidateRoutes,latestprice);
         logger.info("=== Starting route optimization ===");
         logger.info("Request - HS Code: {}, Units: {}", request.getHsCode(), request.getUnits());
 
@@ -133,18 +92,6 @@ public class RouteOptimizeService {
                 for (RouteBreakdown routeBreakdown : candidateRoutes) {
             System.out.println("😈 " + routeBreakdown.getVatFees() + " " + routeBreakdown.getExportingCountry() + " to " + routeBreakdown.getImportingCountry() + " btwn " + routeBreakdown.getTransitCountry());
         }
-
-        // //Calculate transit routes
-        // computeFixedEndpointsRoutes(exporter, importer, petroleum, request.getUnits(),candidateRoutes, latestprice, request.getCalculationDate());
-        // logger.info("Total candidate routes: {}", candidateRoutes.size());
-        // for (RouteBreakdown routeBreakdown : candidateRoutes) {
-        //     System.out.println("😈 " + routeBreakdown.getTariffFees());
-        // }
-     
-        // // Calculate transit routes
-        // computeFixedEndpointsRoutes(exporter, importer, petroleum, request.getUnits(), candidateRoutes, latestprice,
-        //         request.getCalculationDate());
-        // logger.info("Total candidate routes: {}", candidateRoutes.size());
 
         if (candidateRoutes.isEmpty()) {
             throw new RouteOptimizationNotFoundException("No route found for route optimization.");
@@ -198,35 +145,6 @@ System.out.println("😈😈 DIRECT SHIPPING" + exporter.getISO3() + " " + impor
         return new RouteBreakdown(exporter.getName(), null, importer.getName(),
                 baseCost, tariffFees, vatFees, total, vatRate, petroleum.getName(),shippingCost);
     }
-
-    // // FUNCTION LOOPING THROUGH COUNTRIES AND CALCULATING DIFFERENT PERMUTATIONS
-    // private void computeFixedEndpointsRoutes(
-    //         Country exporter, Country importer, Petroleum petroleum, int units, List<RouteBreakdown> candidateRoutes,
-    //         double petroleumprice, LocalDate date) {
-
-    //     List<RouteBreakdown> middleRouteList = new ArrayList<>();
-    //     // Get all countries in firebase
-    //     List<Country> allCountries = countryService.getAll();
-
-    //     // loop through all middle countries
-    //     for (Country middle : allCountries) {
-    //         if (middle.getCode().equals(exporter.getCode()) || middle.getCode().equals(importer.getCode()))
-    //             continue;
-
-    //         // calculate price with middle country involved
-    //         middleRouteList
-    //                 .add(computeRouteWithMiddle(exporter, middle, importer, petroleum, units, petroleumprice, date));
-    //     }
-
-    //     // Sort by total cost and pick best 5, and add to starting list
-    //     candidateRoutes.addAll(
-    //             middleRouteList.stream()
-    //                     .sorted(Comparator.comparingDouble(RouteBreakdown::getTotalLandedCost))
-    //                     .limit(5)
-    //                     .collect(Collectors.toList()));
-    // }
-
-    //////////////////////////////////////////////////////////////////////////////
 
     // FUNCTION JUST FOR CALCUALTION WITH MIDDLE COUNTRY
     private RouteBreakdown computeRouteWithMiddle(Country exporter, Country middle,

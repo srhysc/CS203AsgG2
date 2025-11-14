@@ -30,9 +30,6 @@ public class UserService {
 
     public CompletableFuture<User> getUserById(String userId)
             throws ExecutionException, InterruptedException {
-        // System.out.println("Fetching user: " + userId);
-        // DatabaseReference ref = firebaseDatabase.getReference("users").child(userId);
-        // return readOnce(ref, User.class);
         DatabaseReference ref = firebaseDatabase.getReference("users").child(userId);
         CompletableFuture<User> future = readOnce(ref, User.class);
         // Exception handling: if user is null, throw UserNotFoundException
@@ -68,12 +65,6 @@ public class UserService {
 
     public Role getUserRoles(String userId)
             throws ExecutionException, InterruptedException {
-        // User user = getUserById(userId).join();
-        // ;
-        // if (user != null && user.getRole() != null) {
-        //     return user.getRole();
-        // }
-        // return null;
         User user = getUserById(userId).join();
         // Exception handling: if user or role is null, throw UserNotFoundException
         if (user == null || user.getRole() == null) {
@@ -84,12 +75,6 @@ public class UserService {
 
     public void updateUserRole(String userId, User.Role newRole)
             throws ExecutionException, InterruptedException {
-        // User user = getUserById(userId).join();
-        // ;
-        // if (user != null) {
-        //     user.setRole(newRole);
-        //     saveUser(userId, user);
-        // }
         User user = getUserById(userId).join();
         // Exception handling: if user is null, throw UserNotFoundException
         if (user == null) {
@@ -136,10 +121,6 @@ public class UserService {
 
         System.out.println("USER BOOKMARK SNAPSHOT: " + snapshot.getValue(User.class));
 
-        // User user = snapshot.getValue(User.class);
-        // return user != null && user.getBookmarks() != null
-        //         ? user.getBookmarks()
-        //         : List.of();
         User user = snapshot.getValue(User.class);
         // Exception handling: if user is null, throw UserNotFoundException
         if (user == null) {
@@ -150,17 +131,6 @@ public class UserService {
 
     public List<User> getAllUsers()
             throws ExecutionException, InterruptedException {
-        // List<User> users = new ArrayList<User>();
-        // DatabaseReference ref = firebaseDatabase.getReference("users");
-        // DataSnapshot snapshot = getSnapshot(ref);
-
-        // for (DataSnapshot child : snapshot.getChildren()) {
-        //     User user = child.getValue(User.class);
-        //     if (user != null)
-        //         users.add(user);
-        // }
-
-        // return users;
         List<User> users = new ArrayList<User>();
         DatabaseReference ref = firebaseDatabase.getReference("users");
         DataSnapshot snapshot = getSnapshot(ref);
