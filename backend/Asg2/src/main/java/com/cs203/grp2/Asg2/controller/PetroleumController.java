@@ -58,17 +58,17 @@ public class PetroleumController {
         return petroleum;
     }
 
-    @GetMapping("/latest")
-    public List<PetroleumLatestPriceDTO> getLatestPetroleumPrices() {
+    @GetMapping("/price-all")
+    public List<PetroleumPriceDTO> getAllPetroleumPrices() {
         try {
-            return service.getLatestPetroleumPrices();
+            return service.getAllPetroleumPrices();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve latest petroleum prices", e);
         }
     }
 
 
-    @PostMapping("/{hsCode}/prices")
+    @PostMapping("/{hsCode}/price-new")
     public ResponseEntity<String> addPetroleumPrice(
         @PathVariable @Pattern(regexp = "\\d{4,8}") String hsCode,
         @RequestBody PetroleumPrice newPrice

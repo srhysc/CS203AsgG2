@@ -13,18 +13,12 @@ import { Link } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080"
 
-type LatestPetroleumResponse = {
+type PetroleumResponse = {
   hsCode: string
   name: string
-  latestPrice: number
+  price: number
   date: string
   unit: string
-}
-
-function isEqual(obj1: ProductPrice, obj2: ProductPrice): boolean {
-  return (Object.keys(obj1) as Array<keyof ProductPrice>).every(
-    key => obj2[key] === obj1[key]
-  )
 }
 
 export default function EditProductPricesPage() {
@@ -38,17 +32,17 @@ export default function EditProductPricesPage() {
       try {
         const token = await getToken()
 
-        const productRes = await fetch(`${API_BASE}/petroleum/latest`, {
+        const productRes = await fetch(`${API_BASE}/petroleum/price-all`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (!productRes.ok) throw new Error("Failed to fetch petroleum data")
-        const products: LatestPetroleumResponse[] = await productRes.json()
+        const products: PetroleumResponse[] = await productRes.json()
 
         const formatted: ProductPrice[] = products.map(p => ({
-          id: p.hsCode,
+          id: `${p.hsCode}-${p.date}`, 
           productCode: p.hsCode,
           productName: p.name,
-          price: p.latestPrice,
+          price: p.price,
           lastUpdated: p.date,
           unit: p.unit,
         }))
@@ -67,62 +61,61 @@ export default function EditProductPricesPage() {
 
   const handleSaveProductPrice = async (updatedPrice: ProductPrice) => {
   const original = productPrices.find(p => p.id === updatedPrice.id)
-  if (original && isEqual(original, updatedPrice)) {
+  if (original && original.price === updatedPrice.price) {
     toast.info("No changes detected.")
     return
   }
+    try {
+      const token = await getToken()
 
-  try {
-    
-    const token = await getToken()
+      const originalProduct = productPrices.find(p => p.id === updatedPrice.id)
 
-    const originalProduct = productPrices.find(p => p.id === updatedPrice.id)
+      const requestBody = {
+        date: updatedPrice.lastUpdated,
+        avgPricePerUnitUsd: updatedPrice.price,
+        unit: originalProduct?.unit || "USD per ton"
+      }
 
-    const requestBody = {
-      date: updatedPrice.lastUpdated,
-      avgPricePerUnitUsd: updatedPrice.price,
-      unit: originalProduct?.unit || "USD per ton" 
+      const response = await fetch(`${API_BASE}/petroleum/${updatedPrice.productCode}/price-new`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(errorText || "Failed to save product price")
+      }
+
+      // Refresh the data after successful update
+      const productRes = await fetch(`${API_BASE}/petroleum/price-all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      
+      if (!productRes.ok) throw new Error("Failed to fetch updated petroleum data")
+      const products: PetroleumResponse[] = await productRes.json()
+      
+      const formatted: ProductPrice[] = products.map(p => ({
+        id: `${p.hsCode}-${p.date}`,
+        productCode: p.hsCode,
+        productName: p.name,
+        price: p.price,
+        lastUpdated: p.date,
+        unit: p.unit,
+      }))
+
+      setProductPrices(formatted)
+      toast.success("Product price updated successfully!")
+    } catch (error) {
+      console.error(error)
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update product price."
+      )
     }
-
-    const response = await fetch(`${API_BASE}/petroleum/${updatedPrice.productCode}/prices`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(requestBody),
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(errorText || "Failed to save product price")
-    }
-
-    const productRes = await fetch(`${API_BASE}/petroleum/latest`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    
-    if (!productRes.ok) throw new Error("Failed to fetch updated petroleum data")
-    const products: LatestPetroleumResponse[] = await productRes.json()
-    
-    const formatted: ProductPrice[] = products.map(p => ({
-      id: p.hsCode,
-      productCode: p.hsCode,
-      productName: p.name,
-      price: p.latestPrice,
-      lastUpdated: p.date,
-      unit: p.unit,
-    }))
-
-    setProductPrices(formatted)
-    toast.success("Product price updated successfully!")
-  } catch (error) {
-    console.error(error)
-    toast.error(
-      error instanceof Error ? error.message : "Failed to update product price."
-    )
   }
-}
 
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col text-gray-900 dark:text-gray-100 transition-colors">
@@ -139,7 +132,7 @@ export default function EditProductPricesPage() {
             columns={productPriceColumns}
             data={productPrices}
             setData={setProductPrices}
-            filterPlaceholder="Search..."
+            filterPlaceholder="Search by product name or code..."
             renderRowEditForm={(row, onSave, onCancel) => (
               <EditProductPriceForm
                 defaultValues={row}

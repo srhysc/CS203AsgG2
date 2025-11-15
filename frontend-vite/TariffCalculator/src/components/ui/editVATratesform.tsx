@@ -79,6 +79,7 @@ return (
           </label>
           <Input
             {...register("vatRate", { valueAsNumber: true })}
+            placeholder="0.00"
             type="number"
             step="0.01"
             className="w-full h-9 text-sm"

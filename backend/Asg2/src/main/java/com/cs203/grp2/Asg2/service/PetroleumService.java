@@ -1,6 +1,7 @@
 package com.cs203.grp2.Asg2.service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.cs203.grp2.Asg2.DTO.PetroleumLatestPriceDTO;
+import com.cs203.grp2.Asg2.DTO.PetroleumPriceDTO;
 import com.cs203.grp2.Asg2.exceptions.PetroleumNotFoundException;
 import com.cs203.grp2.Asg2.models.Petroleum;
 import com.cs203.grp2.Asg2.models.PetroleumPrice;
@@ -94,41 +95,54 @@ public class PetroleumService {
         }
     }
 
-    public List<PetroleumLatestPriceDTO> getLatestPetroleumPrices() throws Exception {
-        DatabaseReference productRef = firebaseDatabase.getReference("product_new");
-        DataSnapshot snapshot = fetchSnapshot(productRef);
+    public List<PetroleumPriceDTO> getAllPetroleumPrices() throws Exception {
+        try {
+            DatabaseReference productRef = firebaseDatabase.getReference("product_new");
+            DataSnapshot snapshot = fetchSnapshot(productRef);
 
-        List<PetroleumLatestPriceDTO> latestList = new ArrayList<>();
-        if (snapshot != null && snapshot.exists()) {
-            for (DataSnapshot child : snapshot.getChildren()) {
-                String name = child.getKey();
-                String hsCode = child.child("hscode").getValue(String.class);
+            List<PetroleumPriceDTO> allPricesList = new ArrayList<>();
+            
+            if (snapshot != null && snapshot.exists()) {
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String name = child.getKey();
+                    String hsCode = child.child("hscode").getValue(String.class);
+                    
+                    DataSnapshot priceSnapshot = child.child("price");
+                    
+                    if (priceSnapshot.exists()) {
+                        for (DataSnapshot priceNode : priceSnapshot.getChildren()) {
+                            Double avgPrice = priceNode.child("avg_price_per_unit_usd").getValue(Double.class);
+                            String dateStr = priceNode.child("date").getValue(String.class);
+                            String unit = priceNode.child("unit").getValue(String.class);
 
-                List<PetroleumPrice> prices = new ArrayList<>();
-                for (DataSnapshot priceNode : child.child("price").getChildren()) {
-                    String dateStr = priceNode.child("date").getValue(String.class);
-                    Double avgPrice = priceNode.child("avg_price_per_unit_usd").getValue(Double.class);
-                    String unit = priceNode.child("unit").getValue(String.class);
-
-                    if (dateStr != null && avgPrice != null) {
-                        prices.add(new PetroleumPrice(LocalDate.parse(dateStr), avgPrice, unit));
+                            if (dateStr != null && avgPrice != null) {
+                                try {
+                                    LocalDate parsedDate = LocalDate.parse(dateStr);
+                                    allPricesList.add(new PetroleumPriceDTO(
+                                            name,
+                                            hsCode,
+                                            avgPrice,
+                                            unit, 
+                                            parsedDate));
+                                } catch (DateTimeParseException e) {
+                                    System.err.println("Invalid date format for " + name + ": " + dateStr);
+                                }
+                            }
+                        }
                     }
                 }
-
-                prices.sort((a, b) -> b.getDate().compareTo(a.getDate()));
-                if (!prices.isEmpty()) {
-                    PetroleumPrice latest = prices.get(0);
-                    latestList.add(new PetroleumLatestPriceDTO(
-                            name,
-                            hsCode,
-                            latest.getAvgPricePerUnitUsd(),
-                            latest.getUnit(),
-                            latest.getDate()));
-                }
             }
+            
+            System.out.println("Total prices collected: " + allPricesList.size());
+            return allPricesList;
+            
+        } catch (Exception e) {
+            System.err.println("Error in getAllPetroleumPrices: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-        return latestList;
     }
+
 
     public void addPetroleumPrice(String hsCode, PetroleumPrice newPrice) throws Exception {
         Petroleum petroleum = getPetroleumByHsCode(hsCode);

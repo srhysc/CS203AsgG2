@@ -2,21 +2,21 @@ package com.cs203.grp2.Asg2.DTO;
 
 import java.time.LocalDate;
 
-public class PetroleumLatestPriceDTO {
+public class PetroleumPriceDTO {
     private String name;
     private String hsCode;
-    private Double latestPrice;
+    private Double price;
     private String unit;
     private LocalDate date;
 
-    public PetroleumLatestPriceDTO() {
-        // Default constructor for serialization/deserialization
+    public PetroleumPriceDTO() {
+
     }
 
-    public PetroleumLatestPriceDTO(String name, String hsCode, Double latestPrice, String unit, LocalDate date) {
+    public PetroleumPriceDTO(String name, String hsCode, Double price, String unit, LocalDate date) {
         this.name = name;
         this.hsCode = hsCode;
-        this.latestPrice = latestPrice;
+        this.price = price;
         this.unit = unit;
         this.date = date;
     }
@@ -30,8 +30,8 @@ public class PetroleumLatestPriceDTO {
         return hsCode;
     }
 
-    public Double getLatestPrice() {
-        return latestPrice;
+    public Double getPrice() {
+        return price;
     }
 
     public String getUnit() {
@@ -51,8 +51,8 @@ public class PetroleumLatestPriceDTO {
         this.hsCode = hsCode;
     }
 
-    public void setLatestPrice(Double latestPrice) {
-        this.latestPrice = latestPrice;
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
     public void setUnit(String unit) {
@@ -65,10 +65,10 @@ public class PetroleumLatestPriceDTO {
 
     @Override
     public String toString() {
-        return "PetroleumLatestPriceDTO{" +
+        return "PetroleumPriceDTO{" +
                 "name='" + name + '\'' +
                 ", hsCode='" + hsCode + '\'' +
-                ", latestPrice=" + latestPrice +
+                ", price=" + price +
                 ", unit='" + unit + '\'' +
                 ", date=" + date +
                 '}';

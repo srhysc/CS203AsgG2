@@ -19,12 +19,6 @@ type VatRateResponse = {
   lastUpdated: string
 }
 
-function isEqual(obj1: VATRate, obj2: VATRate): boolean {
-  return (Object.keys(obj1) as Array<keyof VATRate>).every(
-    key => obj2[key] === obj1[key]
-  )
-}
-
 export default function EditVATRatesPage() {
   const { getToken } = useAuth()
   const [tableData, setTableData] = React.useState<VATRate[]>([])
@@ -65,13 +59,12 @@ export default function EditVATRatesPage() {
 
   const handleSaveVATRate = async (updatedVATRate: VATRate) => {
   const original = tableData.find(a => a.id === updatedVATRate.id)
-  if (original && isEqual(original, updatedVATRate)) {
+  if (original && original.vatRate === updatedVATRate.vatRate) {
     toast.info("No changes detected.")
     return
   }
 
   try {
-    console.log("Saving VAT rate:", updatedVATRate)
     const token = await getToken()
 
     const response = await fetch(

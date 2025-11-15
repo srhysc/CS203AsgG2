@@ -40,12 +40,7 @@ export const tariffColumns: ColumnDef<Tariff>[] = [
     meta: { label: "Tariff Rate" },
     cell: ({ row }) => {
       const rate = Number(row.getValue("tariffRate"))
-      return isNaN(rate)
-        ? "-"
-        : new Intl.NumberFormat("en-US", {
-            style: "percent",
-            minimumFractionDigits: 2,
-          }).format(rate)
+      return isNaN(rate) ? "-" : `${rate.toFixed(2)}%`
     },
   },
 
