@@ -186,7 +186,7 @@ export default function EditTariffsPage() {
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col text-gray-900 dark:text-gray-100 transition-colors">
       <Toaster />
-      <Link to="/Linkdministrator" className="btn-slate absolute top-6 right-6">
+      <Link to="/administrator" className="btn-slate absolute top-6 right-6">
         Back
       </Link>
       <div className="relative flex items-center justify-between mb-6">

@@ -23,7 +23,7 @@ import com.cs203.grp2.Asg2.models.UserSavedRoute;
 
 @RestController
 @RequestMapping("users")
-public class UserCoantroller {
+public class UserController {
 
     private final UserService userService;
 
