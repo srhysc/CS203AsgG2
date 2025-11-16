@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input"
 const formSchema = z.object({
   id: z.string(),
   originCountry: z.string(),
-  originCountryIso3: z.string().min(2, "Missing ISO3 code"),  // ✅ new
+  originCountryIso3: z.string().min(2, "Missing ISO3 code"),  
   destinationCountry: z.string(),
-  destinationCountryIso3: z.string().min(2, "Missing ISO3 code"), // ✅ new
+  destinationCountryIso3: z.string().min(2, "Missing ISO3 code"), 
   costPerTon: z.number().nonnegative(),
   costPerBarrel: z.number().nonnegative(),
   costPerMMBtu: z.number().nonnegative(),
@@ -50,7 +50,6 @@ export function EditShippingFeeForm({
       lastUpdated: hasChanged ? today : defaultValues.lastUpdated,
     }
 
-    console.log("Submitting form values →", updatedValues) // ✅ helpful debug log
     await onSubmit(updatedValues)
   }
 
@@ -61,8 +60,8 @@ export function EditShippingFeeForm({
 
         {/* Hidden ID + ISO3 fields */}
         <input type="hidden" {...register("id")} />
-        <input type="hidden" {...register("originCountryIso3")} /> {/* ✅ */}
-        <input type="hidden" {...register("destinationCountryIso3")} /> {/* ✅ */}
+        <input type="hidden" {...register("originCountryIso3")} /> 
+        <input type="hidden" {...register("destinationCountryIso3")} /> 
 
         {/* Origin Country (read-only) */}
         <div className="flex flex-col">
@@ -95,6 +94,7 @@ export function EditShippingFeeForm({
           <label className="text-sm font-medium">Cost per Ton</label>
           <Input
             {...register("costPerTon", { valueAsNumber: true })}
+            placeholder="0.00"
             type="number"
             step="0.01"
             className="w-full h-9 text-sm"
@@ -106,6 +106,7 @@ export function EditShippingFeeForm({
           <label className="text-sm font-medium">Cost per Barrel</label>
           <Input
             {...register("costPerBarrel", { valueAsNumber: true })}
+            placeholder="0.00"
             type="number"
             step="0.01"
             className="w-full h-9 text-sm"
@@ -117,6 +118,7 @@ export function EditShippingFeeForm({
           <label className="text-sm font-medium">Cost per MMBtu</label>
           <Input
             {...register("costPerMMBtu", { valueAsNumber: true })}
+            placeholder="0.00"
             type="number"
             step="0.01"
             className="w-full h-9 text-sm"

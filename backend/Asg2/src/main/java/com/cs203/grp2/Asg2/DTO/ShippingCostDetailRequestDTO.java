@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ShippingCostDetailRequestDTO {
     @JsonProperty("cost_per_unit")
-    private double costPerUnit;
+    private Double costPerUnit;
     private String unit;
-    public double getCostPerUnit() {
+    public Double getCostPerUnit() {
         return costPerUnit;
     }
-    public void setCostPerUnit(double costPerUnit) {
+    public void setCostPerUnit(Double costPerUnit) {
         this.costPerUnit = costPerUnit;
     }
     public String getUnit() {

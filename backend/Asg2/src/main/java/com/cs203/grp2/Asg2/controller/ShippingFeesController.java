@@ -102,6 +102,10 @@ public class ShippingFeesController {
                         if (barrel != null) {
                             flat.put("barrel", Double.valueOf(barrel.getCostPerUnit()));
                         }
+                        ShippingCostDetailResponseDTO mmbtu = costs.get("mmbtu");
+                        if (mmbtu != null) {
+                            flat.put("mmbtu", Double.valueOf(mmbtu.getCostPerUnit()));
+                        }
                     }
                     
                     flattened.add(flat);
@@ -115,8 +119,8 @@ public class ShippingFeesController {
 
     @PostMapping
     public ShippingFeeResponseDTO addOrUpdateShippingFee(@RequestBody ShippingFeeRequestDTO requestDTO) {
-System.out.println("HITTING CONTROLLER: " );
-System.out.println("FEES: " + requestDTO.getShippingFees());
+        System.out.println("HITTING CONTROLLER: " );
+        System.out.println("FEES: " + requestDTO.getShippingFees());
 
         return shippingFeesService.addOrUpdateShippingFee(requestDTO);
     }

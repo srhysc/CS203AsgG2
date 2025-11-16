@@ -19,6 +19,7 @@ type FlattenedShippingFee = {
   date?: string
   ton?: number | null
   barrel?: number | null
+  mmbtu?: number | null
   lastUpdated?: string
 }
 
@@ -52,7 +53,7 @@ export default function EditShippingFeesPage() {
           destinationCountryIso3: entry.country2.iso3,
           costPerTon: entry.ton != null ? Number(entry.ton) : 0,
           costPerBarrel: entry.barrel != null ? Number(entry.barrel) : 0,
-          costPerMMBtu: 0,
+          costPerMMBtu: entry.mmbtu != null ? Number(entry.mmbtu) : 0,
           lastUpdated: entry.lastUpdated || entry.date || "" 
         }))
 
@@ -69,11 +70,21 @@ export default function EditShippingFeesPage() {
   }, [getToken])
 
   const handleSaveShippingFee = async (newFee: ShippingFee) => {
+    const original = tableData.find(f => f.id === newFee.id)
+
+    if (
+      original &&
+      original.costPerTon === newFee.costPerTon &&
+      original.costPerBarrel === newFee.costPerBarrel &&
+      original.costPerMMBtu === newFee.costPerMMBtu
+    ) {
+      toast.info("No changes detected.")
+      return
+    }
+
     try {
       const backend = `${API_BASE}/shipping-fees`
       const token = await getToken()
-
-console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newFee.destinationCountryIso3)
       
       const response = await fetch(backend, {
         method: "POST",
@@ -97,7 +108,11 @@ console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newF
                 barrel: {
                   cost_per_unit: Number(newFee.costPerBarrel),
                   unit: "barrel"
-                }
+                },
+                mmbtu: { 
+                  cost_per_unit: Number(newFee.costPerMMBtu), 
+                  unit: "mmbtu" }
+
               }
             }
           ]
@@ -125,7 +140,7 @@ console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newF
         destinationCountryIso3: entry.country2.iso3,
         costPerTon: entry.ton != null ? Number(entry.ton) : 0,
         costPerBarrel: entry.barrel != null ? Number(entry.barrel) : 0,
-        costPerMMBtu: 0,
+        costPerMMBtu: entry.mmbtu != null ? Number(entry.mmbtu) : 0,
         lastUpdated: entry.lastUpdated || entry.date || ""
       }))
 
@@ -164,7 +179,7 @@ console.log("iso3 origin: ", newFee.originCountryIso3, "iso3 desintation:", newF
                 defaultValues={row}
                 onCancel={onCancel}
                 onSubmit={(values) => {
-console.log("PUSHING VALUES - COST PER TON:", values.costPerTon, "MBTU: ", values.costPerMMBtu, "PERBARREL: ", values.costPerBarrel )
+                console.log("PUSHING VALUES - COST PER TON:", values.costPerTon, "MBTU: ", values.costPerMMBtu, "PERBARREL: ", values.costPerBarrel )
                   onSave(values)
                   handleSaveShippingFee(values)
                 }}

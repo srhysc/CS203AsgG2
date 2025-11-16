@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,7 +40,7 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
     private FirebaseDatabase firebaseDatabase;
 
     private static final Logger logger = LoggerFactory.getLogger(ShippingFeesServiceImpl.class);
-    private static final Set<String> ALLOWED_UNITS = Set.of("barrel", "ton");
+    private static final Set<String> ALLOWED_UNITS = Set.of("barrel", "ton", "mmbtu");
 
     private final List<ShippingFee> shippingFeeList = new ArrayList<>();
     private final Map<String, ShippingFeeResponseDTO> overrideCache = new ConcurrentHashMap<>();
@@ -142,6 +143,37 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
 
     @Override
     public ShippingFeeResponseDTO addOrUpdateShippingFee(ShippingFeeRequestDTO requestDTO) {
+        validateRequest(requestDTO);
+        List<ShippingFeeEntryResponseDTO> sanitizedEntries = sanitizeEntries(requestDTO.getShippingFees());
+
+        try {
+            DatabaseReference ref = firebaseDatabase.getReference("Shipping_cost");
+            DataSnapshot snapshot = fetchSnapshot(ref);
+
+            String key = findExistingKey(snapshot, requestDTO.getCountry1Iso3(), requestDTO.getCountry2Iso3());
+
+            if (key != null) {
+                // Update existing
+                DatabaseReference entriesRef = ref.child(key).child("shipping_fees");
+                for (ShippingFeeEntryResponseDTO entry : sanitizedEntries) {
+                    Map<String, Object> entryMap = buildEntryMap(entry);
+                    entriesRef.push().setValueAsync(entryMap);
+                }
+            } else {
+                String newKey = ref.push().getKey();
+                Map<String, Object> feeMap = buildFeeMap(requestDTO, sanitizedEntries);
+                ref.child(newKey).setValueAsync(feeMap);
+            }
+
+            return findShippingFee(requestDTO.getCountry1Iso3(), requestDTO.getCountry2Iso3());
+
+        } catch (Exception e) {
+            logger.error("Error writing shipping fee", e);
+            return null;
+        }
+    }
+
+    private void validateRequest(ShippingFeeRequestDTO requestDTO) {
         if (requestDTO == null) {
             throw new IllegalArgumentException("Shipping fee request body cannot be null.");
         }
@@ -151,18 +183,68 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
         if (isBlank(requestDTO.getCountry1Name()) || isBlank(requestDTO.getCountry2Name())) {
             throw new IllegalArgumentException("Both origin and destination country names are required.");
         }
-
-        List<ShippingFeeEntryResponseDTO> sanitizedEntries = sanitizeEntries(requestDTO.getShippingFees());
-        ShippingFeeResponseDTO base;
-        try {
-            base = findShippingFee(requestDTO.getCountry1Iso3(), requestDTO.getCountry2Iso3());
-        } catch (Exception e) {
-            base = null;
+        if (requestDTO.getShippingFees() == null || requestDTO.getShippingFees().isEmpty()) {
+            throw new IllegalArgumentException("At least one shipping fee entry is required.");
         }
+    }
 
-        ShippingFeeResponseDTO merged = mergeEntries(base, requestDTO, sanitizedEntries);
-        overrideCache.put(buildRouteKey(requestDTO.getCountry1Iso3(), requestDTO.getCountry2Iso3()), merged);
-        return deepCopy(merged);
+    private String findExistingKey(DataSnapshot snapshot, String iso1, String iso2) {
+        if (snapshot == null || !snapshot.exists()) return null;
+        String reqC1 = iso1.trim().toUpperCase();
+        String reqC2 = iso2.trim().toUpperCase();
+
+        for (DataSnapshot feeSnap : snapshot.getChildren()) {
+            String c1 = feeSnap.child("country1").child("iso3").getValue(String.class);
+            String c2 = feeSnap.child("country2").child("iso3").getValue(String.class);
+            if (c1 != null) c1 = c1.trim().toUpperCase();
+            if (c2 != null) c2 = c2.trim().toUpperCase();
+
+            if (c1 != null && c2 != null &&
+                ((c1.equals(reqC1) && c2.equals(reqC2)) || (c1.equals(reqC2) && c2.equals(reqC1)))) {
+                return feeSnap.getKey();
+            }
+        }
+        return null;
+    }
+
+    private Map<String, Object> buildEntryMap(ShippingFeeEntryResponseDTO entry) {
+        Map<String, Object> entryMap = new HashMap<>();
+        entryMap.put("date", entry.getDate().toString());
+        if (entry.getCosts() != null) {
+            for (Map.Entry<String, ShippingCostDetailResponseDTO> cost : entry.getCosts().entrySet()) {
+                Map<String, Object> costMap = new HashMap<>();
+                costMap.put("cost_per_unit", cost.getValue().getCostPerUnit());
+                costMap.put("unit", cost.getValue().getUnit());
+                entryMap.put(cost.getKey(), costMap);
+            }
+        }
+        return entryMap;
+    }
+
+    private Map<String, Object> buildFeeMap(ShippingFeeRequestDTO requestDTO,
+                                        List<ShippingFeeEntryResponseDTO> entries) {
+        Map<String, Object> feeMap = new HashMap<>();
+
+        Map<String, Object> country1Map = new HashMap<>();
+        country1Map.put("name", requestDTO.getCountry1Name());
+        country1Map.put("iso3", requestDTO.getCountry1Iso3());
+        country1Map.put("iso_numeric", requestDTO.getCountry1IsoNumeric());
+
+        Map<String, Object> country2Map = new HashMap<>();
+        country2Map.put("name", requestDTO.getCountry2Name());
+        country2Map.put("iso3", requestDTO.getCountry2Iso3());
+        country2Map.put("iso_numeric", requestDTO.getCountry2IsoNumeric());
+
+        feeMap.put("country1", country1Map);
+        feeMap.put("country2", country2Map);
+
+        Map<String, Object> entriesMap = new HashMap<>();
+        for (ShippingFeeEntryResponseDTO entry : entries) {
+            entriesMap.put(UUID.randomUUID().toString(), buildEntryMap(entry));
+        }
+        feeMap.put("shipping_fees", entriesMap);
+
+        return feeMap;
     }
 
     private void loadShippingFees() throws Exception {

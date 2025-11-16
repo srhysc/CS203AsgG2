@@ -187,15 +187,10 @@ export function DataTable<T extends Identifiable>({
 
       {/* Table with fixed size */}
       <div 
-        className="overflow-hidden rounded-md border"
-        style={{ 
-          height: tableHeight,
-          display: tableHeight !== 'auto' ? 'flex' : 'block',
-          flexDirection: 'column'
-        }}
+        className="rounded-md border"
       >
         <div className={tableHeight !== 'auto' ? 'overflow-auto flex-1' : 'overflow-auto'}>
-          <Table className="w-full table-fixed">
+          <Table className="min-w-full table-fixed">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>

@@ -118,7 +118,8 @@ export default function EditProductPricesPage() {
   }
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col text-gray-900 dark:text-gray-100 transition-colors">
+    // <div className="h-screen w-screen overflow-hidden flex flex-col text-gray-900 dark:text-gray-100 transition-colors">
+    <div className="min-h-screen w-screen overflow-y-auto flex flex-col text-gray-900 dark:text-gray-100 transition-colors">
       <Toaster />
       <Link to="/administrator" className="btn-slate absolute top-6 right-6">Back</Link>
 
@@ -132,7 +133,7 @@ export default function EditProductPricesPage() {
             columns={productPriceColumns}
             data={productPrices}
             setData={setProductPrices}
-            filterPlaceholder="Search by product name or code..."
+            filterPlaceholder="Search..."
             renderRowEditForm={(row, onSave, onCancel) => (
               <EditProductPriceForm
                 defaultValues={row}

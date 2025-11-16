@@ -1,4 +1,3 @@
-
 import { Bar, BarChart, YAxis, XAxis } from "recharts"
 import { useState } from "react"
 
