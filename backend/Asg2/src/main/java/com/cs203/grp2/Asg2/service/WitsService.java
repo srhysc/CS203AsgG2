@@ -130,15 +130,52 @@ public class WitsService {
     }
 
     private Optional<WitsTariff> findMfnFromDb(TariffRequestDTO req) {
-        
-        System.out.println("🎣 checking db for " + "/Tariff/mfnRates/" + req.importerIso3() + "/0" + "/MFNave");
+        String basePath = "/Tariff/mfnRates/" + req.importerIso3();
+        int requestedYear = req.date().getYear();
         try {
-            // Adjust to your MFN/normal-rate location if you keep one
-            Double rate = readDouble("/Tariff/mfnRates/" + req.importerIso3() + "/0/" + "MFNave");
-            if (rate == null) return Optional.empty();
+            DataSnapshot importerNode = await(firebase.getReference(basePath));
+            if (!importerNode.exists()) {
+                return Optional.empty();
+            }
+
+            DataSnapshot bestYearNode = null;
+            int bestYear = Integer.MIN_VALUE;
+
+            for (DataSnapshot yearNode : importerNode.getChildren()) {
+                String yearKey = yearNode.getKey();
+                if (yearKey == null) continue;
+                int year;
+                try {
+                    year = Integer.parseInt(yearKey);
+                } catch (NumberFormatException ignored) {
+                    // e.g. legacy "0" bucket; skip for now
+                    continue;
+                }
+
+                if (year <= requestedYear && year > bestYear && yearNode.hasChild("MFNave")) {
+                    bestYear = year;
+                    bestYearNode = yearNode;
+                }
+            }
+
+            Double rate = null;
+            String sourceYear = null;
+            if (bestYearNode != null) {
+                rate = bestYearNode.child("MFNave").getValue(Double.class);
+                sourceYear = bestYearNode.getKey();
+            } else if (importerNode.hasChild("0/MFNave")) {
+                // Fallback to the legacy averaged bucket if no year <= requestedYear
+                rate = importerNode.child("0").child("MFNave").getValue(Double.class);
+                sourceYear = "0";
+            }
+
+            if (rate == null) {
+                return Optional.empty();
+            }
+
             return Optional.of(new WitsTariff(
-                    req.importerIso3(), req.exporterIso3(), req.hs6(), req.date(),
-                    normalize(rate), "mfn", "DB: MFN HS6"));
+                    req.importerIso3() , req.exporterIso3(), req.hs6(), req.date(),
+                    normalize(rate), "mfn", "DB: MFN year " + sourceYear));
         } catch (Exception e) {
             log.warn("MFN DB lookup failed: {}", e.getMessage());
             return Optional.empty();
