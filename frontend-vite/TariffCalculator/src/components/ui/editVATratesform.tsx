@@ -43,13 +43,19 @@ const { register, handleSubmit, formState: { errors, isSubmitting } } = methods;
   
 
 const handleFormSubmit = async (values: EditVATRateFormValues) => {
-    const hasChanged = values.vatRate !== defaultValues.vatRate;
-    const updatedValues = {
+  const hasChanged = values.vatRate !== defaultValues.vatRate;
+
+  const updatedValues = {
     ...values,
-    lastUpdated: hasChanged ? new Date().toISOString().split('T')[0] : defaultValues.lastUpdated,
-    };
-    await onSubmit(updatedValues);
+    lastUpdated: hasChanged
+      ? new Date().toISOString().split("T")[0]
+      : values.lastUpdated || defaultValues.lastUpdated ||
+        new Date().toISOString().split("T")[0]
+  };
+
+  await onSubmit(updatedValues);
 };
+
  
 return (
     <FormProvider {...methods}>
@@ -97,10 +103,13 @@ return (
             Last Updated (will be set to today)
           </label>
           <Input
-            value={new Date().toISOString().split('T')[0]}
-            readOnly
-            tabIndex={-1}
-            className="w-full h-9 text-sm bg-gray-100 dark:bg-gray-700"
+            type="date"
+            {...register("lastUpdated")}
+            defaultValue={
+              defaultValues.lastUpdated ||
+              new Date().toISOString().split("T")[0]
+            }
+            className="w-full h-9 text-sm"
           />
         </div>
 

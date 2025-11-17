@@ -14,5 +14,7 @@ public class ShippingCostDetail {
     public double getCostPerUnit() { return costPerUnit; }
     public void setCostPerUnit(double costPerUnit) { this.costPerUnit = costPerUnit; }
     public String getUnit() { return unit; }
-    public void setUnit(String unit) { this.unit = unit; }
+    public void setUnit(String unit) {
+    this.unit = (unit == null) ? null : unit.toLowerCase();
+    }
 }

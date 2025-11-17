@@ -44,8 +44,9 @@ public class UserController {
     }
 
     @PutMapping("/role")
-    public void updateRole(@RequestBody User.Role newRole) throws ExecutionException, InterruptedException {
+    public void updateRole(@RequestBody Map<String, String> body) throws ExecutionException, InterruptedException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User.Role newRole = User.Role.valueOf(body.get("role")); // Convert string to enum
         userService.updateUserRole(user.getId(), newRole);
     }
 

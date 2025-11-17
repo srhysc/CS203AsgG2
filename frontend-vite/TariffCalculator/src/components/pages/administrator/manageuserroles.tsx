@@ -64,13 +64,13 @@ export default function ManageUsersPage() {
     try {
       const token = await getToken()
 
-      const res = await fetch(`${API_BASE}/users/${updatedUser.id}/role`, {
+      const res = await fetch(`${API_BASE}/users/role`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(updatedUser.currentRole),
+        body: JSON.stringify({ role: updatedUser.currentRole })
       })
 
       if (!res.ok) {

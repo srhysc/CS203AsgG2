@@ -40,7 +40,7 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
     private FirebaseDatabase firebaseDatabase;
 
     private static final Logger logger = LoggerFactory.getLogger(ShippingFeesServiceImpl.class);
-    private static final Set<String> ALLOWED_UNITS = Set.of("barrel", "ton", "mmbtu");
+    private static final Set<String> ALLOWED_UNITS = Set.of("barrel", "ton","mmbtu");
 
     private final List<ShippingFee> shippingFeeList = new ArrayList<>();
     private final Map<String, ShippingFeeResponseDTO> overrideCache = new ConcurrentHashMap<>();
@@ -157,12 +157,12 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
                 DatabaseReference entriesRef = ref.child(key).child("shipping_fees");
                 for (ShippingFeeEntryResponseDTO entry : sanitizedEntries) {
                     Map<String, Object> entryMap = buildEntryMap(entry);
-                    entriesRef.push().setValueAsync(entryMap);
+                    entriesRef.push().setValueAsync(entryMap).get();
                 }
             } else {
                 String newKey = ref.push().getKey();
                 Map<String, Object> feeMap = buildFeeMap(requestDTO, sanitizedEntries);
-                ref.child(newKey).setValueAsync(feeMap);
+                ref.child(newKey).setValueAsync(feeMap).get();
             }
 
             return findShippingFee(requestDTO.getCountry1Iso3(), requestDTO.getCountry2Iso3());
@@ -184,7 +184,7 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
             throw new IllegalArgumentException("Both origin and destination country names are required.");
         }
         if (requestDTO.getShippingFees() == null || requestDTO.getShippingFees().isEmpty()) {
-            throw new IllegalArgumentException("At least one shipping fee entry is required.");
+            requestDTO.setShippingFees(new ArrayList<>());
         }
     }
 

@@ -39,19 +39,23 @@ export function EditShippingFeeForm({
   const { register, handleSubmit, formState: { errors, isSubmitting } } = methods
 
   const handleFormSubmit = async (values: EditShippingFeeFormValues) => {
+    const today = new Date().toISOString().split("T")[0];
+
     const hasChanged =
       values.costPerTon !== defaultValues.costPerTon ||
       values.costPerBarrel !== defaultValues.costPerBarrel ||
-      values.costPerMMBtu !== defaultValues.costPerMMBtu
+      values.costPerMMBtu !== defaultValues.costPerMMBtu;
 
-    const today = new Date().toISOString().split("T")[0]
     const updatedValues = {
       ...values,
-      lastUpdated: hasChanged ? today : defaultValues.lastUpdated,
-    }
+      lastUpdated: hasChanged
+        ? today
+        : values.lastUpdated || defaultValues.lastUpdated || today,
+    };
 
-    await onSubmit(updatedValues)
-  }
+    await onSubmit(updatedValues);
+  };
+
 
   return (
     <FormProvider {...methods}>
@@ -126,15 +130,20 @@ export function EditShippingFeeForm({
           {errors.costPerMMBtu && <p className="text-xs text-red-600">{errors.costPerMMBtu.message}</p>}
         </div>
 
-        {/* Last Updated (display only) */}
+        {/* Last Updated (editable) */}
         <div className="flex flex-col">
           <label className="text-sm font-medium">Last Updated</label>
           <Input
-            value={new Date().toISOString().split("T")[0]}
-            readOnly
-            className="w-full h-9 text-sm bg-gray-100 dark:bg-gray-700"
+            type="date"
+            {...register("lastUpdated")}
+            defaultValue={
+              defaultValues.lastUpdated ||
+              new Date().toISOString().split("T")[0]
+            }
+            className="w-full h-9 text-sm"
           />
         </div>
+
 
         {/* Buttons */}
         <div className="flex justify-end gap-2 pt-3">

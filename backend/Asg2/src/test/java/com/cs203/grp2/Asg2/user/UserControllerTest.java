@@ -20,6 +20,10 @@ import java.util.concurrent.CompletableFuture;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Map;
+import java.util.HashMap;
+
+
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
 
@@ -93,8 +97,10 @@ class UserControllerTest {
         // Arrange
         doNothing().when(userService).updateUserRole("user123", Role.ADMIN);
 
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("role", Role.ADMIN.name());
         // Act
-        userController.updateRole(Role.ADMIN);
+        userController.updateRole(requestBody);
 
         // Assert
         verify(userService).updateUserRole("user123", Role.ADMIN);
@@ -130,8 +136,11 @@ class UserControllerTest {
         // Arrange
         doNothing().when(userService).updateUserRole("user123", Role.USER);
 
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("role", Role.USER.name());
+    
         // Act
-        userController.updateRole(Role.USER);
+        userController.updateRole(requestBody);
 
         // Assert
         verify(userService).updateUserRole("user123", Role.USER);

@@ -44,7 +44,6 @@ export default function TariffBreakdownTable({ tariffObject }: { tariffObject: T
       maximumFractionDigits: 2,
     }).format(value);
 
-  const formatPercentage = (value: number) => `${(value * 100).toFixed(2)}%`;
 
   return (
     <div className="p-6 max-w-7xl mx-auto">

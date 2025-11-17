@@ -88,7 +88,7 @@ public class SecurityConfig {
     // allowed domains to send cross-origin request
     configuration.setAllowedOrigins(Arrays.asList(
         "http://localhost:5173", // dev
-        "https://g2-tariff-git-main-shane-rhys-chuas-projects.vercel.app/" // production
+        "https://g2-tariff-git-main-shane-rhys-chuas-projects.vercel.app" // production
     ));
     // allow all methods and request headers and cookies
     configuration.setAllowedMethods(Arrays.asList("*"));

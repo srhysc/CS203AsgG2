@@ -47,13 +47,19 @@ const {
   
 
 const handleFormSubmit = async (values: EditTariffFormValues) => {
+  const today = new Date().toISOString().split("T")[0];
   const hasChanged = values.tariffRate !== defaultValues.tariffRate;
+
   const updatedValues = {
-  ...values,
-  lastUpdated: hasChanged ? new Date().toISOString().split('T')[0] : defaultValues.lastUpdated,
+    ...values,
+    lastUpdated: hasChanged
+      ? today
+      : values.lastUpdated || defaultValues.lastUpdated || today,
   };
+
   await onSubmit(updatedValues);
 };
+
 
 return (
     <FormProvider {...methods}>
@@ -95,18 +101,22 @@ return (
           )}
         </div>
 
-        {/* Last Updated (preview) */}
+        {/* Last Updated (editable) */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            Last Updated (will be set to today)
+            Last Updated
           </label>
           <Input
-            value={new Date().toISOString().split('T')[0]}
-            readOnly
-            tabIndex={-1}
-            className="w-full h-9 text-sm bg-gray-100 dark:bg-gray-700"
+            type="date"
+            {...register("lastUpdated")}
+            defaultValue={
+              defaultValues.lastUpdated ||
+              new Date().toISOString().split("T")[0]
+            }
+            className="w-full h-9 text-sm"
           />
         </div>
+
 
         {/* Action buttons */}
         <div className="flex justify-end gap-2 pt-3">
