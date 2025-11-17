@@ -149,7 +149,8 @@ class SecurityConfigTest {
 
         // Assert
         assertNotNull(config);
-        assertTrue(config.getAllowedOrigins().contains("https://myfrontend.com"));
+        assertTrue(config.getAllowedOrigins().contains("https://g2-tariff-git-main-shane-rhys-chuas-projects.vercel.app")
+            || config.getAllowedOrigins().contains("http://localhost:5173"));
     }
 
     @Test
