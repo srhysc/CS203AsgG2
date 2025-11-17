@@ -74,7 +74,9 @@ export default function EditTariffsPage() {
         body: JSON.stringify({
           countryIso3: updatedTariff.importingCountry,
           mfnAve: updatedTariff.tariffRate,
-          year: new Date(updatedTariff.lastUpdated).getFullYear(),
+          year: updatedTariff.lastUpdated
+            ? new Date(updatedTariff.lastUpdated).getFullYear()
+            : new Date().getFullYear() // fallback if undefined
         }),
       })
 

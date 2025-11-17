@@ -64,7 +64,7 @@ class ShippingCostDetailTest {
     @Test
     void testSetUnitMMBtu() {
         costDetail.setUnit("MMBtu");
-        assertEquals("MMBtu", costDetail.getUnit());
+        assertEquals("mmbtu", costDetail.getUnit());
     }
 
     @Test

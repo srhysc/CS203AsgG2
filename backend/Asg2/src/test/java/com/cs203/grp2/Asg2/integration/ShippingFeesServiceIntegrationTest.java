@@ -220,7 +220,7 @@ public class ShippingFeesServiceIntegrationTest extends BaseFirebaseIntegrationT
                     String unit = costEntry.getKey();
                     ShippingCostDetailResponseDTO detail = costEntry.getValue();
 
-                    assertTrue(unit.equals("barrel") || unit.equals("ton"),
+                    assertTrue(unit.equals("barrel") || unit.equals("ton") || unit.equals("mmbtu"),
                             "Unit key should be barrel or ton, but was: " + unit);
                     assertTrue(detail.getCostPerUnit() >= 0, "Cost cannot be negative");
                     // Unit field in detail contains full description like "USD per barrel"

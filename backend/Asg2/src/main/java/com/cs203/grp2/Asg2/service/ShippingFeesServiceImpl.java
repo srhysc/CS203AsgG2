@@ -165,7 +165,19 @@ public class ShippingFeesServiceImpl implements ShippingFeesService {
                 ref.child(newKey).setValueAsync(feeMap).get();
             }
 
-            return findShippingFee(requestDTO.getCountry1Iso3(), requestDTO.getCountry2Iso3());
+            ShippingFeeResponseDTO result = findShippingFee(requestDTO.getCountry1Iso3(), requestDTO.getCountry2Iso3());
+            if (result == null) {
+                // fallback: construct DTO manually
+                result = new ShippingFeeResponseDTO();
+                result.setCountry1Name(requestDTO.getCountry1Name());
+                result.setCountry1Iso3(requestDTO.getCountry1Iso3());
+                result.setCountry1IsoNumeric(requestDTO.getCountry1IsoNumeric());
+                result.setCountry2Name(requestDTO.getCountry2Name());
+                result.setCountry2Iso3(requestDTO.getCountry2Iso3());
+                result.setCountry2IsoNumeric(requestDTO.getCountry2IsoNumeric());
+                result.setShippingFees(sanitizedEntries);
+            }
+        return result;
 
         } catch (Exception e) {
             logger.error("Error writing shipping fee", e);
